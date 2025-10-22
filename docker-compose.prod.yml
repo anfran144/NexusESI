@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL para producción
+  mysql:
+    image: mysql:8.0
+    container_name: nexusesi_mysql_prod
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d
+    ports:
+      - "3306:3306"
+    networks:
+      - nexusesi_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Backend Laravel para producción
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile.prod
+    container_name: nexusesi_backend_prod
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=${APP_URL}
+      - DB_HOST=mysql
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+    volumes:
+      - backend_storage_prod:/var/www/html/storage
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    networks:
+      - nexusesi_network
+
+  # Frontend React para producción
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile.prod
+    container_name: nexusesi_frontend_prod
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - nexusesi_network
+
+  # Nginx con SSL para producción
+  nginx:
+    image: nginx:alpine
+    container_name: nexusesi_nginx_prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - nexusesi_network
+
+  # Redis para cache y sesiones
+  redis:
+    image: redis:7-alpine
+    container_name: nexusesi_redis_prod
+    restart: unless-stopped
+    volumes:
+      - redis_data_prod:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - nexusesi_network
+
+volumes:
+  mysql_data_prod:
+  backend_storage_prod:
+  redis_data_prod:
+
+networks:
+  nexusesi_network:
+    driver: bridge

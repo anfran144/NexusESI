@@ -1,0 +1,1 @@
+export { RoleDashboardWrapper, RoleProtected } from './RoleDashboardWrapper'

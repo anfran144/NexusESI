@@ -1,0 +1,319 @@
+{
+  "info": {
+    "name": "NexusESI - Email System API",
+    "description": "Colección de endpoints para el sistema de correo electrónico de NexusESI con SendGrid",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "nexusesi"
+  },
+  "item": [
+    {
+      "name": "Forgot Password",
+      "item": [
+        {
+          "name": "1. Send OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.otp) {",
+                  "        pm.environment.set('otp', jsonData.data.otp);",
+                  "        console.log('OTP guardado:', jsonData.data.otp);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/forgot-password/send-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forgot-password",
+                "send-otp"
+              ]
+            },
+            "description": "Envía un código OTP de 6 dígitos al correo electrónico proporcionado para recuperación de contraseña."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Verify OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.reset_token) {",
+                  "        pm.environment.set('reset_token', jsonData.data.reset_token);",
+                  "        console.log('Reset token guardado:', jsonData.data.reset_token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@example.com\",\n  \"otp\": \"{{otp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/forgot-password/verify-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forgot-password",
+                "verify-otp"
+              ]
+            },
+            "description": "Verifica el código OTP y devuelve un token de reset para restablecer la contraseña."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@example.com\",\n  \"reset_token\": \"{{reset_token}}\",\n  \"password\": \"NuevaPassword123\",\n  \"password_confirmation\": \"NuevaPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/forgot-password/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forgot-password",
+                "reset-password"
+              ]
+            },
+            "description": "Restablece la contraseña del usuario utilizando el token de reset obtenido en el paso anterior."
+          },
+          "response": []
+        }
+      ],
+      "description": "Flujo completo de recuperación de contraseña con OTP"
+    },
+    {
+      "name": "Email Verification",
+      "item": [
+        {
+          "name": "1. Send Verification OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.otp) {",
+                  "        pm.environment.set('verification_otp', jsonData.data.otp);",
+                  "        console.log('OTP de verificación guardado:', jsonData.data.otp);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/email-verification/send-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "email-verification",
+                "send-otp"
+              ]
+            },
+            "description": "Envía un código OTP de 6 dígitos para verificar el correo electrónico del usuario."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@example.com\",\n  \"otp\": \"{{verification_otp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/email-verification/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "email-verification",
+                "verify"
+              ]
+            },
+            "description": "Verifica el correo electrónico del usuario y actualiza el campo email_verified_at."
+          },
+          "response": []
+        }
+      ],
+      "description": "Verificación de correo electrónico para nuevos usuarios"
+    },
+    {
+      "name": "Auth (Contexto)",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.user && jsonData.user.email) {",
+                  "        pm.environment.set('user_email', jsonData.user.email);",
+                  "    }",
+                  "    if (jsonData.email_verification && jsonData.email_verification.otp) {",
+                  "        pm.environment.set('verification_otp', jsonData.email_verification.otp);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario de Prueba\",\n  \"email\": \"usuario@example.com\",\n  \"password\": \"Password123\",\n  \"password_confirmation\": \"Password123\",\n  \"institution_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "register"
+              ]
+            },
+            "description": "Registra un nuevo usuario. Si email_verification_on_registration está habilitado, también envía OTP de verificación."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.access_token) {",
+                  "        pm.environment.set('access_token', jsonData.access_token);",
+                  "        console.log('Token guardado:', jsonData.access_token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            },
+            "description": "Inicia sesión con email y contraseña."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints de autenticación para contexto"
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}
+

@@ -1,0 +1,82 @@
+# ============================================================================
+# SendGrid Email Configuration
+# ============================================================================
+# Instrucciones:
+# 1. Regístrate en SendGrid: https://sendgrid.com
+# 2. Crea una API Key en Settings → API Keys
+# 3. Selecciona permisos de "Mail Send"
+# 4. Verifica tu email en Settings → Sender Authentication
+# 5. Copia la API Key y configura según el método elegido
+#
+# ============================================================================
+
+# --- OPCIÓN A: Web API (Recomendado - Más Rápido) ⭐ ---
+# Esta es la configuración usada en NexusESI
+MAIL_MAILER=sendgrid
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+MAIL_FROM_ADDRESS=tu_email_verificado@tudominio.com
+MAIL_FROM_NAME="${APP_NAME}"
+
+# Paquetes necesarios (ya instalados):
+# composer require symfony/sendgrid-mailer
+# composer require symfony/http-client
+
+# --- OPCIÓN B: SMTP (Alternativa) ---
+# Descomenta estas líneas y comenta las de arriba si prefieres SMTP
+# MAIL_MAILER=smtp
+# MAIL_HOST=smtp.sendgrid.net
+# MAIL_PORT=587
+# MAIL_USERNAME=apikey
+# MAIL_PASSWORD=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# MAIL_ENCRYPTION=tls
+# MAIL_FROM_ADDRESS=noreply@nexusesi.com
+# MAIL_FROM_NAME="${APP_NAME}"
+
+# ============================================================================
+# Configuración de Seguridad para OTP
+# ============================================================================
+
+# Tiempo de expiración de códigos OTP (en minutos)
+OTP_EXPIRATION_MINUTES=15
+
+# Máximo de intentos para verificación OTP
+MAX_OTP_ATTEMPTS=5
+
+# Rate limiting para solicitudes de OTP (solicitudes por minuto)
+RATE_LIMIT_PER_MINUTE=60
+
+# ============================================================================
+# Configuración Alternativa: Development/Testing
+# ============================================================================
+# Para desarrollo local, puedes usar el driver 'log' para ver los emails
+# en storage/logs/laravel.log en lugar de enviarlos realmente
+#
+# MAIL_MAILER=log
+# MAIL_LOG_CHANNEL=
+#
+# ============================================================================
+
+# ============================================================================
+# Otros Proveedores de Email (Comentados)
+# ============================================================================
+
+# --- AWS SES ---
+# MAIL_MAILER=ses
+# AWS_ACCESS_KEY_ID=your_access_key
+# AWS_SECRET_ACCESS_KEY=your_secret_key
+# AWS_DEFAULT_REGION=us-east-1
+
+# --- Mailgun ---
+# MAIL_MAILER=mailgun
+# MAILGUN_DOMAIN=mg.yourdomain.com
+# MAILGUN_SECRET=your_mailgun_secret
+# MAILGUN_ENDPOINT=api.mailgun.net
+
+# --- Postmark ---
+# MAIL_MAILER=postmark
+# POSTMARK_TOKEN=your_postmark_token
+
+# --- Resend ---
+# MAIL_MAILER=resend
+# RESEND_KEY=your_resend_key
+
