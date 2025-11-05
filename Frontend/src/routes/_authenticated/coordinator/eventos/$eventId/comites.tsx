@@ -43,16 +43,15 @@ function ComitesPage() {
     return () => {
       clearSelectedEvent()
     }
-  }, [eventId, setSelectedEvent, clearSelectedEvent])
+  }, [eventId]) // ✅ Solo eventId como dependencia
 
   if (loading) {
     return (
-      <DashboardLayout 
-        title="Cargando..."
-        description="Gestión de comités del evento"
-        showFooter={false}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={false}>
+        <DashboardContent
+          title="Cargando..."
+          description="Gestión de comités de trabajo del evento"
+        >
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -66,12 +65,11 @@ function ComitesPage() {
 
   if (!event) {
     return (
-      <DashboardLayout 
-        title="Evento no encontrado"
-        description="Gestión de comités del evento"
-        showFooter={false}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={false}>
+        <DashboardContent
+          title="Evento no encontrado"
+          description="Gestión de comités de trabajo del evento"
+        >
           <div className="container mx-auto py-6">
             <p className="text-center text-muted-foreground">Evento no encontrado</p>
           </div>
@@ -82,12 +80,11 @@ function ComitesPage() {
 
   return (
     <PermissionGuard permission="events.committees.manage">
-      <DashboardLayout 
-        title="Comités"
-        description={`Gestiona los comités de ${event.name}`}
-        showFooter={true}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={true}>
+        <DashboardContent
+          title="Comités de Trabajo"
+          description={`Gestiona los comités de trabajo del evento "${event.name}"`}
+        >
           <div className="space-y-6">
             <Button
               variant="ghost"

@@ -94,10 +94,20 @@ function SidebarMenuLink({ item, href }: { item: NavLink; href: string }) {
     if (url === '#' && selectedEventId) {
       if (item.title === 'Panel del Evento') {
         url = `/coordinator/eventos/${selectedEventId}`
-      } else if (item.title === 'Participantes') {
+      } else if (item.title === 'Líderes de Semillero') {
         url = `/coordinator/eventos/${selectedEventId}/participantes`
-      } else if (item.title === 'Comités') {
+      } else if (item.title === 'Comités de Trabajo') {
         url = `/coordinator/eventos/${selectedEventId}/comites`
+      } else if (item.title === 'Banco de Tareas') {
+        url = `/coordinator/eventos/${selectedEventId}/tasks` // ✅ Ruta contextual
+      } else if (item.title === 'Mis Tareas') {
+        url = `/coordinator/eventos/${selectedEventId}/my-tasks` // ✅ Ruta contextual
+      } else if (item.title === 'Monitoreo') {
+        url = `/coordinator/eventos/${selectedEventId}/monitoreo` // ✅ Ruta contextual
+      } else if (item.title === 'Incidencias') {
+        url = `/coordinator/eventos/${selectedEventId}/incidencias` // ✅ Ruta contextual
+      } else if (item.title === 'Calendario') {
+        url = `/coordinator/eventos/${selectedEventId}/calendario` // ✅ Ruta contextual
       }
     }
     
@@ -235,6 +245,40 @@ function SidebarMenuCollapsedDropdown({
 }
 
 function checkIsActive(href: string, item: NavItem, mainNav = false) {
+  // Para items con URL dinámica (#), verificar si la ruta actual coincide con el patrón esperado
+  if (item.url === '#') {
+    const { selectedEventId } = useEventContext.getState()
+    
+    if (selectedEventId) {
+      // Construir la URL esperada basada en el título del item
+      let expectedUrl = ''
+      
+      if (item.title === 'Panel del Evento') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}`
+      } else if (item.title === 'Líderes de Semillero') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}/participantes`
+      } else if (item.title === 'Comités de Trabajo') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}/comites`
+      } else if (item.title === 'Banco de Tareas') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}/tasks`
+      } else if (item.title === 'Mis Tareas') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}/my-tasks`
+      } else if (item.title === 'Monitoreo') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}/monitoreo`
+      } else if (item.title === 'Incidencias') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}/incidencias`
+      } else if (item.title === 'Calendario') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}/calendario`
+      }
+      
+      // Verificar si la URL actual coincide con la esperada
+      return href === expectedUrl || href.split('?')[0] === expectedUrl
+    }
+    
+    return false
+  }
+  
+  // Lógica original para URLs estáticas
   return (
     href === item.url || // /endpint?search=param
     href.split('?')[0] === item.url || // endpoint

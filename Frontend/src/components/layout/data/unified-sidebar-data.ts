@@ -7,8 +7,12 @@ import {
   Users, 
   Settings,
   Calendar,
+  Bell,
+  CheckSquare,
   FolderKanban,
-  Presentation
+  Presentation,
+  BarChart3,
+  AlertTriangle
 } from 'lucide-react'
 import { useEventContext } from '@/stores/event-context-store'
 
@@ -18,8 +22,9 @@ import { useEventContext } from '@/stores/event-context-store'
  * 
  * NUNCA usa roles directamente - solo permisos granulares
  */
-export function getUnifiedSidebarData(user: AuthUser): SidebarData {
+export function getUnifiedSidebarData(user: AuthUser, hasActiveEvent: boolean = false): SidebarData {
   const userPermissions = user.permissions || []
+  const isSeedbedLeader = user.roles?.some(role => role.name === 'seedbed_leader') || false
   
   // Determinar el plan según los permisos (solo para mostrar en UI)
   let plan = 'Usuario'
@@ -69,6 +74,50 @@ export function getUnifiedSidebarData(user: AuthUser): SidebarData {
             icon: LayoutDashboard,
             permission: 'seedbed_leader.dashboard.view'
           },
+          // Mi Evento - Seedbed Leader (Contextual)
+          {
+            title: 'Mi Evento',
+            url: '/seedbed-leader/mi-evento',
+            icon: Calendar,
+            permission: 'events.participate',
+            isVisible: () => {
+              // Solo visible si es líder de semillero y tiene un evento activo
+              return isSeedbedLeader && hasActiveEvent
+            }
+          },
+          // Tareas del Comité - Seedbed Leader (Contextual)
+          {
+            title: 'Tareas del Comité',
+            url: '/seedbed-leader/tareas-comite',
+            icon: Users,
+            permission: 'events.tasks.view',
+            isVisible: () => {
+              // Solo visible si es líder de semillero y tiene un evento activo
+              return isSeedbedLeader && hasActiveEvent
+            }
+          },
+                    // Mis Tareas - Seedbed Leader (Contextual)
+          {
+            title: 'Mis Tareas',
+            url: '/seedbed-leader/mis-tareas',
+            icon: CheckSquare,
+            permission: 'events.tasks.view_assigned',
+            isVisible: () => {
+              // Solo visible si es líder de semillero y tiene un evento activo
+              return isSeedbedLeader && hasActiveEvent
+            }
+          },
+          // Calendario - Seedbed Leader (Contextual)
+          {
+            title: 'Calendario',
+            url: '/seedbed-leader/mi-evento/calendario',
+            icon: Calendar,
+            permission: 'events.view',
+            isVisible: () => {
+              // Solo visible si es líder de semillero y tiene un evento activo
+              return isSeedbedLeader && hasActiveEvent
+            }
+          },
           // Instituciones - Admin
           {
             title: 'Instituciones',
@@ -90,20 +139,13 @@ export function getUnifiedSidebarData(user: AuthUser): SidebarData {
             icon: Settings,
             permission: 'admin.roles.manage'
           },
-          // Mis Eventos - Coordinator (Siempre visible)
+          // Mis Eventos - Coordinator (Solo coordinadores)
           {
             title: 'Mis Eventos',
             url: '/coordinator/eventos',
             icon: Calendar,
-            permission: 'events.view'
+            permission: 'coordinator.dashboard.view'
           },
-          // Eventos - Seedbed Leader
-          {
-            title: 'Eventos',
-            url: '/seedbed-leader/eventos',
-            icon: Calendar,
-            permission: 'events.participate'
-          }
         ]
       },
       // Grupo Contextual: Gestión del Evento
@@ -121,9 +163,9 @@ export function getUnifiedSidebarData(user: AuthUser): SidebarData {
               return selectedEventId !== null
             }
           },
-          // Participantes - Coordinator (Contextual)
+          // Líderes de Semillero - Coordinator (Contextual)
           {
-            title: 'Participantes',
+            title: 'Líderes de Semillero',
             url: '#', // Se construirá dinámicamente
             icon: Users,
             permission: 'events.manage_participants',
@@ -132,12 +174,67 @@ export function getUnifiedSidebarData(user: AuthUser): SidebarData {
               return selectedEventId !== null
             }
           },
-          // Comités - Coordinator (Contextual)
+          // Comités de Trabajo - Coordinator (Contextual)
           {
-            title: 'Comités',
+            title: 'Comités de Trabajo',
             url: '#', // Se construirá dinámicamente
             icon: FolderKanban,
             permission: 'events.committees.manage',
+            isVisible: () => {
+              const { selectedEventId } = useEventContext.getState()
+              return selectedEventId !== null
+            }
+          },
+          // Banco de Tareas - Coordinator (Contextual)
+          {
+            title: 'Banco de Tareas',
+            url: '#', // Se construirá dinámicamente
+            icon: CheckSquare,
+            permission: 'events.tasks.manage', // ✅ Nuevo permiso específico de eventos
+            isVisible: () => {
+              const { selectedEventId } = useEventContext.getState()
+              return selectedEventId !== null
+            }
+          },
+          // Mis Tareas - Seedbed Leader (Contextual)
+          {
+            title: 'Mis Tareas',
+            url: '#', // Se construirá dinámicamente
+            icon: CheckSquare,
+            permission: 'events.tasks.view_assigned', // ✅ Nuevo permiso específico de eventos
+            isVisible: () => {
+              const { selectedEventId } = useEventContext.getState()
+              return selectedEventId !== null
+            }
+          },
+          // Monitoreo - Coordinator (Contextual)
+          {
+            title: 'Monitoreo',
+            url: '#', // Se construirá dinámicamente
+            icon: BarChart3,
+            permission: 'events.tasks.manage', // Usar mismo permiso que gestión de tareas
+            isVisible: () => {
+              const { selectedEventId } = useEventContext.getState()
+              return selectedEventId !== null
+            }
+          },
+          // Incidencias - Coordinator (Contextual)
+          {
+            title: 'Incidencias',
+            url: '#', // Se construirá dinámicamente
+            icon: AlertTriangle,
+            permission: 'incidents.view', // Nuevo permiso específico para incidencias
+            isVisible: () => {
+              const { selectedEventId } = useEventContext.getState()
+              return selectedEventId !== null
+            }
+          },
+          // Calendario - Coordinator (Contextual)
+          {
+            title: 'Calendario',
+            url: '#', // Se construirá dinámicamente
+            icon: Calendar,
+            permission: 'events.view',
             isVisible: () => {
               const { selectedEventId } = useEventContext.getState()
               return selectedEventId !== null

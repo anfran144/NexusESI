@@ -13,20 +13,15 @@ export interface Committee {
     name: string
   }
   members_count: number
+  members?: CommitteeMember[]
   created_at: string
   updated_at: string
 }
 
 export interface CommitteeMember {
   id: number
-  user: {
-    id: number
-    name: string
-    email: string
-    institution?: {
-      nombre: string
-    }
-  }
+  name: string
+  email: string
   assigned_at: string
 }
 

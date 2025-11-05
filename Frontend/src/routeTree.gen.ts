@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedNotificacionesRouteImport } from './routes/_authenticated/notificaciones'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
@@ -31,15 +32,27 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedSeedbedLeaderTareasComiteRouteImport } from './routes/_authenticated/seedbed-leader/tareas-comite'
+import { Route as AuthenticatedSeedbedLeaderMisTareasRouteImport } from './routes/_authenticated/seedbed-leader/mis-tareas'
+import { Route as AuthenticatedSeedbedLeaderMiEventoRouteImport } from './routes/_authenticated/seedbed-leader/mi-evento'
 import { Route as AuthenticatedSeedbedLeaderEventosRouteImport } from './routes/_authenticated/seedbed-leader/eventos'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin/usuarios'
 import { Route as AuthenticatedAdminPermisosRouteImport } from './routes/_authenticated/admin/permisos'
 import { Route as AuthenticatedAdminInstitucionesRouteImport } from './routes/_authenticated/admin/instituciones'
 import { Route as AuthenticatedCoordinatorEventosIndexRouteImport } from './routes/_authenticated/coordinator/eventos/index'
+import { Route as AuthenticatedTasksCommitteeCommitteeIdRouteImport } from './routes/_authenticated/tasks/committee/$committeeId'
+import { Route as AuthenticatedTasksTaskIdAlertsRouteImport } from './routes/_authenticated/tasks/$taskId/alerts'
+import { Route as AuthenticatedSeedbedLeaderMiEventoCalendarioRouteImport } from './routes/_authenticated/seedbed-leader/mi-evento/calendario'
 import { Route as AuthenticatedCoordinatorEventosEventIdIndexRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/index'
+import { Route as AuthenticatedCoordinatorEventosEventIdTasksRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/tasks'
 import { Route as AuthenticatedCoordinatorEventosEventIdParticipantesRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/participantes'
+import { Route as AuthenticatedCoordinatorEventosEventIdMyTasksRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/my-tasks'
+import { Route as AuthenticatedCoordinatorEventosEventIdMonitoreoRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/monitoreo'
+import { Route as AuthenticatedCoordinatorEventosEventIdIncidenciasRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/incidencias'
 import { Route as AuthenticatedCoordinatorEventosEventIdComitesRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/comites'
+import { Route as AuthenticatedCoordinatorEventosEventIdCalendarioRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/calendario'
+import { Route as AuthenticatedCoordinatorEventosEventIdAlertsRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/alerts'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -50,6 +63,12 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificacionesRoute =
+  AuthenticatedNotificacionesRouteImport.update({
+    id: '/notificaciones',
+    path: '/notificaciones',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const errors503Route = errors503RouteImport.update({
   id: '/(errors)/503',
   path: '/503',
@@ -159,6 +178,24 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedSeedbedLeaderTareasComiteRoute =
+  AuthenticatedSeedbedLeaderTareasComiteRouteImport.update({
+    id: '/seedbed-leader/tareas-comite',
+    path: '/seedbed-leader/tareas-comite',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSeedbedLeaderMisTareasRoute =
+  AuthenticatedSeedbedLeaderMisTareasRouteImport.update({
+    id: '/seedbed-leader/mis-tareas',
+    path: '/seedbed-leader/mis-tareas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSeedbedLeaderMiEventoRoute =
+  AuthenticatedSeedbedLeaderMiEventoRouteImport.update({
+    id: '/seedbed-leader/mi-evento',
+    path: '/seedbed-leader/mi-evento',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSeedbedLeaderEventosRoute =
   AuthenticatedSeedbedLeaderEventosRouteImport.update({
     id: '/seedbed-leader/eventos',
@@ -195,10 +232,34 @@ const AuthenticatedCoordinatorEventosIndexRoute =
     path: '/coordinator/eventos/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTasksCommitteeCommitteeIdRoute =
+  AuthenticatedTasksCommitteeCommitteeIdRouteImport.update({
+    id: '/tasks/committee/$committeeId',
+    path: '/tasks/committee/$committeeId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTasksTaskIdAlertsRoute =
+  AuthenticatedTasksTaskIdAlertsRouteImport.update({
+    id: '/tasks/$taskId/alerts',
+    path: '/tasks/$taskId/alerts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSeedbedLeaderMiEventoCalendarioRoute =
+  AuthenticatedSeedbedLeaderMiEventoCalendarioRouteImport.update({
+    id: '/calendario',
+    path: '/calendario',
+    getParentRoute: () => AuthenticatedSeedbedLeaderMiEventoRoute,
+  } as any)
 const AuthenticatedCoordinatorEventosEventIdIndexRoute =
   AuthenticatedCoordinatorEventosEventIdIndexRouteImport.update({
     id: '/coordinator/eventos/$eventId/',
     path: '/coordinator/eventos/$eventId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCoordinatorEventosEventIdTasksRoute =
+  AuthenticatedCoordinatorEventosEventIdTasksRouteImport.update({
+    id: '/coordinator/eventos/$eventId/tasks',
+    path: '/coordinator/eventos/$eventId/tasks',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCoordinatorEventosEventIdParticipantesRoute =
@@ -207,10 +268,40 @@ const AuthenticatedCoordinatorEventosEventIdParticipantesRoute =
     path: '/coordinator/eventos/$eventId/participantes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCoordinatorEventosEventIdMyTasksRoute =
+  AuthenticatedCoordinatorEventosEventIdMyTasksRouteImport.update({
+    id: '/coordinator/eventos/$eventId/my-tasks',
+    path: '/coordinator/eventos/$eventId/my-tasks',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCoordinatorEventosEventIdMonitoreoRoute =
+  AuthenticatedCoordinatorEventosEventIdMonitoreoRouteImport.update({
+    id: '/coordinator/eventos/$eventId/monitoreo',
+    path: '/coordinator/eventos/$eventId/monitoreo',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCoordinatorEventosEventIdIncidenciasRoute =
+  AuthenticatedCoordinatorEventosEventIdIncidenciasRouteImport.update({
+    id: '/coordinator/eventos/$eventId/incidencias',
+    path: '/coordinator/eventos/$eventId/incidencias',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCoordinatorEventosEventIdComitesRoute =
   AuthenticatedCoordinatorEventosEventIdComitesRouteImport.update({
     id: '/coordinator/eventos/$eventId/comites',
     path: '/coordinator/eventos/$eventId/comites',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCoordinatorEventosEventIdCalendarioRoute =
+  AuthenticatedCoordinatorEventosEventIdCalendarioRouteImport.update({
+    id: '/coordinator/eventos/$eventId/calendario',
+    path: '/coordinator/eventos/$eventId/calendario',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCoordinatorEventosEventIdAlertsRoute =
+  AuthenticatedCoordinatorEventosEventIdAlertsRouteImport.update({
+    id: '/coordinator/eventos/$eventId/alerts',
+    path: '/coordinator/eventos/$eventId/alerts',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -226,12 +317,16 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/notificaciones': typeof AuthenticatedNotificacionesRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/instituciones': typeof AuthenticatedAdminInstitucionesRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/seedbed-leader/eventos': typeof AuthenticatedSeedbedLeaderEventosRoute
+  '/seedbed-leader/mi-evento': typeof AuthenticatedSeedbedLeaderMiEventoRouteWithChildren
+  '/seedbed-leader/mis-tareas': typeof AuthenticatedSeedbedLeaderMisTareasRoute
+  '/seedbed-leader/tareas-comite': typeof AuthenticatedSeedbedLeaderTareasComiteRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -241,9 +336,18 @@ export interface FileRoutesByFullPath {
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/seedbed-leader': typeof AuthenticatedSeedbedLeaderIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/seedbed-leader/mi-evento/calendario': typeof AuthenticatedSeedbedLeaderMiEventoCalendarioRoute
+  '/tasks/$taskId/alerts': typeof AuthenticatedTasksTaskIdAlertsRoute
+  '/tasks/committee/$committeeId': typeof AuthenticatedTasksCommitteeCommitteeIdRoute
   '/coordinator/eventos': typeof AuthenticatedCoordinatorEventosIndexRoute
+  '/coordinator/eventos/$eventId/alerts': typeof AuthenticatedCoordinatorEventosEventIdAlertsRoute
+  '/coordinator/eventos/$eventId/calendario': typeof AuthenticatedCoordinatorEventosEventIdCalendarioRoute
   '/coordinator/eventos/$eventId/comites': typeof AuthenticatedCoordinatorEventosEventIdComitesRoute
+  '/coordinator/eventos/$eventId/incidencias': typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRoute
+  '/coordinator/eventos/$eventId/monitoreo': typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRoute
+  '/coordinator/eventos/$eventId/my-tasks': typeof AuthenticatedCoordinatorEventosEventIdMyTasksRoute
   '/coordinator/eventos/$eventId/participantes': typeof AuthenticatedCoordinatorEventosEventIdParticipantesRoute
+  '/coordinator/eventos/$eventId/tasks': typeof AuthenticatedCoordinatorEventosEventIdTasksRoute
   '/coordinator/eventos/$eventId': typeof AuthenticatedCoordinatorEventosEventIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -257,12 +361,16 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/notificaciones': typeof AuthenticatedNotificacionesRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/instituciones': typeof AuthenticatedAdminInstitucionesRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/seedbed-leader/eventos': typeof AuthenticatedSeedbedLeaderEventosRoute
+  '/seedbed-leader/mi-evento': typeof AuthenticatedSeedbedLeaderMiEventoRouteWithChildren
+  '/seedbed-leader/mis-tareas': typeof AuthenticatedSeedbedLeaderMisTareasRoute
+  '/seedbed-leader/tareas-comite': typeof AuthenticatedSeedbedLeaderTareasComiteRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -272,9 +380,18 @@ export interface FileRoutesByTo {
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/seedbed-leader': typeof AuthenticatedSeedbedLeaderIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
+  '/seedbed-leader/mi-evento/calendario': typeof AuthenticatedSeedbedLeaderMiEventoCalendarioRoute
+  '/tasks/$taskId/alerts': typeof AuthenticatedTasksTaskIdAlertsRoute
+  '/tasks/committee/$committeeId': typeof AuthenticatedTasksCommitteeCommitteeIdRoute
   '/coordinator/eventos': typeof AuthenticatedCoordinatorEventosIndexRoute
+  '/coordinator/eventos/$eventId/alerts': typeof AuthenticatedCoordinatorEventosEventIdAlertsRoute
+  '/coordinator/eventos/$eventId/calendario': typeof AuthenticatedCoordinatorEventosEventIdCalendarioRoute
   '/coordinator/eventos/$eventId/comites': typeof AuthenticatedCoordinatorEventosEventIdComitesRoute
+  '/coordinator/eventos/$eventId/incidencias': typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRoute
+  '/coordinator/eventos/$eventId/monitoreo': typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRoute
+  '/coordinator/eventos/$eventId/my-tasks': typeof AuthenticatedCoordinatorEventosEventIdMyTasksRoute
   '/coordinator/eventos/$eventId/participantes': typeof AuthenticatedCoordinatorEventosEventIdParticipantesRoute
+  '/coordinator/eventos/$eventId/tasks': typeof AuthenticatedCoordinatorEventosEventIdTasksRoute
   '/coordinator/eventos/$eventId': typeof AuthenticatedCoordinatorEventosEventIdIndexRoute
 }
 export interface FileRoutesById {
@@ -291,12 +408,16 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/_authenticated/notificaciones': typeof AuthenticatedNotificacionesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/instituciones': typeof AuthenticatedAdminInstitucionesRoute
   '/_authenticated/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/seedbed-leader/eventos': typeof AuthenticatedSeedbedLeaderEventosRoute
+  '/_authenticated/seedbed-leader/mi-evento': typeof AuthenticatedSeedbedLeaderMiEventoRouteWithChildren
+  '/_authenticated/seedbed-leader/mis-tareas': typeof AuthenticatedSeedbedLeaderMisTareasRoute
+  '/_authenticated/seedbed-leader/tareas-comite': typeof AuthenticatedSeedbedLeaderTareasComiteRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -306,9 +427,18 @@ export interface FileRoutesById {
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/seedbed-leader/': typeof AuthenticatedSeedbedLeaderIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/_authenticated/seedbed-leader/mi-evento/calendario': typeof AuthenticatedSeedbedLeaderMiEventoCalendarioRoute
+  '/_authenticated/tasks/$taskId/alerts': typeof AuthenticatedTasksTaskIdAlertsRoute
+  '/_authenticated/tasks/committee/$committeeId': typeof AuthenticatedTasksCommitteeCommitteeIdRoute
   '/_authenticated/coordinator/eventos/': typeof AuthenticatedCoordinatorEventosIndexRoute
+  '/_authenticated/coordinator/eventos/$eventId/alerts': typeof AuthenticatedCoordinatorEventosEventIdAlertsRoute
+  '/_authenticated/coordinator/eventos/$eventId/calendario': typeof AuthenticatedCoordinatorEventosEventIdCalendarioRoute
   '/_authenticated/coordinator/eventos/$eventId/comites': typeof AuthenticatedCoordinatorEventosEventIdComitesRoute
+  '/_authenticated/coordinator/eventos/$eventId/incidencias': typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRoute
+  '/_authenticated/coordinator/eventos/$eventId/monitoreo': typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRoute
+  '/_authenticated/coordinator/eventos/$eventId/my-tasks': typeof AuthenticatedCoordinatorEventosEventIdMyTasksRoute
   '/_authenticated/coordinator/eventos/$eventId/participantes': typeof AuthenticatedCoordinatorEventosEventIdParticipantesRoute
+  '/_authenticated/coordinator/eventos/$eventId/tasks': typeof AuthenticatedCoordinatorEventosEventIdTasksRoute
   '/_authenticated/coordinator/eventos/$eventId/': typeof AuthenticatedCoordinatorEventosEventIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -325,12 +455,16 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/notificaciones'
     | '/'
     | '/admin/instituciones'
     | '/admin/permisos'
     | '/admin/usuarios'
     | '/errors/$error'
     | '/seedbed-leader/eventos'
+    | '/seedbed-leader/mi-evento'
+    | '/seedbed-leader/mis-tareas'
+    | '/seedbed-leader/tareas-comite'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -340,9 +474,18 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/seedbed-leader'
     | '/settings/'
+    | '/seedbed-leader/mi-evento/calendario'
+    | '/tasks/$taskId/alerts'
+    | '/tasks/committee/$committeeId'
     | '/coordinator/eventos'
+    | '/coordinator/eventos/$eventId/alerts'
+    | '/coordinator/eventos/$eventId/calendario'
     | '/coordinator/eventos/$eventId/comites'
+    | '/coordinator/eventos/$eventId/incidencias'
+    | '/coordinator/eventos/$eventId/monitoreo'
+    | '/coordinator/eventos/$eventId/my-tasks'
     | '/coordinator/eventos/$eventId/participantes'
+    | '/coordinator/eventos/$eventId/tasks'
     | '/coordinator/eventos/$eventId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -356,12 +499,16 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/notificaciones'
     | '/'
     | '/admin/instituciones'
     | '/admin/permisos'
     | '/admin/usuarios'
     | '/errors/$error'
     | '/seedbed-leader/eventos'
+    | '/seedbed-leader/mi-evento'
+    | '/seedbed-leader/mis-tareas'
+    | '/seedbed-leader/tareas-comite'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -371,9 +518,18 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/seedbed-leader'
     | '/settings'
+    | '/seedbed-leader/mi-evento/calendario'
+    | '/tasks/$taskId/alerts'
+    | '/tasks/committee/$committeeId'
     | '/coordinator/eventos'
+    | '/coordinator/eventos/$eventId/alerts'
+    | '/coordinator/eventos/$eventId/calendario'
     | '/coordinator/eventos/$eventId/comites'
+    | '/coordinator/eventos/$eventId/incidencias'
+    | '/coordinator/eventos/$eventId/monitoreo'
+    | '/coordinator/eventos/$eventId/my-tasks'
     | '/coordinator/eventos/$eventId/participantes'
+    | '/coordinator/eventos/$eventId/tasks'
     | '/coordinator/eventos/$eventId'
   id:
     | '__root__'
@@ -389,12 +545,16 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/_authenticated/notificaciones'
     | '/_authenticated/'
     | '/_authenticated/admin/instituciones'
     | '/_authenticated/admin/permisos'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/errors/$error'
     | '/_authenticated/seedbed-leader/eventos'
+    | '/_authenticated/seedbed-leader/mi-evento'
+    | '/_authenticated/seedbed-leader/mis-tareas'
+    | '/_authenticated/seedbed-leader/tareas-comite'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -404,9 +564,18 @@ export interface FileRouteTypes {
     | '/_authenticated/help-center/'
     | '/_authenticated/seedbed-leader/'
     | '/_authenticated/settings/'
+    | '/_authenticated/seedbed-leader/mi-evento/calendario'
+    | '/_authenticated/tasks/$taskId/alerts'
+    | '/_authenticated/tasks/committee/$committeeId'
     | '/_authenticated/coordinator/eventos/'
+    | '/_authenticated/coordinator/eventos/$eventId/alerts'
+    | '/_authenticated/coordinator/eventos/$eventId/calendario'
     | '/_authenticated/coordinator/eventos/$eventId/comites'
+    | '/_authenticated/coordinator/eventos/$eventId/incidencias'
+    | '/_authenticated/coordinator/eventos/$eventId/monitoreo'
+    | '/_authenticated/coordinator/eventos/$eventId/my-tasks'
     | '/_authenticated/coordinator/eventos/$eventId/participantes'
+    | '/_authenticated/coordinator/eventos/$eventId/tasks'
     | '/_authenticated/coordinator/eventos/$eventId/'
   fileRoutesById: FileRoutesById
 }
@@ -438,6 +607,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notificaciones': {
+      id: '/_authenticated/notificaciones'
+      path: '/notificaciones'
+      fullPath: '/notificaciones'
+      preLoaderRoute: typeof AuthenticatedNotificacionesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(errors)/503': {
@@ -580,6 +756,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/seedbed-leader/tareas-comite': {
+      id: '/_authenticated/seedbed-leader/tareas-comite'
+      path: '/seedbed-leader/tareas-comite'
+      fullPath: '/seedbed-leader/tareas-comite'
+      preLoaderRoute: typeof AuthenticatedSeedbedLeaderTareasComiteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/seedbed-leader/mis-tareas': {
+      id: '/_authenticated/seedbed-leader/mis-tareas'
+      path: '/seedbed-leader/mis-tareas'
+      fullPath: '/seedbed-leader/mis-tareas'
+      preLoaderRoute: typeof AuthenticatedSeedbedLeaderMisTareasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/seedbed-leader/mi-evento': {
+      id: '/_authenticated/seedbed-leader/mi-evento'
+      path: '/seedbed-leader/mi-evento'
+      fullPath: '/seedbed-leader/mi-evento'
+      preLoaderRoute: typeof AuthenticatedSeedbedLeaderMiEventoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/seedbed-leader/eventos': {
       id: '/_authenticated/seedbed-leader/eventos'
       path: '/seedbed-leader/eventos'
@@ -622,11 +819,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoordinatorEventosIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tasks/committee/$committeeId': {
+      id: '/_authenticated/tasks/committee/$committeeId'
+      path: '/tasks/committee/$committeeId'
+      fullPath: '/tasks/committee/$committeeId'
+      preLoaderRoute: typeof AuthenticatedTasksCommitteeCommitteeIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tasks/$taskId/alerts': {
+      id: '/_authenticated/tasks/$taskId/alerts'
+      path: '/tasks/$taskId/alerts'
+      fullPath: '/tasks/$taskId/alerts'
+      preLoaderRoute: typeof AuthenticatedTasksTaskIdAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/seedbed-leader/mi-evento/calendario': {
+      id: '/_authenticated/seedbed-leader/mi-evento/calendario'
+      path: '/calendario'
+      fullPath: '/seedbed-leader/mi-evento/calendario'
+      preLoaderRoute: typeof AuthenticatedSeedbedLeaderMiEventoCalendarioRouteImport
+      parentRoute: typeof AuthenticatedSeedbedLeaderMiEventoRoute
+    }
     '/_authenticated/coordinator/eventos/$eventId/': {
       id: '/_authenticated/coordinator/eventos/$eventId/'
       path: '/coordinator/eventos/$eventId'
       fullPath: '/coordinator/eventos/$eventId'
       preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coordinator/eventos/$eventId/tasks': {
+      id: '/_authenticated/coordinator/eventos/$eventId/tasks'
+      path: '/coordinator/eventos/$eventId/tasks'
+      fullPath: '/coordinator/eventos/$eventId/tasks'
+      preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdTasksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/coordinator/eventos/$eventId/participantes': {
@@ -636,11 +861,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdParticipantesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/coordinator/eventos/$eventId/my-tasks': {
+      id: '/_authenticated/coordinator/eventos/$eventId/my-tasks'
+      path: '/coordinator/eventos/$eventId/my-tasks'
+      fullPath: '/coordinator/eventos/$eventId/my-tasks'
+      preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdMyTasksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coordinator/eventos/$eventId/monitoreo': {
+      id: '/_authenticated/coordinator/eventos/$eventId/monitoreo'
+      path: '/coordinator/eventos/$eventId/monitoreo'
+      fullPath: '/coordinator/eventos/$eventId/monitoreo'
+      preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coordinator/eventos/$eventId/incidencias': {
+      id: '/_authenticated/coordinator/eventos/$eventId/incidencias'
+      path: '/coordinator/eventos/$eventId/incidencias'
+      fullPath: '/coordinator/eventos/$eventId/incidencias'
+      preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/coordinator/eventos/$eventId/comites': {
       id: '/_authenticated/coordinator/eventos/$eventId/comites'
       path: '/coordinator/eventos/$eventId/comites'
       fullPath: '/coordinator/eventos/$eventId/comites'
       preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdComitesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coordinator/eventos/$eventId/calendario': {
+      id: '/_authenticated/coordinator/eventos/$eventId/calendario'
+      path: '/coordinator/eventos/$eventId/calendario'
+      fullPath: '/coordinator/eventos/$eventId/calendario'
+      preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coordinator/eventos/$eventId/alerts': {
+      id: '/_authenticated/coordinator/eventos/$eventId/alerts'
+      path: '/coordinator/eventos/$eventId/alerts'
+      fullPath: '/coordinator/eventos/$eventId/alerts'
+      preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdAlertsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -669,26 +929,54 @@ const AuthenticatedSettingsRouteRouteWithChildren =
     AuthenticatedSettingsRouteRouteChildren,
   )
 
+interface AuthenticatedSeedbedLeaderMiEventoRouteChildren {
+  AuthenticatedSeedbedLeaderMiEventoCalendarioRoute: typeof AuthenticatedSeedbedLeaderMiEventoCalendarioRoute
+}
+
+const AuthenticatedSeedbedLeaderMiEventoRouteChildren: AuthenticatedSeedbedLeaderMiEventoRouteChildren =
+  {
+    AuthenticatedSeedbedLeaderMiEventoCalendarioRoute:
+      AuthenticatedSeedbedLeaderMiEventoCalendarioRoute,
+  }
+
+const AuthenticatedSeedbedLeaderMiEventoRouteWithChildren =
+  AuthenticatedSeedbedLeaderMiEventoRoute._addFileChildren(
+    AuthenticatedSeedbedLeaderMiEventoRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
+  AuthenticatedNotificacionesRoute: typeof AuthenticatedNotificacionesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminInstitucionesRoute: typeof AuthenticatedAdminInstitucionesRoute
   AuthenticatedAdminPermisosRoute: typeof AuthenticatedAdminPermisosRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedSeedbedLeaderEventosRoute: typeof AuthenticatedSeedbedLeaderEventosRoute
+  AuthenticatedSeedbedLeaderMiEventoRoute: typeof AuthenticatedSeedbedLeaderMiEventoRouteWithChildren
+  AuthenticatedSeedbedLeaderMisTareasRoute: typeof AuthenticatedSeedbedLeaderMisTareasRoute
+  AuthenticatedSeedbedLeaderTareasComiteRoute: typeof AuthenticatedSeedbedLeaderTareasComiteRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedCoordinatorIndexRoute: typeof AuthenticatedCoordinatorIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
   AuthenticatedSeedbedLeaderIndexRoute: typeof AuthenticatedSeedbedLeaderIndexRoute
+  AuthenticatedTasksTaskIdAlertsRoute: typeof AuthenticatedTasksTaskIdAlertsRoute
+  AuthenticatedTasksCommitteeCommitteeIdRoute: typeof AuthenticatedTasksCommitteeCommitteeIdRoute
   AuthenticatedCoordinatorEventosIndexRoute: typeof AuthenticatedCoordinatorEventosIndexRoute
+  AuthenticatedCoordinatorEventosEventIdAlertsRoute: typeof AuthenticatedCoordinatorEventosEventIdAlertsRoute
+  AuthenticatedCoordinatorEventosEventIdCalendarioRoute: typeof AuthenticatedCoordinatorEventosEventIdCalendarioRoute
   AuthenticatedCoordinatorEventosEventIdComitesRoute: typeof AuthenticatedCoordinatorEventosEventIdComitesRoute
+  AuthenticatedCoordinatorEventosEventIdIncidenciasRoute: typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRoute
+  AuthenticatedCoordinatorEventosEventIdMonitoreoRoute: typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRoute
+  AuthenticatedCoordinatorEventosEventIdMyTasksRoute: typeof AuthenticatedCoordinatorEventosEventIdMyTasksRoute
   AuthenticatedCoordinatorEventosEventIdParticipantesRoute: typeof AuthenticatedCoordinatorEventosEventIdParticipantesRoute
+  AuthenticatedCoordinatorEventosEventIdTasksRoute: typeof AuthenticatedCoordinatorEventosEventIdTasksRoute
   AuthenticatedCoordinatorEventosEventIdIndexRoute: typeof AuthenticatedCoordinatorEventosEventIdIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
+  AuthenticatedNotificacionesRoute: AuthenticatedNotificacionesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminInstitucionesRoute: AuthenticatedAdminInstitucionesRoute,
   AuthenticatedAdminPermisosRoute: AuthenticatedAdminPermisosRoute,
@@ -696,16 +984,37 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedSeedbedLeaderEventosRoute:
     AuthenticatedSeedbedLeaderEventosRoute,
+  AuthenticatedSeedbedLeaderMiEventoRoute:
+    AuthenticatedSeedbedLeaderMiEventoRouteWithChildren,
+  AuthenticatedSeedbedLeaderMisTareasRoute:
+    AuthenticatedSeedbedLeaderMisTareasRoute,
+  AuthenticatedSeedbedLeaderTareasComiteRoute:
+    AuthenticatedSeedbedLeaderTareasComiteRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedCoordinatorIndexRoute: AuthenticatedCoordinatorIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
   AuthenticatedSeedbedLeaderIndexRoute: AuthenticatedSeedbedLeaderIndexRoute,
+  AuthenticatedTasksTaskIdAlertsRoute: AuthenticatedTasksTaskIdAlertsRoute,
+  AuthenticatedTasksCommitteeCommitteeIdRoute:
+    AuthenticatedTasksCommitteeCommitteeIdRoute,
   AuthenticatedCoordinatorEventosIndexRoute:
     AuthenticatedCoordinatorEventosIndexRoute,
+  AuthenticatedCoordinatorEventosEventIdAlertsRoute:
+    AuthenticatedCoordinatorEventosEventIdAlertsRoute,
+  AuthenticatedCoordinatorEventosEventIdCalendarioRoute:
+    AuthenticatedCoordinatorEventosEventIdCalendarioRoute,
   AuthenticatedCoordinatorEventosEventIdComitesRoute:
     AuthenticatedCoordinatorEventosEventIdComitesRoute,
+  AuthenticatedCoordinatorEventosEventIdIncidenciasRoute:
+    AuthenticatedCoordinatorEventosEventIdIncidenciasRoute,
+  AuthenticatedCoordinatorEventosEventIdMonitoreoRoute:
+    AuthenticatedCoordinatorEventosEventIdMonitoreoRoute,
+  AuthenticatedCoordinatorEventosEventIdMyTasksRoute:
+    AuthenticatedCoordinatorEventosEventIdMyTasksRoute,
   AuthenticatedCoordinatorEventosEventIdParticipantesRoute:
     AuthenticatedCoordinatorEventosEventIdParticipantesRoute,
+  AuthenticatedCoordinatorEventosEventIdTasksRoute:
+    AuthenticatedCoordinatorEventosEventIdTasksRoute,
   AuthenticatedCoordinatorEventosEventIdIndexRoute:
     AuthenticatedCoordinatorEventosEventIdIndexRoute,
 }

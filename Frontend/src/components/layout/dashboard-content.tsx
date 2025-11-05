@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
+import { Breadcrumb } from './breadcrumb'
 
 type DashboardContentProps = {
   children: ReactNode
@@ -10,6 +11,7 @@ type DashboardContentProps = {
   className?: string
   variant?: 'default' | 'centered' | 'full-width' | 'split'
   showSeparator?: boolean
+  showBreadcrumb?: boolean
 }
 
 export function DashboardContent({
@@ -20,6 +22,7 @@ export function DashboardContent({
   className,
   variant = 'default',
   showSeparator = true,
+  showBreadcrumb = true,
 }: DashboardContentProps) {
   const renderHeader = () => {
     if (!title && !description && !actions) return null
@@ -69,6 +72,7 @@ export function DashboardContent({
 
   return (
     <div className={cn('space-y-6', className)}>
+      {showBreadcrumb && <Breadcrumb />}
       {renderHeader()}
       
       <div className={cn(getContentClasses())}>

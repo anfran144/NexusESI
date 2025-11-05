@@ -27,7 +27,7 @@ class EventPolicy
 
         // Seedbed Leader solo puede ver eventos de su institución (excepto finalizados)
         if ($user->can('events.view') && $user->hasRole('seedbed_leader')) {
-            return $event->institution_id === $user->institution_id && $event->status !== 'finalizado';
+            return $event->institution_id === $user->institution_id && $event->status !== 'finished';
         }
 
         return false;
@@ -59,11 +59,11 @@ class EventPolicy
      */
     public function delete(User $user, Event $event): bool
     {
-        // Coordinator solo puede eliminar eventos que coordina, de su institución y que estén en planificación
+        // Coordinator solo puede eliminar eventos que coordina, de su institución y que estén activos
         if ($user->hasRole('coordinator') && $user->can('events.delete')) {
             return $event->coordinator_id === $user->id
                 && $event->institution_id === $user->institution_id
-                && $event->status === 'planificación';
+                && $event->status === 'active';
         }
 
         return false;
@@ -100,9 +100,8 @@ class EventPolicy
         // Verificar que no tenga un evento activo (no finalizado)
         $activeEvent = $user->eventParticipations()
             ->whereHas('event', function ($query) {
-                $query->where('status', '!=', 'finalizado');
+                $query->where('status', '!=', 'finished');
             })
-            ->where('status', 'aprobado')
             ->exists();
 
         if ($activeEvent) {
@@ -110,7 +109,7 @@ class EventPolicy
         }
 
         // No puede participar en eventos finalizados
-        return $event->status !== 'finalizado';
+        return $event->status !== 'finished';
     }
 
     /**

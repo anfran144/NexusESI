@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'auth.jwt' => \App\Http\Middleware\AuthMiddleware::class,
+            'auth' => \App\Http\Middleware\Authenticate::class,
         ]);
 
         // Excluir rutas de API de la verificación CSRF
@@ -25,4 +27,12 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        // Ejecutar el scheduler de riesgos de tareas cada 24 horas
+        // Según NexusEsi.md: "se ejecuta cada 24 horas"
+        $schedule->command('tasks:calculate-risks')
+            ->daily()
+            ->withoutOverlapping()
+            ->runInBackground();
     })->create();

@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -102,10 +102,10 @@ export function CommitteeMembers({ committeeId }: CommitteeMembersProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col gap-4">
       {/* Botón agregar miembro */}
       {!showAddForm && (
-        <Button onClick={() => setShowAddForm(true)} className="w-full">
+        <Button onClick={() => setShowAddForm(true)} className="w-full shrink-0">
           <Plus className="h-4 w-4 mr-2" />
           Agregar Miembro
         </Button>
@@ -113,7 +113,7 @@ export function CommitteeMembers({ committeeId }: CommitteeMembersProps) {
 
       {/* Formulario agregar miembro */}
       {showAddForm && (
-        <Card>
+        <Card className="shrink-0">
           <CardHeader>
             <CardTitle className="text-lg">Nuevo Miembro</CardTitle>
           </CardHeader>
@@ -157,54 +157,59 @@ export function CommitteeMembers({ committeeId }: CommitteeMembersProps) {
       )}
 
       {/* Lista de miembros */}
-      {members.length === 0 ? (
-        <div className="text-center py-8">
-          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">No hay miembros</h3>
-          <p className="text-muted-foreground">
-            Agrega el primer miembro a este comité
-          </p>
-        </div>
-      ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Correo</TableHead>
-                <TableHead>Institución</TableHead>
-                <TableHead>Fecha de Asignación</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell className="font-medium">
-                    {member.user.name}
-                  </TableCell>
-                  <TableCell>{member.user.email}</TableCell>
-                  <TableCell>
-                    {member.user.institution?.nombre || 'N/A'}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(member.assigned_at).toLocaleDateString('es-ES')}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveMember(member.user.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      <div className="flex-1 min-h-0 flex flex-col">
+        {members.length === 0 ? (
+          <div className="text-center py-8">
+            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No hay miembros</h3>
+            <p className="text-muted-foreground">
+              Agrega el primer miembro a este comité
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-md border overflow-hidden flex-1 min-h-0 flex flex-col">
+            <div className="overflow-y-auto flex-1" style={{ maxHeight: 'calc(95vh - 250px)' }}>
+              <Table>
+                <TableHeader className="sticky top-0 bg-background z-10 shadow-sm">
+                  <TableRow>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Correo</TableHead>
+                  <TableHead>Fecha de Asignación</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {members.map((member) => (
+                    <TableRow key={member.id}>
+                      <TableCell className="font-medium">
+                        {member.name}
+                      </TableCell>
+                      <TableCell>{member.email}</TableCell>
+                      <TableCell>
+                        {new Date(member.assigned_at).toLocaleDateString('es-ES')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveMember(member.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            {members.length > 0 && (
+              <div className="px-4 py-2 border-t bg-muted/50 text-sm text-muted-foreground shrink-0">
+                Total: {members.length} {members.length === 1 ? 'miembro' : 'miembros'}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

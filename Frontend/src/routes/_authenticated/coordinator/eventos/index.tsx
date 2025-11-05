@@ -11,12 +11,11 @@ export const Route = createFileRoute('/_authenticated/coordinator/eventos/')({
 function EventosPage() {
   return (
     <PermissionGuard permission="events.view">
-      <DashboardLayout
-        title="Gestión de Eventos"
-        description="Administra y supervisa todos los eventos del sistema"
-        showFooter={false}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={false}>
+        <DashboardContent
+          title="Gestión de Eventos"
+          description="Administra y supervisa todos los eventos del sistema"
+        >
           <EventosCoordinator />
         </DashboardContent>
       </DashboardLayout>

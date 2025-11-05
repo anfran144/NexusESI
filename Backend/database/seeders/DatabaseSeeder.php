@@ -30,5 +30,11 @@ class DatabaseSeeder extends Seeder
             InstitucionSeeder::class,
             EventSeeder::class,
         ]);
+
+        // Seeder opcional para pruebas del scheduler de tareas
+        // Descomentar si necesitas crear tareas de prueba para el scheduler
+        // $this->call([
+        //     TaskSchedulerTestSeeder::class,
+        // ]);
     }
 }

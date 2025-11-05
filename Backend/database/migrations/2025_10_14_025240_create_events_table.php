@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->foreignId('coordinator_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('institution_id')->constrained('instituciones')->onDelete('cascade');
-            $table->enum('status', ['planificación', 'en_progreso', 'finalizado', 'cancelado'])->default('planificación');
+            $table->enum('status', ['active', 'inactive', 'finished'])->default('active');
             $table->timestamps();
         });
     }

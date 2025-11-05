@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Models\Event;
 use App\Models\Institucion;
+use App\Models\Task;
 use App\Models\User;
 use App\Policies\EventPolicy;
 use App\Policies\InstitucionPolicy;
+use App\Policies\TaskPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -22,6 +24,7 @@ class AuthServiceProvider extends ServiceProvider
         User::class => UserPolicy::class,
         Institucion::class => InstitucionPolicy::class,
         Event::class => EventPolicy::class,
+        Task::class => TaskPolicy::class,
         \App\Models\Pais::class => \App\Policies\PaisPolicy::class,
         \App\Models\Estado::class => \App\Policies\EstadoPolicy::class,
         \App\Models\Ciudad::class => \App\Policies\CiudadPolicy::class,

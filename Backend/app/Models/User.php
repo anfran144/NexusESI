@@ -266,7 +266,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return ! $this->eventParticipations()
             ->whereHas('event', function ($query) {
-                $query->whereIn('status', ['planificación', 'en_progreso']);
+                $query->whereIn('status', ['active', 'inactive']);
             })
             ->exists();
     }
@@ -276,8 +276,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
      */
     public function activeEvent()
     {
-        return $this->participatedEvents()
-            ->whereIn('status', ['planificación', 'en_progreso'])
+        return $this->eventParticipations()
+            ->whereHas('event', function ($query) {
+                $query->whereIn('status', ['active', 'inactive']);
+            })
             ->first();
     }
 }

@@ -1,13 +1,18 @@
-import { DashboardSkeleton } from '../components/dashboard-skeleton'
+import { DashboardLayout } from '@/components/layout/dashboard-layout'
+import { DashboardContent } from '@/components/layout/dashboard-content'
 import { useAuthStore } from '@/stores/auth-store'
 
 export function CoordinatorDashboard() {
   const { user } = useAuthStore()
 
   return (
-    <DashboardSkeleton
-      pageTitle="Panel de Coordinación"
-      welcomeMessage={`¡Bienvenido, ${user?.name || 'Coordinador'}! Aquí puedes supervisar y coordinar las actividades de los semilleros bajo tu responsabilidad.`}
-    />
+    <DashboardLayout>
+      <DashboardContent
+        title="Panel de Coordinación"
+        description={`¡Bienvenido, ${user?.name || 'Coordinador'}! Supervisa y coordina las actividades de los semilleros.`}
+      >
+        {/* Contenido del dashboard */}
+      </DashboardContent>
+    </DashboardLayout>
   )
 }

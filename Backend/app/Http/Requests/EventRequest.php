@@ -53,7 +53,7 @@ class EventRequest extends FormRequest
             ],
             'status' => [
                 'sometimes',
-                Rule::in(['planificación', 'en_progreso', 'finalizado', 'cancelado']),
+                Rule::in(['active', 'inactive', 'finished']),
             ],
         ];
     }

@@ -6,7 +6,16 @@
 
 ## 📚 Índice de Documentación
 
-### Módulos del Sistema
+### 📖 Documentación Principal (Raíz del Proyecto)
+
+| Documento | Ubicación | Descripción |
+|-----------|-----------|-------------|
+| **README.md** | Raíz | Documentación principal del proyecto |
+| **NexusEsi.md** | Raíz | Contexto y arquitectura del sistema |
+| **ImplementacionNexusEsi.md** | Raíz | Estado de implementación completo |
+| **DEVELOPMENT-GUIDELINES.md** | Raíz | Guía para desarrollar nuevas funcionalidades |
+
+### 📁 Módulos del Sistema (en `/docs`)
 
 | Módulo | Archivo | Descripción |
 |--------|---------|-------------|
@@ -16,9 +25,37 @@
 | **Gestión de Instituciones** | [GESTION-INSTITUCIONES.md](GESTION-INSTITUCIONES.md) | Administración de instituciones educativas |
 | **Sistema de Eventos** | [SISTEMA-EVENTOS.md](SISTEMA-EVENTOS.md) | Gestión de eventos académicos con comités y participantes |
 
-### Documentación Técnica
+### 🚀 Documentación de API
 
-- **[DOCUMENTACION-TECNICA-COMPLETA.md](DOCUMENTACION-TECNICA-COMPLETA.md)** - Documentación técnica detallada del sistema completo
+| Documento | Descripción |
+|-----------|-------------|
+| **[API-DOCUMENTATION-FRONTEND.md](API-DOCUMENTATION-FRONTEND.md)** | Documentación completa de API para desarrolladores frontend |
+
+### 📚 Documentación Técnica
+
+| Documento | Descripción |
+|-----------|-------------|
+| **[DOCUMENTACION-TECNICA-COMPLETA.md](DOCUMENTACION-TECNICA-COMPLETA.md)** | Documentación técnica detallada del sistema completo |
+
+---
+
+## 🗂️ Estructura de Carpetas
+
+```
+docs/
+├── legacy/                    # Documentos históricos del proyecto
+│   ├── README.md              # Índice de documentos legacy
+│   └── CHANGELOG-*.md         # Registros de cambios históricos
+├── API-DOCUMENTATION-FRONTEND.md
+├── DOCUMENTACION-TECNICA-COMPLETA.md
+├── AUTENTICACION-Y-CORREO.md
+├── GESTION-USUARIOS.md
+├── SISTEMA-GEOGRAFICO.md
+├── GESTION-INSTITUCIONES.md
+├── SISTEMA-EVENTOS.md
+├── NexusESI-Email-API.postman_collection.json
+└── env-email-config.example
+```
 
 ---
 
@@ -33,6 +70,11 @@
 
 - **[env-email-config.example](env-email-config.example)**  
   Ejemplo de configuración completa para SendGrid en `.env`
+
+### Documentación Legacy
+
+- **[legacy/README.md](legacy/README.md)**  
+  Índice de documentos históricos del proyecto
 
 ---
 
@@ -59,14 +101,43 @@ Cada módulo contiene:
 ### Para Desarrolladores Frontend
 
 1. Ver [Frontend/README.md](../Frontend/README.md) para setup inicial
-2. Revisar la estructura de módulos para entender el backend
-3. Usar la colección de Postman para probar endpoints
+2. Leer [API-DOCUMENTATION-FRONTEND.md](API-DOCUMENTATION-FRONTEND.md) para entender la API
+3. Revisar la estructura de módulos para entender el backend
+4. Usar la colección de Postman para probar endpoints
 
 ### Para Administradores del Sistema
 
 1. Leer [GESTION-USUARIOS.md](GESTION-USUARIOS.md) - Roles y permisos
 2. Leer [GESTION-INSTITUCIONES.md](GESTION-INSTITUCIONES.md) - Gestión de instituciones
 3. Leer [SISTEMA-EVENTOS.md](SISTEMA-EVENTOS.md) - Administración de eventos
+
+---
+
+## 🔍 Buscar en la Documentación
+
+### Por Funcionalidad
+
+| Busco... | Ver documento... |
+|----------|------------------|
+| Cómo autenticar usuarios | [AUTENTICACION-Y-CORREO.md](AUTENTICACION-Y-CORREO.md) |
+| Cómo enviar emails | [AUTENTICACION-Y-CORREO.md](AUTENTICACION-Y-CORREO.md) |
+| Cómo crear roles | [GESTION-USUARIOS.md](GESTION-USUARIOS.md) |
+| Cómo asignar permisos | [GESTION-USUARIOS.md](GESTION-USUARIOS.md) |
+| Cómo gestionar ubicaciones | [SISTEMA-GEOGRAFICO.md](SISTEMA-GEOGRAFICO.md) |
+| Cómo crear instituciones | [GESTION-INSTITUCIONES.md](GESTION-INSTITUCIONES.md) |
+| Cómo crear eventos | [SISTEMA-EVENTOS.md](SISTEMA-EVENTOS.md) |
+| Cómo gestionar participantes | [SISTEMA-EVENTOS.md](SISTEMA-EVENTOS.md) |
+| API completa para frontend | [API-DOCUMENTATION-FRONTEND.md](API-DOCUMENTATION-FRONTEND.md) |
+
+### Por Tecnología
+
+| Tecnología | Documento |
+|------------|-----------|
+| JWT Auth | [AUTENTICACION-Y-CORREO.md](AUTENTICACION-Y-CORREO.md) |
+| SendGrid | [AUTENTICACION-Y-CORREO.md](AUTENTICACION-Y-CORREO.md) |
+| Spatie Permission | [GESTION-USUARIOS.md](GESTION-USUARIOS.md) |
+| Eloquent Relations | Todos los módulos |
+| API Resources | [API-DOCUMENTATION-FRONTEND.md](API-DOCUMENTATION-FRONTEND.md) |
 
 ---
 
@@ -112,39 +183,12 @@ Seedbed Leader
 
 ---
 
-## 🔍 Buscar en la Documentación
-
-### Por Funcionalidad
-
-| Busco... | Ver documento... |
-|----------|------------------|
-| Cómo autenticar usuarios | [AUTENTICACION-Y-CORREO.md](AUTENTICACION-Y-CORREO.md) |
-| Cómo enviar emails | [AUTENTICACION-Y-CORREO.md](AUTENTICACION-Y-CORREO.md) |
-| Cómo crear roles | [GESTION-USUARIOS.md](GESTION-USUARIOS.md) |
-| Cómo asignar permisos | [GESTION-USUARIOS.md](GESTION-USUARIOS.md) |
-| Cómo gestionar ubicaciones | [SISTEMA-GEOGRAFICO.md](SISTEMA-GEOGRAFICO.md) |
-| Cómo crear instituciones | [GESTION-INSTITUCIONES.md](GESTION-INSTITUCIONES.md) |
-| Cómo crear eventos | [SISTEMA-EVENTOS.md](SISTEMA-EVENTOS.md) |
-| Cómo gestionar participantes | [SISTEMA-EVENTOS.md](SISTEMA-EVENTOS.md) |
-
-### Por Tecnología
-
-| Tecnología | Documento |
-|------------|-----------|
-| JWT Auth | [AUTENTICACION-Y-CORREO.md](AUTENTICACION-Y-CORREO.md) |
-| SendGrid | [AUTENTICACION-Y-CORREO.md](AUTENTICACION-Y-CORREO.md) |
-| Spatie Permission | [GESTION-USUARIOS.md](GESTION-USUARIOS.md) |
-| Eloquent Relations | Todos los módulos |
-| API Resources | [SISTEMA-EVENTOS.md](SISTEMA-EVENTOS.md) |
-
----
-
 ## 🔄 Actualizaciones
 
 Esta documentación se mantiene actualizada con cada cambio en el sistema.
 
-**Última actualización**: 21 de Octubre, 2025  
-**Versión**: 1.0.0
+**Última actualización**: Octubre 2025  
+**Versión**: 2.0
 
 ---
 

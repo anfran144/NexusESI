@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { handleServerError } from '@/lib/handle-server-error'
 import { FontProvider } from './context/font-provider'
 import { ThemeProvider } from './context/theme-provider'
+// AuthProvider removido - usando solo Zustand store
 // Generated Routes
 import { routeTree } from './routeTree.gen'
 // Styles

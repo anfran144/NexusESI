@@ -39,17 +39,8 @@ class Ciudad extends Model
     }
 
     /**
-     * Relación muchos a uno con País a través del Estado
+     * Accessor para obtener el país de la ciudad (a través del estado)
      * Una ciudad pertenece a un país a través de su estado
-     */
-    public function pais(): BelongsTo
-    {
-        return $this->belongsTo(Pais::class, 'pais_id')
-            ->through('estado');
-    }
-
-    /**
-     * Accessor para obtener el país de la ciudad
      */
     public function getPaisAttribute()
     {

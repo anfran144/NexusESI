@@ -43,16 +43,15 @@ function ParticipantesPage() {
     return () => {
       clearSelectedEvent()
     }
-  }, [eventId, setSelectedEvent, clearSelectedEvent])
+  }, [eventId]) // ✅ Solo eventId como dependencia
 
   if (loading) {
     return (
-      <DashboardLayout 
-        title="Cargando..."
-        description="Gestión de participantes del evento"
-        showFooter={false}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={false}>
+        <DashboardContent
+          title="Cargando..."
+          description="Gestión de líderes de semillero del evento"
+        >
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -66,12 +65,11 @@ function ParticipantesPage() {
 
   if (!event) {
     return (
-      <DashboardLayout 
-        title="Evento no encontrado"
-        description="Gestión de participantes del evento"
-        showFooter={false}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={false}>
+        <DashboardContent
+          title="Evento no encontrado"
+          description="Gestión de líderes de semillero del evento"
+        >
           <div className="container mx-auto py-6">
             <p className="text-center text-muted-foreground">Evento no encontrado</p>
           </div>
@@ -82,12 +80,11 @@ function ParticipantesPage() {
 
   return (
     <PermissionGuard permission="events.manage_participants">
-      <DashboardLayout 
-        title="Participantes"
-        description={`Gestiona los participantes de ${event.name}`}
-        showFooter={true}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={true}>
+        <DashboardContent
+          title="Líderes de Semillero"
+          description={`Gestiona los líderes de semillero del evento "${event.name}"`}
+        >
           <div className="space-y-6">
             <Button
               variant="ghost"

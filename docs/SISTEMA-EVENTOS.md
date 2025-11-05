@@ -29,7 +29,7 @@ El sistema de eventos permite la gestión completa de eventos institucionales co
 ### Características
 
 - ✅ CRUD completo de eventos
-- ✅ Estados de eventos (planificación, en progreso, finalizado, cancelado)
+- ✅ Estados de eventos (Activo, Inactivo, Finalizado)
 - ✅ Gestión de comités por evento
 - ✅ Participación de usuarios
 - ✅ Restricción: un usuario en un evento activo a la vez
@@ -50,7 +50,7 @@ CREATE TABLE events (
     end_date DATE NOT NULL,
     coordinator_id BIGINT UNSIGNED NOT NULL,
     institution_id BIGINT UNSIGNED NOT NULL,
-    status ENUM('planificación', 'en_progreso', 'finalizado', 'cancelado') DEFAULT 'planificación',
+    status ENUM('active, inactive, finished') DEFAULT 'active',
     created_at TIMESTAMP NULL,
     updated_at TIMESTAMP NULL,
     
@@ -230,49 +230,6 @@ class EventParticipant extends Model
     }
 }
 ```
-
----
-
-## Estados de Eventos
-
-### Estados Disponibles
-
-#### 1. Planificación
-- **Valor**: `planificación`
-- **Descripción**: Evento en fase de organización
-- **Acciones permitidas**:
-  - Editar evento
-  - Agregar/remover comités
-  - Cambiar participantes
-  - Cancelar evento
-
-#### 2. En Progreso
-- **Valor**: `en_progreso`
-- **Descripción**: Evento actualmente en ejecución
-- **Acciones permitidas**:
-  - Ver información
-  - Agregar participantes
-  - Finalizar evento
-- **Restricciones**:
-  - No se puede editar información básica
-  - No se puede cancelar
-
-#### 3. Finalizado
-- **Valor**: `finalizado`
-- **Descripción**: Evento completado
-- **Acciones permitidas**:
-  - Ver información (solo lectura)
-- **Restricciones**:
-  - No se permiten cambios
-  - No visible para seedbed_leaders
-
-#### 4. Cancelado
-- **Valor**: `cancelado`
-- **Descripción**: Evento cancelado
-- **Acciones permitidas**:
-  - Ver información (solo lectura)
-- **Restricciones**:
-  - No se permiten cambios
 
 ---
 

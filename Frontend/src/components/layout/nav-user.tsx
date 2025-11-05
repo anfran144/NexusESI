@@ -22,7 +22,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { SignOutDialog } from '@/components/sign-out-dialog'
+import { SignOutDialog } from '@/components/auth/sign-out-dialog'
 
 type NavUserProps = {
   user: {

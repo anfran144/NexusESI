@@ -49,6 +49,41 @@ class PermissionSeeder extends Seeder
             'events.participate',
             'events.committees.manage',
 
+            // Tasks permissions (legacy - mantener para compatibilidad)
+            'tasks.view',           // @deprecated Use events.tasks.view
+            'tasks.create',         // @deprecated Use events.tasks.manage
+            'tasks.update',         // @deprecated Use events.tasks.manage
+            'tasks.delete',         // @deprecated Use events.tasks.manage
+            'tasks.assign',         // @deprecated Use events.tasks.assign
+            'tasks.complete',       // @deprecated Use events.tasks.complete
+            'tasks.report_progress', // @deprecated Use events.tasks.report_progress
+
+            // Event-specific Task permissions (new - preferred)
+            'events.tasks.view',          // Ver tareas del evento
+            'events.tasks.manage',        // CRUD completo de tareas (coordinador)
+            'events.tasks.assign',        // Asignar tareas a miembros
+            'events.tasks.view_assigned', // Ver tareas asignadas (líder)
+            'events.tasks.complete',      // Completar tareas propias
+            'events.tasks.report_progress', // Reportar progreso en tareas
+
+            // Incidents permissions (legacy - mantener para compatibilidad)
+            'incidents.view',       // @deprecated Use events.incidents.view
+            'incidents.create',     // @deprecated Use events.incidents.report
+            'incidents.resolve',    // @deprecated Use events.incidents.resolve
+
+            // Event-specific Incident permissions (new - preferred)
+            'events.incidents.view',    // Ver incidencias del evento
+            'events.incidents.report',  // Reportar incidencias (líder)
+            'events.incidents.resolve', // Resolver incidencias (coordinador)
+
+            // Alerts permissions (legacy - mantener para compatibilidad)
+            'alerts.view',          // @deprecated Use events.alerts.view
+            'alerts.manage',        // @deprecated Use events.alerts.manage
+
+            // Event-specific Alert permissions (new - preferred)
+            'events.alerts.view',   // Ver alertas del evento
+            'events.alerts.manage', // Gestionar alertas (coordinador)
+
             // Seedbed Leader permissions
             'seedbed_leader.dashboard.view',
             'seedbed_leader.seedbed.view',
@@ -129,6 +164,28 @@ class PermissionSeeder extends Seeder
             'events.delete',
             'events.manage_participants',
             'events.committees.manage',
+            // Legacy task permissions (mantener para compatibilidad)
+            'tasks.view',
+            'tasks.create',
+            'tasks.update',
+            'tasks.delete',
+            'tasks.assign',
+            // New event-specific task permissions (preferred)
+            'events.tasks.view',
+            'events.tasks.manage',
+            'events.tasks.assign',
+            // Legacy incident permissions (mantener para compatibilidad)
+            'incidents.view',
+            'incidents.resolve',
+            // New event-specific incident permissions (preferred)
+            'events.incidents.view',
+            'events.incidents.resolve',
+            // Legacy alert permissions (mantener para compatibilidad)
+            'alerts.view',
+            'alerts.manage',
+            // New event-specific alert permissions (preferred)
+            'events.alerts.view',
+            'events.alerts.manage',
             'profile.view',
             'profile.edit',
             'notifications.view',
@@ -148,6 +205,25 @@ class PermissionSeeder extends Seeder
             'seedbed_leader.members.manage',
             'events.view',
             'events.participate',
+            // Legacy task permissions (mantener para compatibilidad)
+            'tasks.view',
+            'tasks.complete',
+            'tasks.report_progress',
+            // New event-specific task permissions (preferred)
+            'events.tasks.view',
+            'events.tasks.view_assigned',
+            'events.tasks.complete',
+            'events.tasks.report_progress',
+            // Legacy incident permissions (mantener para compatibilidad)
+            'incidents.view',
+            'incidents.create',
+            // New event-specific incident permissions (preferred)
+            'events.incidents.view',
+            'events.incidents.report',
+            // Legacy alert permissions (mantener para compatibilidad)
+            'alerts.view',
+            // New event-specific alert permissions (preferred)
+            'events.alerts.view',
             'profile.view',
             'profile.edit',
             'notifications.view',

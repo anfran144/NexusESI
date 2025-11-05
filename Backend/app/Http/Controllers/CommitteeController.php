@@ -7,9 +7,11 @@ use App\Http\Resources\CommitteeResource;
 use App\Models\Committee;
 use App\Models\Event;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CommitteeController extends Controller
 {
@@ -155,6 +157,23 @@ class CommitteeController extends Controller
         $committee->users()->attach($user->id, [
             'assigned_at' => now(),
         ]);
+
+        // Cargar relaciones necesarias
+        $committee->load('event');
+
+        // Enviar notificación al líder cuando es asignado a un comité (Flujo 1)
+        try {
+            app(NotificationService::class)->sendCommitteeAssignmentNotification(
+                $user->id,
+                $committee,
+                $committee->event
+            );
+        } catch (\Exception $e) {
+            Log::error("Failed to send committee assignment notification: " . $e->getMessage(), [
+                'leader_id' => $user->id,
+                'committee_id' => $committee->id,
+            ]);
+        }
 
         return response()->json([
             'success' => true,

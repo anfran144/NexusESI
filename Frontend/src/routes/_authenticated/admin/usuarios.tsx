@@ -11,12 +11,11 @@ export const Route = createFileRoute('/_authenticated/admin/usuarios')({
 function AdminUsuariosPage() {
   return (
     <PermissionGuard permission="admin.users.view">
-      <DashboardLayout
-        title="Gestión de Usuarios"
-        description="Supervisa y administra todos los usuarios del sistema"
-        showFooter={false}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={false}>
+        <DashboardContent
+          title="Gestión de Usuarios"
+          description="Supervisa y administra todos los usuarios del sistema"
+        >
           <AdminUsuarios />
         </DashboardContent>
       </DashboardLayout>

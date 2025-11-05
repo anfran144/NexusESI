@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { MetricCard, StatCard } from '@/components/ui'
 import { 
   Building2, 
   Users, 
@@ -115,43 +116,41 @@ export function DashboardStats() {
     <div className="space-y-6">
       <WelcomeMessage />
 
-      {/* Estadísticas principales */}
+      {/* Estadísticas principales - Usando MetricCard mejorado */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
+        <MetricCard
           title="Total Instituciones"
           value={stats?.instituciones.total ?? 0}
-          description="Instituciones registradas"
-          icon={Building2}
-          loading={loading}
+          description="Instituciones registradas en el sistema"
           trend={stats?.estadisticas_recientes ? {
             value: stats.estadisticas_recientes.instituciones_mes,
-            label: "este mes"
+            label: "nuevas este mes",
+            isPositive: true
           } : undefined}
+          variant="success"
         />
-        <StatCard
+        <MetricCard
           title="Instituciones Activas"
           value={stats?.instituciones.activas ?? 0}
-          description="Instituciones verificadas"
-          icon={Building2}
-          loading={loading}
+          description="Instituciones verificadas y operativas"
+          variant="default"
         />
-        <StatCard
+        <MetricCard
           title="Coordinadores"
           value={stats?.usuarios.coordinadores ?? 0}
-          description="Coordinadores activos"
-          icon={UserCheck}
-          loading={loading}
+          description="Coordinadores activos en el sistema"
+          variant="default"
         />
-        <StatCard
+        <MetricCard
           title="Líderes de Semillero"
           value={stats?.usuarios.lideres ?? 0}
-          description="Líderes registrados"
-          icon={Users}
-          loading={loading}
+          description="Líderes registrados y activos"
           trend={stats?.estadisticas_recientes ? {
             value: stats.estadisticas_recientes.usuarios_mes,
-            label: "usuarios este mes"
+            label: "nuevos este mes",
+            isPositive: true
           } : undefined}
+          variant="success"
         />
       </div>
 

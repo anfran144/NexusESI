@@ -1,0 +1,92 @@
+Reestructuración de Datos para NexusEsi
+He organizado la información del documento "Tareas Institucionales.docx.pdf" según una estructura de Comités y Tareas, identificando responsables y decisiones clave, lista para ser ingresada en tu sistema.
+
+1. Información General del Evento
+
+Evento: Encuentro de Semilleros Institucional 2025.
+Fechas: 24 y 25 de Abril.
+Evento Relacionado: Encuentro de Semilleros Departamental 2025.
+Fechas Evento Relacionado: 14 y 15 de Mayo.
+
+2. Comités y Miembros Asignados
+
+Comité de Comunicaciones 
+- Jhon Rodriguez Saavedra 
+- Mauricio López 
+- Jennifer Jimenez 
+- Rocio Moncayo 
+- Juan P. García 
+
+Comité de Logística 
+- Simón Puerchambud 
+- Esteban Jurado 
+- Santiago Escandón 
+- Juan P. García 
+- Jose Fernando Araujo 
+- Ginna Marcela Ardila 
+- Ana María Cerón 
+
+Comité de Evaluación (o Científico) 
+- Juan P. García 
+- Nubia Gonzales 
+- Laurin Rengifo 
+- Fausto Escobar 
+- Arturo Erazo 
+- Comité de Certificados 
+- Diana Andrade 
+- Adriana Vera 
+- Cristina Ruiz 
+- Cristian Zambrano 
+- Merylin Ortega 
+
+3. Listado de Tareas (para Asignar)
+- Comité de Comunicaciones
+- Actualizar los TDRs (Términos de Referencia).
+- Gestionar Publicidad en página de noticias.
+- Gestionar Publicidad en Facebook.
+- Coordinar con la oficina de mercadeo y publicidad.
+- Definir el eslogan del evento (Pendiente de definición).
+- Asegurar cobertura fotográfica (Pendiente de definición).
+
+Comité de Logística
+- Realizar la solicitud de TODOS los auditorios y aulas necesarios.
+- Consolidar la cantidad de proyectos en un Excel (para determinar aulas).
+- Reservar Aulas inteligentes.
+- Reservar Salas de biblioteca.
+- Reservar Auditorio Jesús de Nazareth.
+- Reservar Facultad de Derecho: Aula 202, sala de audiencia.
+- Elaborar la programación detallada del evento (hora a hora, lugar, conferencia).
+- Coordinar la conferencia inaugural (Ponente: Santiago).
+- Definir la logística para 2 conferencias en 2 auditorios simultáneos.
+- Contratar Conferencista(s) (Pendiente de definición).
+-- Requisito: Debe ser ORI (Oficina de Relaciones Internacionales), Nacional o Internacional.
+-- Requisito: Debe ser Interdisciplinar.
+-- Requisito: NADA VIRTUAL.
+
+Comité de Evaluación (Científico)
+- Diseñar el proceso de "Concentración de calificaciones".
+- Diseñar el proceso de "Presentación de calificaciones".
+- Garantizar que cada líder contacte a los jurados.
+- Garantizar dos evaluaciones por proyecto (Tarea asignada a cada líder de comité).
+- Realizar capacitación para evaluadores con video.
+- Definir los "Formatos de evaluación" (Pendiente de definición).
+-- Requisito: El formato debe mostrar el acumulado después de cada punto.
+-- Requisito: El formato debe incluir un pre-informe antes de enviar la evaluación.
+-- Requisito: El formato debe adicionar casilla "SI AVALA PARA PRESENTAR AL REGIONAL".
+
+Comité de Certificados
+- Proyectar (diseñar y preparar) los certificados de todos los participantes.
+
+Tareas Generales / Pendientes de Comité
+
+- Actualizar los TDR de la convocatoria (marcado como "Colectivo").
+- Tomar decisión sobre la publicación de resultados (Pendiente).
+- Definir el proceso de inscripción (Incompleto).
+
+
+4. Decisiones Clave y Políticas (Contexto de Planificación)
+
+- Política de Participación: Estudiantes que participaron en el evento nacional el año anterior podrán participar en 2025, pero si pasan al nacional, la financiación debe ser con recursos propios.
+- Política de Evaluación: Se mantiene el puntaje de 90 (presumiblemente como mínimo para avalar al regional).
+- Decisión de Evento: No se realizarán reconocimientos, debido al comportamiento de asistencia no conforme en los 2 años anteriores.
+- Decisión de Evento: No se realizará clausura.

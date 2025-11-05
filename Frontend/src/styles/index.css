@@ -85,3 +85,67 @@
     height: 0;
   }
 }
+
+/* Editor Styles */
+.editor-content {
+  /* Listas con viñetas */
+  ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  ul li {
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Listas numeradas */
+  ol {
+    list-style-type: decimal;
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  ol li {
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Citas (blockquotes) */
+  blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #6b7280;
+    background-color: #f9fafb;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+  }
+  
+  /* Texto en negrita */
+  strong {
+    font-weight: 600;
+  }
+  
+  /* Texto en cursiva */
+  em {
+    font-style: italic;
+  }
+  
+  /* Texto tachado */
+  s {
+    text-decoration: line-through;
+  }
+  
+  /* Párrafos */
+  p {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Último párrafo sin margen */
+  p:last-child {
+    margin-bottom: 0;
+  }
+}

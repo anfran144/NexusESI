@@ -5,7 +5,8 @@ import { LayoutProvider } from '@/context/layout-provider'
 import { SearchProvider } from '@/context/search-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
-import { SkipToMain } from '@/components/skip-to-main'
+import { SkipToMain } from '@/components/layout/skip-to-main'
+import { useRealtimeNotifications } from '@/services/pusherService'
 
 type AuthenticatedLayoutProps = {
   children?: React.ReactNode
@@ -13,6 +14,10 @@ type AuthenticatedLayoutProps = {
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false'
+  
+  // Inicializar notificaciones push en tiempo real
+  useRealtimeNotifications()
+  
   return (
     <SearchProvider>
       <LayoutProvider>

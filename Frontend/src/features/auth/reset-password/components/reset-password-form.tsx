@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { PasswordInput } from '@/components/password-input'
+import { PasswordInput } from '@/components/ui/password-input'
 
 const formSchema = z.object({
   password: z

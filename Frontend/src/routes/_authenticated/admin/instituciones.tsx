@@ -11,12 +11,11 @@ export const Route = createFileRoute('/_authenticated/admin/instituciones')({
 function AdminInstitucionesPage() {
   return (
     <PermissionGuard permission="admin.institutions.view">
-      <DashboardLayout
-        title="Gestión de Instituciones"
-        description="Administra y supervisa todas las instituciones del sistema"
-        showFooter={false}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={false}>
+        <DashboardContent
+          title="Gestión de Instituciones"
+          description="Administra y supervisa todas las instituciones del sistema"
+        >
           <AdminInstituciones />
         </DashboardContent>
       </DashboardLayout>

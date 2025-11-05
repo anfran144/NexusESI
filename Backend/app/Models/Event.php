@@ -66,4 +66,12 @@ final class Event extends Model
         return $this->belongsToMany(User::class, 'event_participants')
             ->withTimestamps();
     }
+
+    /**
+     * Relación con las tareas del evento
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
 }

@@ -1,25 +1,30 @@
 # NexusESI
 
-> Sistema de Gestión de Semilleros de Investigación
+> Sistema de Gestión de Semilleros de Investigación - Plataforma Multi-Institucional
 
 [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=black)](https://reactjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Status](https://img.shields.io/badge/Status-100%25_Completo-success)]()
 
 ---
 
 ## 📋 Descripción
 
-NexusESI es un sistema completo de gestión de semilleros de investigación que permite administrar instituciones educativas, usuarios con diferentes roles, eventos académicos y más.
+NexusESI es una plataforma completa para la gestión colaborativa de eventos académicos en semilleros de investigación. El sistema se encarga de la **fase de planificación** de eventos, proporcionando herramientas para la coordinación, asignación de tareas, y seguimiento de progreso.
 
-### Características Principales
+### ✨ Características Principales
 
 - 🔐 **Autenticación Segura** - JWT con recuperación de contraseña vía email (SendGrid)
-- 👥 **Gestión de Usuarios** - Sistema de roles y permisos con Spatie
-- 🏛️ **Instituciones** - Gestión de instituciones educativas
-- 🌎 **Sistema Geográfico** - Jerarquía de países, estados y ciudades
-- 📅 **Eventos** - Sistema completo de eventos con comités y participantes
-- 📧 **Correo Electrónico** - Integración con SendGrid para emails transaccionales
+- 👥 **Gestión de Usuarios** - Sistema de roles y permisos granulares
+- 🏛️ **Instituciones** - Gestión de instituciones educativas con ubicación geográfica
+- 🌎 **Sistema Geográfico** - Jerarquía completa de países, estados y ciudades
+- 📅 **Eventos y Comités** - Sistema completo de eventos con comités de trabajo
+- ✅ **Sistema de Tareas** - Gestión de tareas con cálculo automático de riesgos
+- 🚨 **Sistema de Alertas** - Notificaciones automáticas preventivas y críticas
+- 📧 **Correo Electrónico** - Integración con SendGrid para notificaciones
+- 🔔 **Tiempo Real** - Notificaciones instantáneas vía WebSockets (Pusher)
+- ⏰ **Scheduler Automático** - Cálculo automático de riesgos cada 24 horas
 
 ---
 
@@ -27,9 +32,22 @@ NexusESI es un sistema completo de gestión de semilleros de investigación que 
 
 ```
 NexusESI/
-├── Backend/          # API REST con Laravel 11
-├── Frontend/         # SPA con React + TypeScript
-└── docs/             # Documentación modular del proyecto
+├── Backend/              # API REST con Laravel 11
+│   ├── app/
+│   ├── routes/
+│   ├── database/
+│   └── config/
+├── Frontend/             # SPA con React + TypeScript
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── hooks/
+│   └── public/
+└── docs/                 # Documentación
+    ├── api/              # Documentación de API
+    ├── legacy/           # Documentos históricos
+    └── changelogs/       # Registro de cambios
 ```
 
 ### Stack Tecnológico
@@ -37,8 +55,9 @@ NexusESI/
 #### Backend
 - **Laravel 11.x** - Framework PHP
 - **JWT Auth** - Autenticación stateless
-- **Spatie Permission** - Roles y permisos
+- **Spatie Permission** - Roles y permisos granulares
 - **SendGrid** - Servicio de correo electrónico
+- **Pusher** - WebSockets para tiempo real
 - **MySQL** - Base de datos
 
 #### Frontend
@@ -46,8 +65,10 @@ NexusESI/
 - **TypeScript** - Tipado estático
 - **TanStack Router** - Enrutamiento
 - **TanStack Query** - Estado del servidor
+- **Zustand** - Gestión de estado
 - **Shadcn/UI** - Componentes UI
 - **Tailwind CSS** - Estilos
+- **Pusher-js** - Cliente WebSockets
 
 ---
 
@@ -56,10 +77,11 @@ NexusESI/
 ### Prerequisitos
 
 - PHP 8.2+
-- Composer
+- Composer 2.x
 - Node.js 18+
 - MySQL 8.0+
-- SendGrid API Key (para correos)
+- SendGrid API Key
+- Pusher Account (opcional)
 
 ### 1. Clonar Repositorio
 
@@ -78,13 +100,11 @@ php artisan key:generate
 php artisan jwt:secret
 
 # Configurar base de datos en .env
-# Configurar SendGrid en .env
-
 php artisan migrate --seed
 php artisan serve
 ```
 
-**Detalles**: Ver [Backend/README.md](Backend/README.md)
+**📖 Detalles**: Ver [Backend/README.md](Backend/README.md)
 
 ### 3. Configurar Frontend
 
@@ -94,62 +114,71 @@ npm install
 npm run dev
 ```
 
-**Detalles**: Ver [Frontend/README.md](Frontend/README.md)
+**📖 Detalles**: Ver [Frontend/README.md](Frontend/README.md)
 
 ### 4. Acceder a la Aplicación
 
 - **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-
----
-
-## 📚 Documentación
-
-La documentación está organizada por módulos en la carpeta `/docs`:
-
-### Módulos del Sistema
-
-| Módulo | Archivo | Descripción |
-|--------|---------|-------------|
-| **Autenticación y Correo** | [AUTENTICACION-Y-CORREO.md](docs/AUTENTICACION-Y-CORREO.md) | Sistema de autenticación JWT, recuperación de contraseña y emails |
-| **Gestión de Usuarios** | [GESTION-USUARIOS.md](docs/GESTION-USUARIOS.md) | Usuarios, roles y permisos con Spatie |
-| **Sistema Geográfico** | [SISTEMA-GEOGRAFICO.md](docs/SISTEMA-GEOGRAFICO.md) | Países, estados y ciudades |
-| **Gestión de Instituciones** | [GESTION-INSTITUCIONES.md](docs/GESTION-INSTITUCIONES.md) | Administración de instituciones educativas |
-| **Sistema de Eventos** | [SISTEMA-EVENTOS.md](docs/SISTEMA-EVENTOS.md) | Eventos, comités y participantes |
-
-### Recursos Adicionales
-
-- **Colección Postman**: [docs/NexusESI-Email-API.postman_collection.json](docs/NexusESI-Email-API.postman_collection.json)
-- **Configuración Email**: [docs/env-email-config.example](docs/env-email-config.example)
-- **Documentación Técnica Completa**: [docs/DOCUMENTACION-TECNICA-COMPLETA.md](docs/DOCUMENTACION-TECNICA-COMPLETA.md)
+- **Backend API**: http://localhost:8000/api
 
 ---
 
 ## 👥 Roles del Sistema
 
-### Admin
-- Acceso completo al sistema
-- Gestión de usuarios e instituciones
+### 🔴 Admin
+- Gestión completa de usuarios e instituciones
 - Aprobación de nuevos usuarios
-- **Dashboard**: `/admin`
+- Dashboard: `/admin`
 
-### Coordinator (Coordinador)
+### 🟡 Coordinator (Coordinador)
 - Gestión de eventos de su institución
-- Supervisión de semilleros
-- **Dashboard**: `/coordinator`
+- Creación de comités y asignación de tareas
+- Supervisión de progreso y resolución de incidencias
+- Dashboard: `/coordinator`
 
-### Seedbed Leader (Líder de Semillero)
-- Gestión de su equipo
-- Participación en eventos
-- **Dashboard**: `/seedbed-leader`
+### 🟢 Seedbed Leader (Líder de Semillero)
+- Visualización de tareas asignadas
+- Reporte de progreso y avances
+- Reporte de incidencias
+- Dashboard: `/seedbed-leader`
+
+---
+
+## 📚 Documentación
+
+### 📖 Documentación Principal
+
+| Documento | Descripción |
+|-----------|-------------|
+| **[NexusEsi.md](NexusEsi.md)** | Contexto y arquitectura del sistema |
+| **[ImplementacionNexusEsi.md](ImplementacionNexusEsi.md)** | Estado real de implementación (100% completo) |
+| **[DEVELOPMENT-GUIDELINES.md](DEVELOPMENT-GUIDELINES.md)** | Guía para desarrollar nuevas funcionalidades |
+| **[docs/API-DOCUMENTATION-FRONTEND.md](docs/API-DOCUMENTATION-FRONTEND.md)** | Documentación completa de API para frontend |
+
+### 📁 Módulos Específicos (en `/docs`)
+
+| Módulo | Archivo | Descripción |
+|--------|---------|-------------|
+| **Autenticación** | [AUTENTICACION-Y-CORREO.md](docs/AUTENTICACION-Y-CORREO.md) | JWT, recuperación de contraseña y emails |
+| **Usuarios** | [GESTION-USUARIOS.md](docs/GESTION-USUARIOS.md) | Roles, permisos y gestión de usuarios |
+| **Geografía** | [SISTEMA-GEOGRAFICO.md](docs/SISTEMA-GEOGRAFICO.md) | Países, estados y ciudades |
+| **Instituciones** | [GESTION-INSTITUCIONES.md](docs/GESTION-INSTITUCIONES.md) | Administración de instituciones |
+| **Eventos** | [SISTEMA-EVENTOS.md](docs/SISTEMA-EVENTOS.md) | Eventos, comités y participantes |
+| **Técnica Completa** | [DOCUMENTACION-TECNICA-COMPLETA.md](docs/DOCUMENTACION-TECNICA-COMPLETA.md) | Documentación técnica detallada |
+
+### 🔧 Recursos Adicionales
+
+- **Colección Postman**: [docs/NexusESI-Email-API.postman_collection.json](docs/NexusESI-Email-API.postman_collection.json)
+- **Configuración Email**: [docs/env-email-config.example](docs/env-email-config.example)
+- **Testing Guide**: [Frontend/TESTING-GUIDE.md](Frontend/TESTING-GUIDE.md)
 
 ---
 
 ## 🔒 Seguridad
 
 ### Autenticación
-- **JWT Tokens** con expiración configurable
-- **Refresh Tokens** para sesiones prolongadas
+- **JWT Tokens** con expiración configurable (60 minutos)
+- **Refresh Tokens** para renovación automática
 - **Rate Limiting** en endpoints críticos
 
 ### Recuperación de Contraseña
@@ -158,10 +187,10 @@ La documentación está organizada por módulos en la carpeta `/docs`:
 - Máximo 5 intentos por código
 - Envío seguro vía SendGrid
 
-### Autorización
-- Control de acceso basado en roles (RBAC)
-- Políticas granulares por recurso
-- Middleware de autorización
+### Autorización (Permission-First)
+- Control de acceso basado en permisos granulares
+- Políticas por recurso y por institución
+- Middleware de autorización en todos los endpoints
 
 ---
 
@@ -179,31 +208,64 @@ cd Frontend
 npm run test
 ```
 
+**📖 Detalles**: Ver [Frontend/TESTING-GUIDE.md](Frontend/TESTING-GUIDE.md)
+
 ---
 
 ## 🚢 Despliegue
 
 ### Backend (Producción)
-
 ```bash
-# Optimizar configuración
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-
-# Ejecutar migraciones
 php artisan migrate --force
-
-# Optimizar composer
 composer install --optimize-autoloader --no-dev
 ```
 
 ### Frontend (Producción)
-
 ```bash
 npm run build
-# Los archivos compilados estarán en dist/
+# Archivos compilados en dist/
 ```
+
+---
+
+## 📊 Estado del Proyecto
+
+### ✅ Completitud: 100%
+
+| Módulo | Backend | Frontend | Integración | Estado |
+|--------|---------|----------|-------------|--------|
+| Autenticación | ✅ 100% | ✅ 100% | ✅ 100% | 🟢 |
+| Usuarios | ✅ 100% | ✅ 100% | ✅ 100% | 🟢 |
+| Eventos | ✅ 100% | ✅ 100% | ✅ 100% | 🟢 |
+| Comités | ✅ 100% | ✅ 100% | ✅ 100% | 🟢 |
+| Tareas | ✅ 100% | ✅ 100% | ✅ 100% | 🟢 |
+| Alertas | ✅ 100% | ✅ 100% | ✅ 100% | 🟢 |
+| Incidencias | ✅ 100% | ✅ 100% | ✅ 100% | 🟢 |
+| Scheduler | ✅ 100% | N/A | ✅ 100% | 🟢 |
+| Notificaciones | ✅ 100% | ✅ 100% | ✅ 100% | 🟢 |
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ Completado (Fase 1-3)
+- Sistema de autenticación y correo
+- Gestión de usuarios e instituciones
+- Sistema de eventos y comités
+- Sistema de tareas con cálculo automático de riesgos
+- Scheduler automático
+- Sistema de alertas e incidencias
+- Notificaciones en tiempo real
+
+### 🔄 Próximas Funcionalidades Opcionales
+- [ ] Dashboard de estadísticas avanzado
+- [ ] Exportación de reportes (PDF, Excel)
+- [ ] Integración con calendarios
+- [ ] Aplicación móvil
+- [ ] Sistema de mensajería interna
 
 ---
 
@@ -215,6 +277,8 @@ npm run build
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
+**📖 Guía de Desarrollo**: Ver [DEVELOPMENT-GUIDELINES.md](DEVELOPMENT-GUIDELINES.md)
+
 ---
 
 ## 📄 Licencia
@@ -225,29 +289,11 @@ Este proyecto es privado y de uso exclusivo para la institución.
 
 ## 📞 Soporte
 
-Para soporte técnico o consultas:
-
 - **Documentación**: Revisar la carpeta `/docs`
 - **Issues**: Crear un issue en el repositorio
 - **Email**: soporte@nexusesi.com
 
 ---
 
-## 🗺️ Roadmap
-
-### En Desarrollo
-- [ ] Dashboard de estadísticas
-- [ ] Notificaciones en tiempo real
-- [ ] Exportación de reportes
-- [ ] Sistema de archivos y documentos
-
-### Futuro
-- [ ] Aplicación móvil
-- [ ] Integración con Microsoft Teams
-- [ ] Sistema de mensajería interna
-- [ ] Gamificación
-
----
-
 **NexusESI** - Sistema de Gestión de Semilleros de Investigación  
-Versión 1.0.0 | Octubre 2025
+Versión 2.0 | Octubre 2025 | ✅ 100% Completado - Listo para Producción

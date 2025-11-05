@@ -11,12 +11,11 @@ export const Route = createFileRoute('/_authenticated/admin/permisos')({
 function AdminPermissionsPage() {
   return (
     <PermissionGuard permission="admin.roles.manage">
-      <DashboardLayout
-        title="Gestión de Permisos"
-        description="Administra roles, permisos y asignaciones del sistema"
-        showFooter={false}
-      >
-        <DashboardContent>
+      <DashboardLayout showFooter={false}>
+        <DashboardContent
+          title="Gestión de Permisos"
+          description="Administra roles, permisos y asignaciones del sistema"
+        >
           <PermissionsAdministration />
         </DashboardContent>
       </DashboardLayout>

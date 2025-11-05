@@ -20,7 +20,7 @@ const eventSchema = z.object({
   description: z.string().min(1, 'La descripción es requerida'),
   start_date: z.date({ message: 'La fecha de inicio es requerida' }),
   end_date: z.date({ message: 'La fecha de fin es requerida' }),
-  status: z.enum(['planificación', 'activo', 'finalizado', 'cancelado']),
+  status: z.enum(['activo', 'inactivo', 'finalizado']),
   institution_id: z.string().min(1, 'La institución es requerida'),
 }).refine((data) => data.end_date >= data.start_date, {
   message: 'La fecha de fin debe ser posterior a la fecha de inicio',
@@ -46,7 +46,7 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
       description: event?.description || '',
       start_date: event?.start_date ? new Date(event.start_date) : undefined,
       end_date: event?.end_date ? new Date(event.end_date) : undefined,
-      status: event?.status || 'planificación',
+      status: event?.status || 'inactivo',
       institution_id: user?.institution_id?.toString() || '',
     },
   })
@@ -133,9 +133,11 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
+                      defaultMonth={field.value}
                       selected={field.value}
                       onSelect={field.onChange}
                       disabled={(date) => date < new Date()}
+                      className="rounded-lg border shadow-sm"
                       initialFocus
                     />
                   </PopoverContent>
@@ -173,9 +175,11 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
+                      defaultMonth={field.value}
                       selected={field.value}
                       onSelect={field.onChange}
                       disabled={(date) => date < new Date()}
+                      className="rounded-lg border shadow-sm"
                       initialFocus
                     />
                   </PopoverContent>
@@ -200,10 +204,9 @@ export function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="planificación">Planificación</SelectItem>
                     <SelectItem value="activo">Activo</SelectItem>
+                    <SelectItem value="inactivo">Inactivo</SelectItem>
                     <SelectItem value="finalizado">Finalizado</SelectItem>
-                    <SelectItem value="cancelado">Cancelado</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

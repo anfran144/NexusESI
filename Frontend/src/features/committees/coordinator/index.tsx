@@ -9,100 +9,75 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CommitteeDialog } from './components/committee-dialog'
+import { committeeService, type Committee } from '@/services/committee.service'
+import { eventService, type Event } from '@/services/event.service'
+import { toast } from 'sonner'
 
-interface Committee {
-  id: number
-  name: string
-  event: {
+interface CommitteeWithMembers extends Committee {
+  event?: {
     id: number
     name: string
     status: string
   }
-  members: Array<{
+  members?: Array<{
     id: number
-    user: {
-      id: number
-      name: string
-      email: string
-    }
-    role: string
+    name: string
+    email: string
     assigned_at: string
   }>
-  members_count: number
-  created_at: string
 }
 
 export function ComitesCoordinator() {
-  const [committees, setCommittees] = useState<Committee[]>([])
+  const [committees, setCommittees] = useState<CommitteeWithMembers[]>([])
+  const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingEvents, setLoadingEvents] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null)
+  const [selectedCommittee, setSelectedCommittee] = useState<CommitteeWithMembers | null>(null)
   const [filters, setFilters] = useState({
     search: '',
     event: 'todos'
   })
 
   useEffect(() => {
+    fetchEvents()
     fetchCommittees()
   }, [])
+
+  const fetchEvents = async () => {
+    try {
+      setLoadingEvents(true)
+      const response = await eventService.getEvents()
+      if (response.success) {
+        setEvents(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error)
+      toast.error('Error al cargar los eventos')
+    } finally {
+      setLoadingEvents(false)
+    }
+  }
 
   const fetchCommittees = async () => {
     try {
       setLoading(true)
-      // Simular llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await committeeService.getCommittees()
       
-      // Datos de ejemplo
-      const mockCommittees: Committee[] = [
-        {
-          id: 1,
-          name: 'Comité Organizador',
-          event: {
-            id: 1,
-            name: 'Encuentro Nacional de Semilleros 2024',
-            status: 'planificación'
-          },
-          members: [
-            {
-              id: 1,
-              user: { id: 1, name: 'Ana García', email: 'ana@example.com' },
-              role: 'presidente',
-              assigned_at: '2024-10-01'
-            },
-            {
-              id: 2,
-              user: { id: 2, name: 'Carlos López', email: 'carlos@example.com' },
-              role: 'secretario',
-              assigned_at: '2024-10-02'
-            }
-          ],
-          members_count: 2,
-          created_at: '2024-10-01'
-        },
-        {
-          id: 2,
-          name: 'Comité Académico',
-          event: {
-            id: 1,
-            name: 'Encuentro Nacional de Semilleros 2024',
-            status: 'planificación'
-          },
-          members: [
-            {
-              id: 3,
-              user: { id: 3, name: 'María Rodríguez', email: 'maria@example.com' },
-              role: 'coordinador',
-              assigned_at: '2024-10-03'
-            }
-          ],
-          members_count: 1,
-          created_at: '2024-10-01'
-        }
-      ]
-      
-      setCommittees(mockCommittees)
+      if (response.success) {
+        // Transformar los datos para que coincidan con la estructura esperada
+        const committeesWithDetails: CommitteeWithMembers[] = response.data.map(committee => ({
+          ...committee,
+          event: committee.event,
+          members: committee.members || []
+        }))
+        setCommittees(committeesWithDetails)
+      } else {
+        toast.error('Error al cargar los comités')
+      }
     } catch (error) {
       console.error('Error fetching committees:', error)
+      toast.error('Error al cargar los comités')
     } finally {
       setLoading(false)
     }
@@ -125,8 +100,8 @@ export function ComitesCoordinator() {
 
   const filteredCommittees = committees.filter(committee => {
     const matchesSearch = committee.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-                         committee.event.name.toLowerCase().includes(filters.search.toLowerCase())
-    const matchesEvent = filters.event === 'todos' || committee.event.id.toString() === filters.event
+                         (committee.event?.name || '').toLowerCase().includes(filters.search.toLowerCase())
+    const matchesEvent = filters.event === 'todos' || committee.event?.id.toString() === filters.event
     
     return matchesSearch && matchesEvent
   })
@@ -200,8 +175,11 @@ export function ComitesCoordinator() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos los eventos</SelectItem>
-                  <SelectItem value="1">Encuentro Nacional de Semilleros 2024</SelectItem>
-                  <SelectItem value="2">Simposio de Investigación Regional</SelectItem>
+                  {events.map((event) => (
+                    <SelectItem key={event.id} value={event.id.toString()}>
+                      {event.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -243,12 +221,12 @@ export function ComitesCoordinator() {
               {filteredCommittees.map((committee) => (
                 <Card key={committee.id} className="cursor-pointer hover:shadow-md transition-shadow">
                   <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
+                      <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <CardTitle className="text-lg">{committee.name}</CardTitle>
                         <CardDescription className="flex items-center gap-1 mt-1">
                           <Calendar className="w-3 h-3" />
-                          {committee.event.name}
+                          {committee.event?.name || 'Sin evento'}
                         </CardDescription>
                       </div>
                       <Badge variant="outline" className="ml-2">
@@ -261,17 +239,17 @@ export function ComitesCoordinator() {
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Miembros:</span>
                         <div className="flex -space-x-2">
-                          {committee.members.slice(0, 3).map((member) => (
+                          {committee.members && committee.members.slice(0, 3).map((member) => (
                             <Avatar key={member.id} className="w-6 h-6 border-2 border-background">
-                              <AvatarImage src={`https://avatar.vercel.sh/${member.user.email}`} />
+                              <AvatarImage src={`https://avatar.vercel.sh/${member.email || ''}`} />
                               <AvatarFallback className="text-xs">
-                                {member.user.name.split(' ').map(n => n[0]).join('')}
+                                {member.name?.split(' ').map(n => n[0]).join('') || 'U'}
                               </AvatarFallback>
                             </Avatar>
                           ))}
-                          {committee.members_count > 3 && (
+                          {committee.members_count > (committee.members?.length || 0) && (
                             <div className="w-6 h-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
-                              +{committee.members_count - 3}
+                              +{committee.members_count - (committee.members?.length || 0)}
                             </div>
                           )}
                         </div>

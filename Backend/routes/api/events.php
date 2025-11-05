@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventExportController;
+use App\Http\Controllers\EventMetricsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,6 +37,28 @@ Route::middleware('auth:api')->group(function () {
 
         // Gestión de participantes (solo coordinadores y admins)
         Route::get('/{event}/participants', [EventController::class, 'participants']);
+
+        // Tareas, alertas e incidencias específicas por evento
+        Route::get('/{event}/tasks', [EventController::class, 'tasks']);
+        Route::get('/{event}/my-tasks', [EventController::class, 'myTasks']);
+        Route::get('/{event}/alerts', [EventController::class, 'alerts']);
+        // Estadísticas del evento
+        Route::get('/{event}/statistics', [EventController::class, 'statistics']);
+        // Calendario del evento
+        Route::get('/{event}/calendar', [EventController::class, 'calendar']);
+        
+        // Exportación de reportes
+        Route::get('/{event}/export/pdf', [EventExportController::class, 'exportPdf']);
+        Route::get('/{event}/export/excel', [EventExportController::class, 'exportExcel']);
+        
+        // Métricas avanzadas del evento
+        Route::prefix('{event}/metrics')->group(function () {
+            Route::get('/committees', [EventMetricsController::class, 'committees']);
+            Route::get('/progress-history', [EventMetricsController::class, 'progressHistory']);
+            Route::get('/workload', [EventMetricsController::class, 'workload']);
+            Route::get('/alerts', [EventMetricsController::class, 'alerts']);
+            Route::get('/milestones', [EventMetricsController::class, 'milestones']);
+        });
     });
 
     // Rutas de comités

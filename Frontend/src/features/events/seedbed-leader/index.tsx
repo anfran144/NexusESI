@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Calendar, Users, CheckCircle, Clock, Info, Eye } from 'lucide-react'
 import { eventService, Event } from '@/services/event.service'
 import { useAuth } from '@/hooks/useAuth'
@@ -310,6 +310,9 @@ export function EventosSeedbedLeader() {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Información del Evento</DialogTitle>
+            <DialogDescription>
+              Detalles completos del evento seleccionado
+            </DialogDescription>
           </DialogHeader>
           {eventoSeleccionado && (
             <div className="space-y-6">

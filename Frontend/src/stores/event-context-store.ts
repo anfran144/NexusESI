@@ -32,3 +32,14 @@ export const useEventContext = create<EventContextState>((set) => ({
     })
   }
 }))
+
+// Funciones estables para evitar re-renders innecesarios
+export const useEventContextActions = () => {
+  const setSelectedEvent = useEventContext((state) => state.setSelectedEvent)
+  const clearSelectedEvent = useEventContext((state) => state.clearSelectedEvent)
+  
+  return {
+    setSelectedEvent,
+    clearSelectedEvent
+  }
+}

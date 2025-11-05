@@ -49,6 +49,27 @@ class EventResource extends JsonResource
                 $this->relationLoaded('participants'),
                 fn () => $this->participants->where('status', 'pendiente')->count()
             ),
+            'committees_count' => $this->when(
+                $this->relationLoaded('committees'),
+                fn () => $this->committees->count()
+            ),
+            'progress' => $this->when(
+                $this->relationLoaded('tasks'),
+                function () {
+                    // Calcular progreso basado en tareas completadas
+                    $tasks = $this->tasks;
+                    if ($tasks->isEmpty()) {
+                        return 0;
+                    }
+                    $totalTasks = $tasks->count();
+                    $completedTasks = $tasks->where('status', 'Completed')->count();
+                    return $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 1) : 0;
+                }
+            ),
+            'tasks_completed' => $this->when(
+                $this->relationLoaded('tasks'),
+                fn () => $this->tasks->where('status', 'Completed')->count()
+            ),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
