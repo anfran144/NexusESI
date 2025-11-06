@@ -121,8 +121,18 @@ function MiEventoComponent() {
   const myTasksPending = myTasks.filter(task => task.status === 'InProgress' || task.status === 'Paused').length
   const participationScore = myTasks.length > 0 ? Math.round((myTasksCompleted / myTasks.length) * 100) : 0
   
-  // Calcular días restantes del evento
-  const daysRemaining = activeEvent ? Math.ceil((new Date(activeEvent.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0
+  // Obtener información contextual del tiempo del evento
+  const timeInfo = activeEvent?.time_info || (activeEvent ? {
+    message: activeEvent.status === 'finished' 
+      ? 'Evento finalizado' 
+      : activeEvent.status === 'inactive'
+        ? 'Evento en pausa'
+        : `${Math.ceil((new Date(activeEvent.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} días restantes`,
+    days: activeEvent ? Math.ceil((new Date(activeEvent.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null,
+    is_overdue: false,
+    is_urgent: false
+  } : null)
+  const daysRemaining = timeInfo?.days ?? 0
   
   // Encontrar próxima fecha límite
   const upcomingTasks = myTasks

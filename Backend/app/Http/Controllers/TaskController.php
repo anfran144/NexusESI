@@ -200,10 +200,26 @@ class TaskController extends Controller
             $event = Event::findOrFail($request->event_id);
         }
 
+        // Validar que el evento permita crear tareas
+        if (!$event->canPerformAction('manage_tasks')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden crear tareas en este estado del evento. Solo se permite durante la fase de planificación.',
+            ], 422);
+        }
+
         // Validar que la fecha esté dentro del rango del evento
         $request->validate([
             'due_date' => "after_or_equal:{$event->start_date}|before_or_equal:{$event->end_date}",
         ]);
+
+        // Validar que no se creen tareas después de la fecha de fin
+        if (now()->greaterThan($event->end_date)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden crear tareas después de la fecha de finalización del evento.',
+            ], 422);
+        }
 
         // Crear tarea con risk_level inicial
         $task = Task::create([
@@ -251,6 +267,24 @@ class TaskController extends Controller
                 'success' => false,
                 'message' => 'No se pudo encontrar el evento asociado a la tarea',
             ], 404);
+        }
+
+        // Validar que el evento permita modificar tareas
+        $hasStructuralChanges = $request->has('title') || $request->has('description') || $request->has('due_date') || $request->has('committee_id');
+        
+        if ($hasStructuralChanges && !$event->canPerformAction('manage_tasks')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden modificar tareas en este estado del evento. Solo se permite durante la fase de planificación.',
+            ], 422);
+        }
+
+        // Validar que el evento permita ejecutar tareas (cambios de estado)
+        if ($request->has('status') && !$event->canPerformAction('execute_tasks')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden cambiar estados de tareas en este estado del evento. Solo se permite durante la fase de ejecución.',
+            ], 422);
         }
 
         $request->validate([

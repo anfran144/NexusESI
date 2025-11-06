@@ -7,7 +7,6 @@ import {
   Users, 
   Settings,
   Calendar,
-  Bell,
   CheckSquare,
   FolderKanban,
   Presentation,
@@ -191,17 +190,6 @@ export function getUnifiedSidebarData(user: AuthUser, hasActiveEvent: boolean = 
             url: '#', // Se construirá dinámicamente
             icon: CheckSquare,
             permission: 'events.tasks.manage', // ✅ Nuevo permiso específico de eventos
-            isVisible: () => {
-              const { selectedEventId } = useEventContext.getState()
-              return selectedEventId !== null
-            }
-          },
-          // Mis Tareas - Seedbed Leader (Contextual)
-          {
-            title: 'Mis Tareas',
-            url: '#', // Se construirá dinámicamente
-            icon: CheckSquare,
-            permission: 'events.tasks.view_assigned', // ✅ Nuevo permiso específico de eventos
             isVisible: () => {
               const { selectedEventId } = useEventContext.getState()
               return selectedEventId !== null

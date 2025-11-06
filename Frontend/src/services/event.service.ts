@@ -21,6 +21,24 @@ export interface Event {
   committees_count: number
   progress?: number
   tasks_completed?: number
+  time_info?: {
+    message: string
+    type: 'finished' | 'inactive' | 'planning' | 'execution' | 'needs_finalization'
+    days: number | null
+    is_overdue: boolean
+    is_urgent: boolean
+  }
+  can_perform_actions?: {
+    can_edit_structure: boolean
+    can_delete: boolean
+    can_manage_committees: boolean
+    can_manage_tasks: boolean
+    can_manage_participants: boolean
+    can_execute_tasks: boolean
+    can_finalize: boolean
+    can_reuse_data: boolean
+  }
+  status_transition_suggested?: boolean
   created_at: string
 }
 
@@ -183,6 +201,56 @@ export class EventService {
     }>
   }>> {
     const response = await api.get(`${this.baseUrl}/${eventId}/calendar`)
+    return response.data
+  }
+
+  /**
+   * Obtener eventos finalizados similares para reutilizar datos
+   */
+  async getFinishedSimilarEvents(search?: string): Promise<ApiResponse<Event[]>> {
+    const params = search ? { search } : {}
+    const response = await api.get(`${this.baseUrl}/finished/similar`, { params })
+    return response.data
+  }
+
+  /**
+   * Obtener eventos que necesitan finalización
+   */
+  async getSuggestedFinalizations(): Promise<ApiResponse<Event[]>> {
+    const response = await api.get(`${this.baseUrl}/suggested-finalizations`)
+    return response.data
+  }
+
+  /**
+   * Confirmar transición de estado del evento
+   */
+  async confirmStatusTransition(eventId: number, newStatus: 'finished' | 'inactive' | 'active'): Promise<ApiResponse<Event>> {
+    const response = await api.post(`${this.baseUrl}/${eventId}/confirm-transition`, { new_status: newStatus })
+    return response.data
+  }
+
+  /**
+   * Obtener datos de un evento finalizado para reutilizar
+   */
+  async getEventDataForReuse(eventId: number): Promise<ApiResponse<{
+    event: {
+      name: string
+      description: string
+    }
+    committees: Array<{
+      name: string
+      members: Array<{
+        name: string
+        email: string
+      }>
+    }>
+    tasks: Array<{
+      title: string
+      description: string
+      committee_name?: string
+    }>
+  }>> {
+    const response = await api.get(`${this.baseUrl}/${eventId}/reuse-data`)
     return response.data
   }
 }

@@ -758,4 +758,78 @@ class NotificationService
                 Log::info("Broadcast [{$channel}] Event: {$event}", $data);
         }
     }
+
+    /**
+     * Enviar notificación de transición de estado de evento sugerida
+     */
+    public function sendEventStatusTransitionNotification(Event $event, Notification $notification): void
+    {
+        if (!$this->broadcastingEnabled) {
+            Log::debug("Broadcasting disabled. Skipping event status transition notification for event {$event->id}");
+            return;
+        }
+
+        try {
+            $this->broadcastToUser(
+                $event->coordinator_id,
+                'event.status_transition_suggested',
+                [
+                    'notification' => [
+                        'id' => $notification->id,
+                        'title' => $notification->title,
+                        'message' => $notification->message,
+                        'type' => $notification->type,
+                        'created_at' => $notification->created_at->toISOString(),
+                    ],
+                    'event' => [
+                        'id' => $event->id,
+                        'name' => $event->name,
+                        'status' => $event->status,
+                        'end_date' => $event->end_date->toISOString(),
+                        'suggested_status' => 'finished',
+                    ],
+                ]
+            );
+
+            Log::info("Event status transition notification sent to coordinator {$event->coordinator_id} via {$this->driver}");
+        } catch (\Exception $e) {
+            Log::error("Failed to send event status transition notification: " . $e->getMessage(), [
+                'event_id' => $event->id,
+                'coordinator_id' => $event->coordinator_id,
+                'driver' => $this->driver,
+                'exception' => $e
+            ]);
+        }
+    }
+
+    /**
+     * Enviar notificación de sugerencia de finalización automática
+     */
+    public function sendEventFinalizationSuggestion(Event $event): void
+    {
+        try {
+            $daysSinceEnd = now()->diffInDays($event->end_date);
+            
+            $notification = Notification::create([
+                'title' => 'Sugerencia de finalización de evento',
+                'message' => "El evento '{$event->name}' finalizó hace {$daysSinceEnd} día" . ($daysSinceEnd !== 1 ? 's' : '') . ". ¿Deseas finalizarlo ahora?",
+                'type' => 'event_finalization_suggestion',
+                'user_id' => $event->coordinator_id,
+                'is_read' => false,
+                'metadata' => [
+                    'event_id' => $event->id,
+                    'event_name' => $event->name,
+                    'end_date' => $event->end_date->toDateString(),
+                    'days_since_end' => $daysSinceEnd,
+                ],
+            ]);
+
+            $this->sendEventStatusTransitionNotification($event, $notification);
+        } catch (\Exception $e) {
+            Log::error("Failed to send event finalization suggestion: " . $e->getMessage(), [
+                'event_id' => $event->id,
+                'exception' => $e
+            ]);
+        }
+    }
 }

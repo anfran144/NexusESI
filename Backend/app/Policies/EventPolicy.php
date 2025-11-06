@@ -48,7 +48,23 @@ class EventPolicy
     {
         // Coordinator solo puede editar eventos que coordina y de su institución
         if ($user->hasRole('coordinator') && $user->can('events.edit')) {
-            return $event->coordinator_id === $user->id && $event->institution_id === $user->institution_id;
+            $isCoordinator = $event->coordinator_id === $user->id && $event->institution_id === $user->institution_id;
+            
+            if (!$isCoordinator) {
+                return false;
+            }
+
+            // Si el evento está finalizado, solo permitir correcciones menores (descripción)
+            if ($event->status === 'finished') {
+                return true; // La validación de qué campos se pueden editar se hace en el controlador
+            }
+
+            // Si el evento está inactivo, solo permitir reactivación
+            if ($event->status === 'inactive') {
+                return true; // La validación se hace en el controlador
+            }
+
+            return true;
         }
 
         return false;
@@ -61,9 +77,16 @@ class EventPolicy
     {
         // Coordinator solo puede eliminar eventos que coordina, de su institución y que estén activos
         if ($user->hasRole('coordinator') && $user->can('events.delete')) {
-            return $event->coordinator_id === $user->id
+            $isCoordinator = $event->coordinator_id === $user->id
                 && $event->institution_id === $user->institution_id
                 && $event->status === 'active';
+
+            if (!$isCoordinator) {
+                return false;
+            }
+
+            // Solo permitir eliminar si está en fase de planificación (antes de start_date)
+            return $event->isInPlanningPhase();
         }
 
         return false;
@@ -119,7 +142,70 @@ class EventPolicy
     {
         // Coordinator solo puede gestionar comités de eventos que coordina
         if ($user->hasRole('coordinator') && $user->can('events.committees.manage')) {
-            return $event->coordinator_id === $user->id;
+            $isCoordinator = $event->coordinator_id === $user->id && $event->institution_id === $user->institution_id;
+            
+            if (!$isCoordinator) {
+                return false;
+            }
+
+            // Validar que el evento permita gestionar comités
+            return $event->canPerformAction('manage_committees');
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can manage tasks.
+     */
+    public function canManageTasks(User $user, Event $event): bool
+    {
+        if ($user->hasRole('coordinator') && $user->can('events.tasks.manage')) {
+            $isCoordinator = $event->coordinator_id === $user->id && $event->institution_id === $user->institution_id;
+            
+            if (!$isCoordinator) {
+                return false;
+            }
+
+            return $event->canPerformAction('manage_tasks');
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can manage participants.
+     * Este método ya existe, pero lo actualizamos para incluir validación de estado.
+     */
+    public function canManageParticipants(User $user, Event $event): bool
+    {
+        // Coordinator solo puede gestionar participantes de eventos que coordina y de su institución
+        if ($user->hasRole('coordinator') && $user->can('events.manage_participants')) {
+            $isCoordinator = $event->coordinator_id === $user->id && $event->institution_id === $user->institution_id;
+            
+            if (!$isCoordinator) {
+                return false;
+            }
+
+            return $event->canPerformAction('manage_participants');
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can reuse data from a finished event.
+     */
+    public function canReuseData(User $user, Event $event): bool
+    {
+        if ($user->hasRole('coordinator') && $user->can('events.view')) {
+            $isCoordinator = $event->coordinator_id === $user->id && $event->institution_id === $user->institution_id;
+            
+            if (!$isCoordinator) {
+                return false;
+            }
+
+            return $event->status === 'finished' && $event->canPerformAction('reuse_data');
         }
 
         return false;

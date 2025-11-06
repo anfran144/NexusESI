@@ -35,4 +35,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ->daily()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // Ejecutar verificación de transiciones de estado de eventos diariamente
+        $schedule->command('events:check-status-transitions')
+            ->daily()
+            ->withoutOverlapping()
+            ->runInBackground();
     })->create();

@@ -46,6 +46,24 @@ class TaskPolicy
     }
 
     /**
+     * Determine whether the user can create a task for a specific event.
+     */
+    public function createForEvent(User $user, \App\Models\Event $event): bool
+    {
+        if (!$this->create($user)) {
+            return false;
+        }
+
+        // Verificar que el usuario pertenece a la institución del evento
+        if ($user->institution_id !== $event->institution_id) {
+            return false;
+        }
+
+        // Validar que el evento permita crear tareas
+        return $event->canPerformAction('manage_tasks');
+    }
+
+    /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Task $task): bool
@@ -61,7 +79,14 @@ class TaskPolicy
         // Solo coordinadores pueden modificar tareas de su institución
         // Obtener el evento desde committee o directamente
         $event = $task->event ?? $task->committee?->event;
-        return $event && $user->institution_id === $event->institution_id;
+        
+        if (!$event || $user->institution_id !== $event->institution_id) {
+            return false;
+        }
+
+        // La validación de qué campos se pueden modificar según el estado se hace en el controlador
+        // Aquí solo verificamos permisos básicos
+        return true;
     }
 
     /**
@@ -111,6 +136,11 @@ class TaskPolicy
                 return false;
             }
             
+            // Verificar que el evento permita ejecutar tareas (asignación)
+            if (!$event->canPerformAction('execute_tasks')) {
+                return false;
+            }
+            
             // Verificar que el request está intentando asignar al mismo usuario
             // Esta validación se hace en el controlador, pero verificamos aquí también
             // Si llega a este punto, el líder puede asignarse a sí mismo
@@ -125,8 +155,8 @@ class TaskPolicy
             return false;
         }
 
-        // Los coordinadores pueden asignar tareas de su institución
-        return true;
+        // Validar que el evento permita gestionar tareas (para coordinadores)
+        return $event->canPerformAction('manage_tasks');
     }
 
     /**
@@ -143,7 +173,17 @@ class TaskPolicy
         }
 
         // Solo el usuario asignado puede completar la tarea
-        return $task->assigned_to_id === $user->id;
+        if ($task->assigned_to_id !== $user->id) {
+            return false;
+        }
+
+        // Obtener el evento y validar que permita ejecutar tareas
+        $event = $task->event ?? $task->committee?->event;
+        if ($event && !$event->canPerformAction('execute_tasks')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -160,7 +200,17 @@ class TaskPolicy
         }
 
         // Solo el usuario asignado puede reportar progreso
-        return $task->assigned_to_id === $user->id;
+        if ($task->assigned_to_id !== $user->id) {
+            return false;
+        }
+
+        // Obtener el evento y validar que permita ejecutar tareas
+        $event = $task->event ?? $task->committee?->event;
+        if ($event && !$event->canPerformAction('execute_tasks')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

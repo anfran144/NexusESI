@@ -156,6 +156,32 @@ class EventController extends Controller
     {
         $this->authorize('update', $event);
 
+        // Validar que no se puedan hacer cambios estructurales si el evento ya inició
+        $hasStructuralChanges = $request->has('start_date') || $request->has('end_date') || $request->has('name');
+        
+        if ($hasStructuralChanges && $event->isInExecutionPhase()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden modificar las fechas o estructura del evento mientras está en ejecución.',
+            ], 422);
+        }
+
+        // Si el evento está finalizado, solo permitir correcciones menores (descripción)
+        if ($event->status === 'finished' && $hasStructuralChanges) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden modificar eventos finalizados. Solo se permite actualizar la descripción.',
+            ], 422);
+        }
+
+        // Si el evento está inactivo, solo permitir reactivación
+        if ($event->status === 'inactive' && !$request->has('status')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden modificar eventos inactivos. Solo se permite reactivarlos.',
+            ], 422);
+        }
+
         $event->update($request->validated());
 
         return response()->json([
@@ -176,6 +202,14 @@ class EventController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Solo se pueden eliminar eventos en estado activo.',
+            ], 422);
+        }
+
+        // Solo permitir eliminar si está en fase de planificación (antes de start_date)
+        if (!$event->isInPlanningPhase()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden eliminar eventos que aún no han iniciado.',
             ], 422);
         }
 
@@ -225,13 +259,16 @@ class EventController extends Controller
      */
     public function participants(Event $event): JsonResponse
     {
-        $this->authorize('manageParticipants', $event);
+        // Permitir ver participantes si tiene acceso al evento (solo lectura)
+        // La gestión (crear/modificar/eliminar) se valida en los métodos específicos
+        $this->authorize('view', $event);
 
         $participants = $event->participants()->with(['user.institution'])->get();
 
         return response()->json([
             'success' => true,
             'data' => EventParticipantResource::collection($participants),
+            'can_manage' => $event->canPerformAction('manage_participants'), // Información para el frontend
         ]);
     }
 
@@ -614,6 +651,160 @@ class EventController extends Controller
                     ];
                 }),
             ],
+        ]);
+    }
+
+    /**
+     * Obtener eventos finalizados similares para reutilizar datos
+     */
+    public function getFinishedSimilar(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', Event::class);
+
+        $user = Auth::user();
+        $searchQuery = $request->get('search', '');
+
+        // Buscar eventos finalizados de la misma institución
+        $query = Event::where('status', 'finished')
+            ->where('institution_id', $user->institution_id)
+            ->with(['coordinator', 'institution', 'committees', 'tasks']);
+
+        // Si hay búsqueda, filtrar por nombre similar
+        if ($searchQuery) {
+            $query->where('name', 'like', "%{$searchQuery}%");
+        }
+
+        $events = $query->orderBy('end_date', 'desc')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => EventResource::collection($events),
+        ]);
+    }
+
+    /**
+     * Obtener datos de un evento finalizado para reutilizar
+     */
+    public function getEventDataForReuse(Event $event): JsonResponse
+    {
+        $this->authorize('view', $event);
+
+        // Verificar que el evento esté finalizado
+        if ($event->status !== 'finished') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden reutilizar datos de eventos finalizados.',
+            ], 422);
+        }
+
+        // Cargar todas las relaciones necesarias
+        $event->load([
+            'committees.users',
+            'tasks' => function ($query) {
+                $query->with(['committee', 'assignedTo']);
+            },
+        ]);
+
+        // Preparar datos para reutilización
+        $reusableData = [
+            'event' => [
+                'name' => $event->name,
+                'description' => $event->description,
+            ],
+            'committees' => $event->committees->map(function ($committee) {
+                return [
+                    'name' => $committee->name,
+                    'members' => $committee->users->map(function ($user) {
+                        return [
+                            'name' => $user->name,
+                            'email' => $user->email,
+                        ];
+                    })->toArray(),
+                ];
+            })->toArray(),
+            'tasks' => $event->tasks->map(function ($task) {
+                return [
+                    'title' => $task->title,
+                    'description' => $task->description,
+                    'committee_name' => $task->committee?->name,
+                ];
+            })->toArray(),
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $reusableData,
+        ]);
+    }
+
+    /**
+     * Obtener eventos que necesitan finalización
+     */
+    public function suggestedFinalizations(): JsonResponse
+    {
+        $this->authorize('viewAny', Event::class);
+
+        $user = Auth::user();
+
+        // Obtener eventos que necesitan finalización (del coordinador)
+        $events = Event::where('coordinator_id', $user->id)
+            ->where('institution_id', $user->institution_id)
+            ->where('status', '!=', 'finished')
+            ->where('end_date', '<', now())
+            ->with(['coordinator', 'institution'])
+            ->orderBy('end_date', 'desc')
+            ->get()
+            ->filter(function ($event) {
+                return $event->shouldSuggestFinalization();
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => EventResource::collection($events),
+        ]);
+    }
+
+    /**
+     * Confirmar transición de estado del evento
+     */
+    public function confirmStatusTransition(Event $event, Request $request): JsonResponse
+    {
+        $this->authorize('update', $event);
+
+        $request->validate([
+            'new_status' => 'required|in:finished,inactive,active',
+        ]);
+
+        $newStatus = $request->new_status;
+
+        // Validar transiciones permitidas
+        $allowedTransitions = [
+            'active' => ['inactive', 'finished'],
+            'inactive' => ['active'],
+            'finished' => [], // No se puede cambiar un evento finalizado
+        ];
+
+        if (!in_array($newStatus, $allowedTransitions[$event->status] ?? [])) {
+            return response()->json([
+                'success' => false,
+                'message' => "No se puede cambiar el estado de '{$event->status}' a '{$newStatus}'.",
+            ], 422);
+        }
+
+        // Validaciones específicas para finalización
+        if ($newStatus === 'finished' && !$event->isPostExecution()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se puede finalizar un evento después de su fecha de fin.',
+            ], 422);
+        }
+
+        $event->update(['status' => $newStatus]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Estado del evento cambiado a '{$newStatus}' exitosamente.",
+            'data' => new EventResource($event->load(['coordinator', 'institution'])),
         ]);
     }
 }

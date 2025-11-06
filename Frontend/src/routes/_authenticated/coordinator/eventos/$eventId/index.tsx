@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { eventService, type Event } from '@/services/event.service'
 import { toast } from 'sonner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -239,12 +240,20 @@ const MetricCard = ({
   )
 }
 
-// Helper para calcular días restantes
-function getDaysRemaining(endDate: string): number {
-  const end = new Date(endDate)
+// Helper para obtener información contextual del tiempo del evento
+function getEventTimeInfo(event: any): string {
+  if (event.time_info?.message) {
+    return event.time_info.message
+  }
+  // Fallback si no hay time_info (backward compatibility)
+  const end = new Date(event.end_date)
   const today = new Date()
   const diff = end.getTime() - today.getTime()
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+  if (days < 0) {
+    return `Finalizado hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}`
+  }
+  return `${days} día${days !== 1 ? 's' : ''} restante${days !== 1 ? 's' : ''}`
 }
 
 // Helper para formatear fecha
@@ -577,9 +586,9 @@ function EventDetailsPage() {
     )
   }
 
-  const daysRemaining = getDaysRemaining(event.end_date)
-  const isOverdue = daysRemaining < 0
-  const isUrgent = daysRemaining >= 0 && daysRemaining <= 7
+  const timeInfo = event.time_info || { message: getEventTimeInfo(event), type: 'planning', days: null, is_overdue: false, is_urgent: false }
+  const isOverdue = timeInfo.is_overdue
+  const isUrgent = timeInfo.is_urgent
 
   return (
     <PermissionGuard permission="events.view">
@@ -589,6 +598,38 @@ function EventDetailsPage() {
           description="Panel de gestión del evento"
         >
           <div className="space-y-8">
+            {/* Banner de alerta para eventos que necesitan finalización */}
+            {event.status_transition_suggested && event.status !== 'finished' && (
+              <Alert variant="destructive" className="border-orange-500 bg-orange-50 dark:bg-orange-950/20">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle className="font-semibold">Evento requiere finalización</AlertTitle>
+                <AlertDescription className="mt-2">
+                  <p className="mb-3">
+                    {timeInfo.message}. Por favor, finaliza el evento en el sistema para completar el proceso.
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await eventService.confirmStatusTransition(Number(eventId), 'finished')
+                        toast.success('Evento finalizado exitosamente')
+                        // Recargar el evento
+                        const response = await eventService.getEvent(Number(eventId))
+                        if (response.success) {
+                          setEvent(response.data)
+                        }
+                      } catch (error: any) {
+                        toast.error(error.response?.data?.message || 'Error al finalizar el evento')
+                      }
+                    }}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Finalizar evento
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Hero Card del Evento Mejorado */}
             <Card className="relative overflow-hidden border-2 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20">
               {/* Patrón de fondo decorativo */}
@@ -620,12 +661,7 @@ function EventDetailsPage() {
                         variant={isOverdue ? "destructive" : isUrgent ? "secondary" : "outline"}
                         className="text-sm px-4 py-2 h-auto"
                       >
-                        {isOverdue
-                          ? `Finalizado hace ${Math.abs(daysRemaining)} días`
-                          : daysRemaining > 0
-                            ? `${daysRemaining} día${daysRemaining !== 1 ? 's' : ''} restante${daysRemaining !== 1 ? 's' : ''}`
-                            : 'Finalizado hoy'
-                        }
+                        {timeInfo.message}
                       </Badge>
                       {/* Botones de Exportación */}
                       <div className="flex flex-wrap gap-2 pt-2 border-t border-border/30">

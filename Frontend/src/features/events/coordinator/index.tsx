@@ -102,11 +102,19 @@ const StatusIndicator = ({ status }: { status: string }) => {
 }
 
 // Helper functions
-const getDaysRemaining = (endDate: string): number => {
-  const end = new Date(endDate)
+const getEventTimeInfo = (event: any): string => {
+  if (event.time_info?.message) {
+    return event.time_info.message
+  }
+  // Fallback si no hay time_info (backward compatibility)
+  const end = new Date(event.end_date)
   const now = new Date()
   const diffTime = end.getTime() - now.getTime()
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  if (days < 0) {
+    return `Finalizado hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}`
+  }
+  return `${days} día${days !== 1 ? 's' : ''} restante${days !== 1 ? 's' : ''}`
 }
 
 const formatDate = (dateString: string): string => {
@@ -177,11 +185,36 @@ export function EventosCoordinator() {
   // Crear nuevo evento
   const crearEvento = async (data: any) => {
     try {
+      // Mapear valores de estado de español a inglés
+      const statusMap: Record<string, 'active' | 'inactive' | 'finished'> = {
+        'activo': 'active',
+        'inactivo': 'inactive',
+        'finalizado': 'finished'
+      }
+
+      // Formatear fechas de Date objects a strings YYYY-MM-DD
+      const formatDate = (date: Date | string): string => {
+        if (date instanceof Date) {
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
+          return `${year}-${month}-${day}`
+        }
+        return date
+      }
+
       const eventData = {
-        ...data,
+        name: data.name,
+        description: data.description,
+        start_date: formatDate(data.start_date),
+        end_date: formatDate(data.end_date),
+        institution_id: typeof data.institution_id === 'string' 
+          ? parseInt(data.institution_id, 10) 
+          : data.institution_id || user?.institution_id,
+        // El backend asigna automáticamente coordinator_id, pero lo incluimos por si acaso
         coordinator_id: user?.id,
-        institution_id: user?.institution_id,
-        status: 'planificación' as const
+        // Mapear status si existe, o no incluirlo (el backend asignará un valor por defecto)
+        ...(data.status && statusMap[data.status] ? { status: statusMap[data.status] } : {})
       }
 
       const response = await eventService.createEvent(eventData)
@@ -462,8 +495,11 @@ export function EventosCoordinator() {
                               <Badge variant={getStatusVariant(evento.status)}>
                                 {getStatusLabel(evento.status)}
                               </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {getDaysRemaining(evento.end_date)} días restantes
+                              <Badge 
+                                variant={evento.time_info?.is_urgent ? "destructive" : "outline"} 
+                                className="text-xs"
+                              >
+                                {getEventTimeInfo(evento)}
                               </Badge>
                             </div>
                           </div>
@@ -575,7 +611,7 @@ export function EventosCoordinator() {
                             <div>{formatDate(evento.start_date)}</div>
                             <div className="text-muted-foreground">{formatDate(evento.end_date)}</div>
                             <div className="text-xs text-muted-foreground">
-                              {getDaysRemaining(evento.end_date)} días restantes
+                              {getEventTimeInfo(evento)}
                             </div>
                           </div>
                         </TableCell>

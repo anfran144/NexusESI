@@ -100,8 +100,6 @@ function SidebarMenuLink({ item, href }: { item: NavLink; href: string }) {
         url = `/coordinator/eventos/${selectedEventId}/comites`
       } else if (item.title === 'Banco de Tareas') {
         url = `/coordinator/eventos/${selectedEventId}/tasks` // ✅ Ruta contextual
-      } else if (item.title === 'Mis Tareas') {
-        url = `/coordinator/eventos/${selectedEventId}/my-tasks` // ✅ Ruta contextual
       } else if (item.title === 'Monitoreo') {
         url = `/coordinator/eventos/${selectedEventId}/monitoreo` // ✅ Ruta contextual
       } else if (item.title === 'Incidencias') {
@@ -261,8 +259,6 @@ function checkIsActive(href: string, item: NavItem, mainNav = false) {
         expectedUrl = `/coordinator/eventos/${selectedEventId}/comites`
       } else if (item.title === 'Banco de Tareas') {
         expectedUrl = `/coordinator/eventos/${selectedEventId}/tasks`
-      } else if (item.title === 'Mis Tareas') {
-        expectedUrl = `/coordinator/eventos/${selectedEventId}/my-tasks`
       } else if (item.title === 'Monitoreo') {
         expectedUrl = `/coordinator/eventos/${selectedEventId}/monitoreo`
       } else if (item.title === 'Incidencias') {

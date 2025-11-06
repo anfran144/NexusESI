@@ -43,11 +43,6 @@ export const Breadcrumb = () => {
           label: 'Banco de Tareas',
           href: `/coordinator/eventos/${selectedEventId}/tasks`
         })
-      } else if (location.pathname.includes('/my-tasks')) {
-        crumbs.push({
-          label: 'Mis Tareas',
-          href: `/coordinator/eventos/${selectedEventId}/my-tasks`
-        })
       } else if (location.pathname.includes('/monitoreo')) {
         crumbs.push({
           label: 'Monitoreo',

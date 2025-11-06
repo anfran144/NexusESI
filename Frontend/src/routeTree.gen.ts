@@ -47,12 +47,10 @@ import { Route as AuthenticatedSeedbedLeaderMiEventoCalendarioRouteImport } from
 import { Route as AuthenticatedCoordinatorEventosEventIdIndexRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/index'
 import { Route as AuthenticatedCoordinatorEventosEventIdTasksRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/tasks'
 import { Route as AuthenticatedCoordinatorEventosEventIdParticipantesRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/participantes'
-import { Route as AuthenticatedCoordinatorEventosEventIdMyTasksRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/my-tasks'
 import { Route as AuthenticatedCoordinatorEventosEventIdMonitoreoRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/monitoreo'
 import { Route as AuthenticatedCoordinatorEventosEventIdIncidenciasRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/incidencias'
 import { Route as AuthenticatedCoordinatorEventosEventIdComitesRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/comites'
 import { Route as AuthenticatedCoordinatorEventosEventIdCalendarioRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/calendario'
-import { Route as AuthenticatedCoordinatorEventosEventIdAlertsRouteImport } from './routes/_authenticated/coordinator/eventos/$eventId/alerts'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -268,12 +266,6 @@ const AuthenticatedCoordinatorEventosEventIdParticipantesRoute =
     path: '/coordinator/eventos/$eventId/participantes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCoordinatorEventosEventIdMyTasksRoute =
-  AuthenticatedCoordinatorEventosEventIdMyTasksRouteImport.update({
-    id: '/coordinator/eventos/$eventId/my-tasks',
-    path: '/coordinator/eventos/$eventId/my-tasks',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedCoordinatorEventosEventIdMonitoreoRoute =
   AuthenticatedCoordinatorEventosEventIdMonitoreoRouteImport.update({
     id: '/coordinator/eventos/$eventId/monitoreo',
@@ -296,12 +288,6 @@ const AuthenticatedCoordinatorEventosEventIdCalendarioRoute =
   AuthenticatedCoordinatorEventosEventIdCalendarioRouteImport.update({
     id: '/coordinator/eventos/$eventId/calendario',
     path: '/coordinator/eventos/$eventId/calendario',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedCoordinatorEventosEventIdAlertsRoute =
-  AuthenticatedCoordinatorEventosEventIdAlertsRouteImport.update({
-    id: '/coordinator/eventos/$eventId/alerts',
-    path: '/coordinator/eventos/$eventId/alerts',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -340,12 +326,10 @@ export interface FileRoutesByFullPath {
   '/tasks/$taskId/alerts': typeof AuthenticatedTasksTaskIdAlertsRoute
   '/tasks/committee/$committeeId': typeof AuthenticatedTasksCommitteeCommitteeIdRoute
   '/coordinator/eventos': typeof AuthenticatedCoordinatorEventosIndexRoute
-  '/coordinator/eventos/$eventId/alerts': typeof AuthenticatedCoordinatorEventosEventIdAlertsRoute
   '/coordinator/eventos/$eventId/calendario': typeof AuthenticatedCoordinatorEventosEventIdCalendarioRoute
   '/coordinator/eventos/$eventId/comites': typeof AuthenticatedCoordinatorEventosEventIdComitesRoute
   '/coordinator/eventos/$eventId/incidencias': typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRoute
   '/coordinator/eventos/$eventId/monitoreo': typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRoute
-  '/coordinator/eventos/$eventId/my-tasks': typeof AuthenticatedCoordinatorEventosEventIdMyTasksRoute
   '/coordinator/eventos/$eventId/participantes': typeof AuthenticatedCoordinatorEventosEventIdParticipantesRoute
   '/coordinator/eventos/$eventId/tasks': typeof AuthenticatedCoordinatorEventosEventIdTasksRoute
   '/coordinator/eventos/$eventId': typeof AuthenticatedCoordinatorEventosEventIdIndexRoute
@@ -384,12 +368,10 @@ export interface FileRoutesByTo {
   '/tasks/$taskId/alerts': typeof AuthenticatedTasksTaskIdAlertsRoute
   '/tasks/committee/$committeeId': typeof AuthenticatedTasksCommitteeCommitteeIdRoute
   '/coordinator/eventos': typeof AuthenticatedCoordinatorEventosIndexRoute
-  '/coordinator/eventos/$eventId/alerts': typeof AuthenticatedCoordinatorEventosEventIdAlertsRoute
   '/coordinator/eventos/$eventId/calendario': typeof AuthenticatedCoordinatorEventosEventIdCalendarioRoute
   '/coordinator/eventos/$eventId/comites': typeof AuthenticatedCoordinatorEventosEventIdComitesRoute
   '/coordinator/eventos/$eventId/incidencias': typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRoute
   '/coordinator/eventos/$eventId/monitoreo': typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRoute
-  '/coordinator/eventos/$eventId/my-tasks': typeof AuthenticatedCoordinatorEventosEventIdMyTasksRoute
   '/coordinator/eventos/$eventId/participantes': typeof AuthenticatedCoordinatorEventosEventIdParticipantesRoute
   '/coordinator/eventos/$eventId/tasks': typeof AuthenticatedCoordinatorEventosEventIdTasksRoute
   '/coordinator/eventos/$eventId': typeof AuthenticatedCoordinatorEventosEventIdIndexRoute
@@ -431,12 +413,10 @@ export interface FileRoutesById {
   '/_authenticated/tasks/$taskId/alerts': typeof AuthenticatedTasksTaskIdAlertsRoute
   '/_authenticated/tasks/committee/$committeeId': typeof AuthenticatedTasksCommitteeCommitteeIdRoute
   '/_authenticated/coordinator/eventos/': typeof AuthenticatedCoordinatorEventosIndexRoute
-  '/_authenticated/coordinator/eventos/$eventId/alerts': typeof AuthenticatedCoordinatorEventosEventIdAlertsRoute
   '/_authenticated/coordinator/eventos/$eventId/calendario': typeof AuthenticatedCoordinatorEventosEventIdCalendarioRoute
   '/_authenticated/coordinator/eventos/$eventId/comites': typeof AuthenticatedCoordinatorEventosEventIdComitesRoute
   '/_authenticated/coordinator/eventos/$eventId/incidencias': typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRoute
   '/_authenticated/coordinator/eventos/$eventId/monitoreo': typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRoute
-  '/_authenticated/coordinator/eventos/$eventId/my-tasks': typeof AuthenticatedCoordinatorEventosEventIdMyTasksRoute
   '/_authenticated/coordinator/eventos/$eventId/participantes': typeof AuthenticatedCoordinatorEventosEventIdParticipantesRoute
   '/_authenticated/coordinator/eventos/$eventId/tasks': typeof AuthenticatedCoordinatorEventosEventIdTasksRoute
   '/_authenticated/coordinator/eventos/$eventId/': typeof AuthenticatedCoordinatorEventosEventIdIndexRoute
@@ -478,12 +458,10 @@ export interface FileRouteTypes {
     | '/tasks/$taskId/alerts'
     | '/tasks/committee/$committeeId'
     | '/coordinator/eventos'
-    | '/coordinator/eventos/$eventId/alerts'
     | '/coordinator/eventos/$eventId/calendario'
     | '/coordinator/eventos/$eventId/comites'
     | '/coordinator/eventos/$eventId/incidencias'
     | '/coordinator/eventos/$eventId/monitoreo'
-    | '/coordinator/eventos/$eventId/my-tasks'
     | '/coordinator/eventos/$eventId/participantes'
     | '/coordinator/eventos/$eventId/tasks'
     | '/coordinator/eventos/$eventId'
@@ -522,12 +500,10 @@ export interface FileRouteTypes {
     | '/tasks/$taskId/alerts'
     | '/tasks/committee/$committeeId'
     | '/coordinator/eventos'
-    | '/coordinator/eventos/$eventId/alerts'
     | '/coordinator/eventos/$eventId/calendario'
     | '/coordinator/eventos/$eventId/comites'
     | '/coordinator/eventos/$eventId/incidencias'
     | '/coordinator/eventos/$eventId/monitoreo'
-    | '/coordinator/eventos/$eventId/my-tasks'
     | '/coordinator/eventos/$eventId/participantes'
     | '/coordinator/eventos/$eventId/tasks'
     | '/coordinator/eventos/$eventId'
@@ -568,12 +544,10 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/$taskId/alerts'
     | '/_authenticated/tasks/committee/$committeeId'
     | '/_authenticated/coordinator/eventos/'
-    | '/_authenticated/coordinator/eventos/$eventId/alerts'
     | '/_authenticated/coordinator/eventos/$eventId/calendario'
     | '/_authenticated/coordinator/eventos/$eventId/comites'
     | '/_authenticated/coordinator/eventos/$eventId/incidencias'
     | '/_authenticated/coordinator/eventos/$eventId/monitoreo'
-    | '/_authenticated/coordinator/eventos/$eventId/my-tasks'
     | '/_authenticated/coordinator/eventos/$eventId/participantes'
     | '/_authenticated/coordinator/eventos/$eventId/tasks'
     | '/_authenticated/coordinator/eventos/$eventId/'
@@ -861,13 +835,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdParticipantesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/coordinator/eventos/$eventId/my-tasks': {
-      id: '/_authenticated/coordinator/eventos/$eventId/my-tasks'
-      path: '/coordinator/eventos/$eventId/my-tasks'
-      fullPath: '/coordinator/eventos/$eventId/my-tasks'
-      preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdMyTasksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/coordinator/eventos/$eventId/monitoreo': {
       id: '/_authenticated/coordinator/eventos/$eventId/monitoreo'
       path: '/coordinator/eventos/$eventId/monitoreo'
@@ -894,13 +861,6 @@ declare module '@tanstack/react-router' {
       path: '/coordinator/eventos/$eventId/calendario'
       fullPath: '/coordinator/eventos/$eventId/calendario'
       preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdCalendarioRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/coordinator/eventos/$eventId/alerts': {
-      id: '/_authenticated/coordinator/eventos/$eventId/alerts'
-      path: '/coordinator/eventos/$eventId/alerts'
-      fullPath: '/coordinator/eventos/$eventId/alerts'
-      preLoaderRoute: typeof AuthenticatedCoordinatorEventosEventIdAlertsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -963,12 +923,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTasksTaskIdAlertsRoute: typeof AuthenticatedTasksTaskIdAlertsRoute
   AuthenticatedTasksCommitteeCommitteeIdRoute: typeof AuthenticatedTasksCommitteeCommitteeIdRoute
   AuthenticatedCoordinatorEventosIndexRoute: typeof AuthenticatedCoordinatorEventosIndexRoute
-  AuthenticatedCoordinatorEventosEventIdAlertsRoute: typeof AuthenticatedCoordinatorEventosEventIdAlertsRoute
   AuthenticatedCoordinatorEventosEventIdCalendarioRoute: typeof AuthenticatedCoordinatorEventosEventIdCalendarioRoute
   AuthenticatedCoordinatorEventosEventIdComitesRoute: typeof AuthenticatedCoordinatorEventosEventIdComitesRoute
   AuthenticatedCoordinatorEventosEventIdIncidenciasRoute: typeof AuthenticatedCoordinatorEventosEventIdIncidenciasRoute
   AuthenticatedCoordinatorEventosEventIdMonitoreoRoute: typeof AuthenticatedCoordinatorEventosEventIdMonitoreoRoute
-  AuthenticatedCoordinatorEventosEventIdMyTasksRoute: typeof AuthenticatedCoordinatorEventosEventIdMyTasksRoute
   AuthenticatedCoordinatorEventosEventIdParticipantesRoute: typeof AuthenticatedCoordinatorEventosEventIdParticipantesRoute
   AuthenticatedCoordinatorEventosEventIdTasksRoute: typeof AuthenticatedCoordinatorEventosEventIdTasksRoute
   AuthenticatedCoordinatorEventosEventIdIndexRoute: typeof AuthenticatedCoordinatorEventosEventIdIndexRoute
@@ -999,8 +957,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedTasksCommitteeCommitteeIdRoute,
   AuthenticatedCoordinatorEventosIndexRoute:
     AuthenticatedCoordinatorEventosIndexRoute,
-  AuthenticatedCoordinatorEventosEventIdAlertsRoute:
-    AuthenticatedCoordinatorEventosEventIdAlertsRoute,
   AuthenticatedCoordinatorEventosEventIdCalendarioRoute:
     AuthenticatedCoordinatorEventosEventIdCalendarioRoute,
   AuthenticatedCoordinatorEventosEventIdComitesRoute:
@@ -1009,8 +965,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedCoordinatorEventosEventIdIncidenciasRoute,
   AuthenticatedCoordinatorEventosEventIdMonitoreoRoute:
     AuthenticatedCoordinatorEventosEventIdMonitoreoRoute,
-  AuthenticatedCoordinatorEventosEventIdMyTasksRoute:
-    AuthenticatedCoordinatorEventosEventIdMyTasksRoute,
   AuthenticatedCoordinatorEventosEventIdParticipantesRoute:
     AuthenticatedCoordinatorEventosEventIdParticipantesRoute,
   AuthenticatedCoordinatorEventosEventIdTasksRoute:

@@ -28,9 +28,10 @@ class CommitteeController extends Controller
         $user = Auth::user();
 
         if ($request->filled('event_id')) {
-            // Si se especifica un evento, verificar permisos para gestionar comités
+            // Si se especifica un evento, verificar permisos para ver el evento (solo lectura)
+            // La gestión (crear/modificar/eliminar) se valida en los métodos específicos
             $event = Event::findOrFail($request->event_id);
-            $this->authorize('manageCommittees', $event);
+            $this->authorize('view', $event);
 
             $committees = Committee::where('event_id', $request->event_id)
                 ->with(['event', 'users'])
@@ -66,6 +67,14 @@ class CommitteeController extends Controller
         $event = Event::findOrFail($request->event_id);
         $this->authorize('manageCommittees', $event);
 
+        // Validar que el evento permita gestionar comités
+        if (!$event->canPerformAction('manage_committees')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden crear comités en este estado del evento. Solo se permite durante la fase de planificación.',
+            ], 422);
+        }
+
         $committee = Committee::create($request->validated());
 
         return response()->json([
@@ -80,7 +89,9 @@ class CommitteeController extends Controller
      */
     public function show(Committee $committee): JsonResponse
     {
-        $this->authorize('manageCommittees', $committee->event);
+        // Permitir ver comité si tiene acceso al evento (solo lectura)
+        // La gestión (crear/modificar/eliminar) se valida en los métodos específicos
+        $this->authorize('view', $committee->event);
 
         $committee->load(['event', 'users']);
 
@@ -97,6 +108,14 @@ class CommitteeController extends Controller
     {
         $this->authorize('manageCommittees', $committee->event);
 
+        // Validar que el evento permita gestionar comités
+        if (!$committee->event->canPerformAction('manage_committees')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden modificar comités en este estado del evento. Solo se permite durante la fase de planificación.',
+            ], 422);
+        }
+
         $committee->update($request->validated());
 
         return response()->json([
@@ -112,6 +131,14 @@ class CommitteeController extends Controller
     public function destroy(Committee $committee): JsonResponse
     {
         $this->authorize('manageCommittees', $committee->event);
+
+        // Validar que el evento permita gestionar comités
+        if (!$committee->event->canPerformAction('manage_committees')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden eliminar comités en este estado del evento. Solo se permite durante la fase de planificación.',
+            ], 422);
+        }
 
         $committee->delete();
 
@@ -209,7 +236,9 @@ class CommitteeController extends Controller
      */
     public function members(Committee $committee): JsonResponse
     {
-        $this->authorize('manageCommittees', $committee->event);
+        // Permitir ver miembros si tiene acceso al evento (solo lectura)
+        // La gestión (asignar/remover) se valida en los métodos específicos
+        $this->authorize('view', $committee->event);
 
         $members = $committee->users()->withPivot(['assigned_at'])->get();
 
@@ -223,6 +252,7 @@ class CommitteeController extends Controller
                     'assigned_at' => $user->pivot->assigned_at,
                 ];
             }),
+            'can_manage' => $committee->event->canPerformAction('manage_committees'), // Información para el frontend
         ]);
     }
 }

@@ -106,12 +106,20 @@ const StatusIndicator = ({ status }: { status: string }) => {
   )
 }
 
-// Helper para calcular días restantes
-function getDaysRemaining(endDate: string): number {
-  const end = new Date(endDate)
+// Helper para obtener información contextual del tiempo del evento
+function getEventTimeInfo(event: any): string {
+  if (event.time_info?.message) {
+    return event.time_info.message
+  }
+  // Fallback si no hay time_info (backward compatibility)
+  const end = new Date(event.end_date)
   const today = new Date()
   const diff = end.getTime() - today.getTime()
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+  if (days < 0) {
+    return `Finalizado hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}`
+  }
+  return `${days} día${days !== 1 ? 's' : ''} restante${days !== 1 ? 's' : ''}`
 }
 
 // Helper para obtener variante de badge por estado
@@ -225,7 +233,7 @@ export function EventDetails({ event }: EventDetailsProps) {
     }
   ]
 
-  const daysRemaining = getDaysRemaining(event.end_date)
+  const timeInfo = event.time_info || { message: getEventTimeInfo(event), type: 'planning', days: null, is_overdue: false, is_urgent: false }
 
   return (
     <div className="space-y-6">
@@ -241,7 +249,7 @@ export function EventDetails({ event }: EventDetailsProps) {
             {getStatusLabel(event.status)}
           </Badge>
           <Badge variant="outline">
-            {daysRemaining > 0 ? `${daysRemaining} días restantes` : 'Finalizado'}
+            {timeInfo.message}
           </Badge>
         </div>
       </div>
@@ -464,8 +472,8 @@ export function EventDetails({ event }: EventDetailsProps) {
                   <Clock className="w-4 h-4 text-green-500" />
                   <span className="text-sm font-medium">Días Restantes</span>
                 </div>
-                <Badge variant={daysRemaining < 7 ? 'destructive' : 'secondary'}>
-                  {daysRemaining}
+                <Badge variant={timeInfo.is_urgent ? 'destructive' : 'secondary'}>
+                  {timeInfo.days !== null ? timeInfo.days : '-'}
                 </Badge>
               </div>
             </div>

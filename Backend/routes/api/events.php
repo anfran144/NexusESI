@@ -47,6 +47,14 @@ Route::middleware('auth:api')->group(function () {
         // Calendario del evento
         Route::get('/{event}/calendar', [EventController::class, 'calendar']);
         
+        // Reutilización de datos de eventos finalizados
+        Route::get('/finished/similar', [EventController::class, 'getFinishedSimilar']);
+        Route::get('/{event}/reuse-data', [EventController::class, 'getEventDataForReuse']);
+        
+        // Transiciones de estado
+        Route::get('/suggested-finalizations', [EventController::class, 'suggestedFinalizations']);
+        Route::post('/{event}/confirm-transition', [EventController::class, 'confirmStatusTransition']);
+        
         // Exportación de reportes
         Route::get('/{event}/export/pdf', [EventExportController::class, 'exportPdf']);
         Route::get('/{event}/export/excel', [EventExportController::class, 'exportExcel']);

@@ -70,6 +70,18 @@ class EventResource extends JsonResource
                 $this->relationLoaded('tasks'),
                 fn () => $this->tasks->where('status', 'Completed')->count()
             ),
+            'time_info' => $this->getStatusBasedTimeInfo(),
+            'can_perform_actions' => [
+                'can_edit_structure' => $this->canPerformAction('edit_structure'),
+                'can_delete' => $this->canPerformAction('delete'),
+                'can_manage_committees' => $this->canPerformAction('manage_committees'),
+                'can_manage_tasks' => $this->canPerformAction('manage_tasks'),
+                'can_manage_participants' => $this->canPerformAction('manage_participants'),
+                'can_execute_tasks' => $this->canPerformAction('execute_tasks'),
+                'can_finalize' => $this->canPerformAction('finalize'),
+                'can_reuse_data' => $this->canPerformAction('reuse_data'),
+            ],
+            'status_transition_suggested' => $this->shouldSuggestFinalization(),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];

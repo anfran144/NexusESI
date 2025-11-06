@@ -32,10 +32,33 @@ class UserSeeder extends Seeder
             $admin->assignRole($adminRole);
         }
 
-        // Obtener una institución para los usuarios de ejemplo
-        $institucion = \App\Models\Institucion::first();
+        // Obtener Universidad Mariana
+        $universidadMariana = \App\Models\Institucion::where('nombre', 'Universidad Mariana')->first();
 
-        // Crear usuario coordinador
+        if (!$universidadMariana) {
+            $this->command->warn('Universidad Mariana no encontrada. Ejecuta primero InstitucionSeeder.');
+            $universidadMariana = \App\Models\Institucion::first();
+        }
+
+        // Crear usuario coordinador Juan Pablo García
+        $juanPablo = User::firstOrCreate(
+            ['email' => 'juanpablo.garcia@nexusesi.com'],
+            [
+                'name' => 'Juan Pablo García',
+                'password' => Hash::make('juanpablo123'),
+                'email_verified_at' => now(),
+                'status' => 'active',
+                'institution_id' => $universidadMariana?->id,
+            ]
+        );
+
+        // Asignar rol de coordinador
+        $coordinatorRole = Role::where('name', 'coordinator')->first();
+        if ($coordinatorRole && ! $juanPablo->hasRole('coordinator')) {
+            $juanPablo->assignRole($coordinatorRole);
+        }
+
+        // Mantener el coordinador de ejemplo por compatibilidad
         $coordinator = User::firstOrCreate(
             ['email' => 'coordinador@nexusesi.com'],
             [
@@ -43,12 +66,10 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('coord123'),
                 'email_verified_at' => now(),
                 'status' => 'active',
-                'institution_id' => $institucion?->id,
+                'institution_id' => $universidadMariana?->id,
             ]
         );
 
-        // Asignar rol de coordinador
-        $coordinatorRole = Role::where('name', 'coordinator')->first();
         if ($coordinatorRole && ! $coordinator->hasRole('coordinator')) {
             $coordinator->assignRole($coordinatorRole);
         }
@@ -61,7 +82,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('lider123'),
                 'email_verified_at' => now(),
                 'status' => 'active',
-                'institution_id' => $institucion?->id,
+                'institution_id' => $universidadMariana?->id,
             ]
         );
 
@@ -79,7 +100,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('test123'),
                 'email_verified_at' => now(),
                 'status' => 'pending_approval', // Usuario de prueba pendiente
-                'institution_id' => $institucion?->id,
+                'institution_id' => $universidadMariana?->id,
             ]
         );
 
@@ -91,7 +112,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('pending123'),
                 'email_verified_at' => now(),
                 'status' => 'pending_approval',
-                'institution_id' => $institucion?->id,
+                'institution_id' => $universidadMariana?->id,
             ]
         );
 
@@ -103,6 +124,7 @@ class UserSeeder extends Seeder
         // Mostrar información de los usuarios creados
         $this->command->info('Usuarios creados exitosamente:');
         $this->command->info('- Admin: admin@nexusesi.com / admin123 (Activo)');
+        $this->command->info('- Coordinador Juan Pablo: juanpablo.garcia@nexusesi.com / juanpablo123 (Activo)');
         $this->command->info('- Coordinador: coordinador@nexusesi.com / coord123 (Activo)');
         $this->command->info('- Líder de Semillero: lider@nexusesi.com / lider123 (Activo)');
         $this->command->info('- Usuario de Prueba: test@nexusesi.com / test123 (Pendiente)');
