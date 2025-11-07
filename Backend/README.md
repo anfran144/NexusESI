@@ -310,42 +310,7 @@ php artisan view:cache
 
 # Ejecutar migraciones
 php artisan migrate --force
-
-# Queue Worker
-php artisan queue:work --tries=3 --timeout=60
-
-# Scheduler (configurar en cron)
-* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
 ```
-
----
-
-## 🚂 Despliegue en Railway
-
-### Configuración Necesaria
-
-NexusESI requiere **4 servicios en Railway**:
-
-1. **Backend Web** - Servidor API principal
-2. **Queue Worker** - Procesa jobs en segundo plano
-3. **Scheduler** - Ejecuta tareas programadas (cálculo de riesgos)
-4. **PostgreSQL** - Base de datos
-
-### Servicios Externos
-
-- **AWS S3** - Almacenamiento de archivos (Railway es efímero)
-- **Pusher** - WebSocket para notificaciones en tiempo real
-- **SendGrid** - Envío de correos electrónicos
-
-### Archivos de Configuración
-
-- `Procfile` - Define el comando de inicio
-- `railway.toml` - Configuración de Railway
-- `scripts/post-deploy.sh` - Post-deployment script
-- `scripts/start-queue-worker.sh` - Inicia el worker
-- `scripts/start-scheduler.sh` - Inicia el scheduler
-
-**📖 Guía Completa**: [../docs/DEPLOYMENT-RAILWAY.md](../docs/DEPLOYMENT-RAILWAY.md)
 
 ---
 

@@ -58,10 +58,7 @@ NexusESI/
 - **Spatie Permission** - Roles y permisos granulares
 - **SendGrid** - Servicio de correo electrónico
 - **Pusher** - WebSockets para tiempo real
-- **PostgreSQL/MySQL** - Base de datos
-- **AWS S3** - Almacenamiento de archivos en la nube
-- **Queue System** - Procesamiento asíncrono de jobs
-- **Scheduler** - Tareas programadas (cálculo de riesgos)
+- **MySQL** - Base de datos
 
 #### Frontend
 - **React 18.x** - Biblioteca UI
@@ -157,8 +154,6 @@ npm run dev
 | **[ImplementacionNexusEsi.md](ImplementacionNexusEsi.md)** | Estado real de implementación (100% completo) |
 | **[DEVELOPMENT-GUIDELINES.md](DEVELOPMENT-GUIDELINES.md)** | Guía para desarrollar nuevas funcionalidades |
 | **[docs/API-DOCUMENTATION-FRONTEND.md](docs/API-DOCUMENTATION-FRONTEND.md)** | Documentación completa de API para frontend |
-| **[docs/DEPLOYMENT-RAILWAY.md](docs/DEPLOYMENT-RAILWAY.md)** | 🚂 Guía completa de despliegue en Railway |
-| **[docs/AWS-S3-CONFIGURATION.md](docs/AWS-S3-CONFIGURATION.md)** | ☁️ Configuración de almacenamiento S3 |
 
 ### 📁 Módulos Específicos (en `/docs`)
 
@@ -176,15 +171,6 @@ npm run dev
 - **Colección Postman**: [docs/NexusESI-Email-API.postman_collection.json](docs/NexusESI-Email-API.postman_collection.json)
 - **Configuración Email**: [docs/env-email-config.example](docs/env-email-config.example)
 - **Testing Guide**: [Frontend/TESTING-GUIDE.md](Frontend/TESTING-GUIDE.md)
-
-### 🚀 Guías de Despliegue
-
-| Guía | Descripción | Tiempo |
-|------|-------------|--------|
-| **[Quick Deploy Guide](docs/QUICK-DEPLOY-GUIDE.md)** | ⚡ Guía rápida (~30 min) | 30 min |
-| **[Deployment Railway](docs/DEPLOYMENT-RAILWAY.md)** | 📘 Guía completa paso a paso | 1-2 hrs |
-| **[AWS S3 Configuration](docs/AWS-S3-CONFIGURATION.md)** | ☁️ Setup de almacenamiento | 20 min |
-| **[Deployment Checklist](docs/DEPLOYMENT-CHECKLIST.md)** | ✅ Verificación exhaustiva | - |
 
 ---
 
@@ -228,56 +214,16 @@ npm run test
 
 ## 🚢 Despliegue
 
-### 🚂 Railway (Recomendado)
-
-NexusESI está optimizado para despliegue en **Railway** con soporte completo para:
-- ✅ Múltiples servicios (Web, Queue Worker, Scheduler)
-- ✅ WebSocket (Pusher)
-- ✅ Almacenamiento en la nube (AWS S3)
-- ✅ Base de datos PostgreSQL
-- ✅ CI/CD automático
-
-**📖 Guía Completa**: [docs/DEPLOYMENT-RAILWAY.md](docs/DEPLOYMENT-RAILWAY.md)
-
-#### Requisitos Previos
-
-1. **Cuenta Railway** - [railway.app](https://railway.app)
-2. **AWS S3** - Para almacenamiento de archivos → [Guía de configuración](docs/AWS-S3-CONFIGURATION.md)
-3. **Pusher** - Para WebSocket → [dashboard.pusher.com](https://dashboard.pusher.com)
-4. **SendGrid** - Para envío de correos → [sendgrid.com](https://sendgrid.com)
-
-#### Quick Start
-
-```bash
-# 1. Conectar repositorio a Railway
-# 2. Agregar PostgreSQL
-# 3. Configurar variables de entorno (ver .env.example)
-# 4. Crear 3 servicios adicionales:
-#    - Queue Worker (ejecuta jobs)
-#    - Scheduler (tareas programadas)
-#    - Frontend
-```
-
-**⚠️ Importante**: Railway tiene almacenamiento efímero. **Debes usar S3** para persistir archivos.
-
-### Otros Entornos
-
-#### Backend (Producción)
+### Backend (Producción)
 ```bash
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan migrate --force
 composer install --optimize-autoloader --no-dev
-
-# Iniciar Queue Worker
-php artisan queue:work --tries=3
-
-# Iniciar Scheduler (cron job)
-* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-#### Frontend (Producción)
+### Frontend (Producción)
 ```bash
 npm run build
 # Archivos compilados en dist/
