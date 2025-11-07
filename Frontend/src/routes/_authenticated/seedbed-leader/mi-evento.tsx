@@ -65,7 +65,7 @@ function MiEventoComponent() {
       // Cargar mis tareas reales y filtrar por el evento activo
         if (eventData && user?.id) {
           const tasksResponse = await taskService.getTasks({ assigned_to_id: user.id })
-          const tasks = Array.isArray(tasksResponse) ? tasksResponse : (tasksResponse.data || [])
+          const tasks = Array.isArray(tasksResponse) ? tasksResponse : ((tasksResponse as any).data || [])
         const tasksForActiveEvent = tasks.filter((t: any) => t?.committee?.event?.id === eventData.id)
         setMyTasks(tasksForActiveEvent)
         

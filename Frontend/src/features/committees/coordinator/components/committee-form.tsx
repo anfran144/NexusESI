@@ -40,7 +40,7 @@ interface Committee {
 }
 
 interface CommitteeFormProps {
-  committee?: Committee | null
+  committee?: Committee | null | any
   onSubmit: (data: CommitteeFormData) => Promise<void>
   onCancel: () => void
 }

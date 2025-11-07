@@ -21,7 +21,7 @@ export const useNotifications = (params?: UseNotificationsParams) => {
       setError(null);
       const data = await taskService.getNotifications(params);
       // Asegurar que data es un array
-      const notificationsArray = Array.isArray(data) ? data : (data?.data || []);
+      const notificationsArray = Array.isArray(data) ? data : ((data as any)?.data || []);
       setNotifications(notificationsArray);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar las notificaciones');

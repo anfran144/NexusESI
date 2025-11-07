@@ -11,7 +11,10 @@ export function CoordinatorDashboard() {
         title="Panel de Coordinación"
         description={`¡Bienvenido, ${user?.name || 'Coordinador'}! Supervisa y coordina las actividades de los semilleros.`}
       >
+        <div className="p-4">
         {/* Contenido del dashboard */}
+          <p className="text-muted-foreground">Dashboard en construcción</p>
+        </div>
       </DashboardContent>
     </DashboardLayout>
   )

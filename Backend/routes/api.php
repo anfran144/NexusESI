@@ -35,6 +35,12 @@ require __DIR__.'/api/permissions.php';
 // Incluir rutas del sistema de eventos
 require __DIR__.'/api/events.php';
 
+// Incluir rutas del sistema de reuniones
+require __DIR__.'/api/meetings.php';
+
+// Incluir rutas públicas
+require __DIR__.'/api/public.php';
+
 // Incluir rutas del sistema de tareas
 require __DIR__.'/api/tasks.php';
 

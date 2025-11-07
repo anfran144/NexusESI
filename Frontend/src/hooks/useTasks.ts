@@ -23,7 +23,7 @@ export const useTasks = (params?: UseTasksParams) => {
       setError(null);
       const data = await taskService.getTasks(params);
       // Asegurar que data es un array
-      const tasksArray = Array.isArray(data) ? data : (data?.data || []);
+      const tasksArray = Array.isArray(data) ? data : ((data as any)?.data || []);
       setTasks(tasksArray);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar las tareas');

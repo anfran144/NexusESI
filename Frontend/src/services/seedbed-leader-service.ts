@@ -18,6 +18,13 @@ export interface Event {
     identificador: string
   }
   participants_count: number
+  time_info?: {
+    message: string
+    type: 'finished' | 'inactive' | 'planning' | 'execution' | 'needs_finalization'
+    days: number | null
+    is_overdue: boolean
+    is_urgent: boolean
+  }
   created_at: string
   updated_at: string
 }

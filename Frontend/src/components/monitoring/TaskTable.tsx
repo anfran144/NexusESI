@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Task, Committee, Member } from '@/services/taskService'
+import { Task, Member } from '@/services/taskService'
+import { Committee } from '@/services/committee.service'
 import { cn } from '@/lib/utils'
 import { 
   Clock, 
@@ -14,7 +15,10 @@ import {
   User,
   MoreHorizontal,
   Edit,
-  Trash2
+  Trash2,
+  TrendingUp,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -22,6 +26,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import { TaskProgressHistory } from './TaskProgressHistory'
 
 interface TaskTableProps {
   tasks: Task[]
@@ -30,6 +40,25 @@ interface TaskTableProps {
 }
 
 export function TaskTable({ tasks, committees, members }: TaskTableProps) {
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [progressHistoryOpen, setProgressHistoryOpen] = useState(false)
+  const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set())
+
+  const handleViewProgress = (task: Task) => {
+    setSelectedTask(task)
+    setProgressHistoryOpen(true)
+  }
+
+  const toggleTaskExpansion = (taskId: number) => {
+    const newExpanded = new Set(expandedTasks)
+    if (newExpanded.has(taskId)) {
+      newExpanded.delete(taskId)
+    } else {
+      newExpanded.add(taskId)
+    }
+    setExpandedTasks(newExpanded)
+  }
+
   const getStatusIcon = (status: string) => {
     const statusMap = {
       'Pending': Clock,
@@ -52,12 +81,14 @@ export function TaskTable({ tasks, committees, members }: TaskTableProps) {
     return colorMap[status as keyof typeof colorMap] || 'bg-gray-100 text-gray-700 border-gray-200'
   }
 
-  const getCommitteeColor = (committeeId: number) => {
+  const getCommitteeColor = (committeeId?: number) => {
+    if (!committeeId) return '#6b7280'
     const committee = committees.find(c => c.id === committeeId)
     return committee?.color || '#6b7280'
   }
 
-  const getCommitteeName = (committeeId: number) => {
+  const getCommitteeName = (committeeId?: number) => {
+    if (!committeeId) return 'Sin comité'
     const committee = committees.find(c => c.id === committeeId)
     return committee?.name || 'Sin comité'
   }
@@ -114,16 +145,38 @@ export function TaskTable({ tasks, committees, members }: TaskTableProps) {
                 const memberInitials = getMemberInitials(task.assigned_to_id || 0)
                 const overdue = isOverdue(task)
 
+                const isExpanded = expandedTasks.has(task.id)
+                const hasProgress = task.progress && task.progress.length > 0
+                const hasIncidents = task.incidents && task.incidents.length > 0
+                const hasDetails = hasProgress || hasIncidents || task.description.length > 100
+
                 return (
-                  <tr key={task.id} className="border-b hover:bg-muted/50 transition-colors">
-                    <td className="p-3">
-                      <div className="space-y-1">
-                        <h4 className="font-medium text-sm line-clamp-2">{task.title}</h4>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {task.description}
-                        </p>
-                      </div>
-                    </td>
+                  <React.Fragment key={task.id}>
+                    <tr className="border-b hover:bg-muted/50 transition-colors">
+                      <td className="p-3">
+                        <div className="flex items-start gap-2">
+                          {hasDetails && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 mt-0.5"
+                              onClick={() => toggleTaskExpansion(task.id)}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                          <div className="space-y-1 flex-1">
+                            <h4 className="font-medium text-sm line-clamp-2">{task.title}</h4>
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {task.description}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
                     
                     <td className="p-3">
                       <div className="flex items-center gap-2">
@@ -188,9 +241,15 @@ export function TaskTable({ tasks, committees, members }: TaskTableProps) {
                            task.status === 'Pending' ? 'Pendiente' : task.status}
                         </Badge>
                         {task.progress && task.progress.length > 0 && (
-                          <span className="text-xs text-muted-foreground">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                            onClick={() => handleViewProgress(task)}
+                          >
+                            <TrendingUp className="w-3 h-3 mr-1" />
                             {task.progress.length} avance(s)
-                          </span>
+                          </Button>
                         )}
                       </div>
                     </td>
@@ -212,9 +271,95 @@ export function TaskTable({ tasks, committees, members }: TaskTableProps) {
                             Eliminar
                           </DropdownMenuItem>
                         </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
-                  </tr>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                    {isExpanded && hasDetails && (
+                      <tr>
+                        <td colSpan={8} className="p-0">
+                          <Collapsible open={isExpanded}>
+                            <CollapsibleContent className="px-3 pb-3">
+                              <Card className="bg-muted/30">
+                                <CardContent className="pt-4 space-y-4">
+                                  {/* Descripción completa */}
+                                  {task.description.length > 100 && (
+                                    <div>
+                                      <h5 className="text-xs font-semibold text-muted-foreground mb-2">Descripción Completa</h5>
+                                      <p className="text-sm text-foreground">{task.description}</p>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Información adicional */}
+                                  <div className="grid gap-4 md:grid-cols-2">
+                                    {hasProgress && (
+                                      <div>
+                                        <h5 className="text-xs font-semibold text-muted-foreground mb-2">Últimos Avances</h5>
+                                        <div className="space-y-2">
+                                          {task.progress?.slice(0, 3).map((progress) => (
+                                            <div key={progress.id} className="text-xs text-muted-foreground">
+                                              <div className="flex items-center gap-2">
+                                                <TrendingUp className="w-3 h-3" />
+                                                <span>{new Date(progress.created_at).toLocaleDateString()}</span>
+                                                <span>•</span>
+                                                <span>{progress.user?.name || 'Usuario'}</span>
+                                              </div>
+                                            </div>
+                                          ))}
+                                          {task.progress && task.progress.length > 3 && (
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-6 text-xs"
+                                              onClick={() => handleViewProgress(task)}
+                                            >
+                                              Ver todos los avances ({task.progress.length})
+                                            </Button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {hasIncidents && (
+                                      <div>
+                                        <h5 className="text-xs font-semibold text-muted-foreground mb-2">Incidencias</h5>
+                                        <div className="space-y-2">
+                                          {task.incidents?.slice(0, 3).map((incident) => (
+                                            <div key={incident.id} className="text-xs">
+                                              <Badge variant={incident.status === 'Resolved' ? 'default' : 'destructive'} className="text-xs">
+                                                {incident.status === 'Resolved' ? 'Resuelta' : 'Activa'}
+                                              </Badge>
+                                              <p className="text-muted-foreground mt-1 line-clamp-2">
+                                                {incident.description}
+                                              </p>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Acciones rápidas */}
+                                  <div className="flex items-center gap-2 pt-2 border-t">
+                                    {hasProgress && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-7 text-xs"
+                                        onClick={() => handleViewProgress(task)}
+                                      >
+                                        <TrendingUp className="w-3 h-3 mr-1" />
+                                        Ver Historial Completo
+                                      </Button>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 )
               })}
             </tbody>
@@ -228,6 +373,13 @@ export function TaskTable({ tasks, committees, members }: TaskTableProps) {
           </div>
         )}
       </CardContent>
+      
+      {/* Dialog de historial de avances */}
+      <TaskProgressHistory
+        task={selectedTask}
+        open={progressHistoryOpen}
+        onOpenChange={setProgressHistoryOpen}
+      />
     </Card>
   )
 }

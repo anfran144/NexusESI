@@ -27,6 +27,9 @@ export interface EventMetrics {
 export interface CommitteeMetrics {
   total_tasks: number
   completed_tasks: number
+  in_progress_tasks?: number
+  pending_tasks?: number
+  delayed_tasks?: number
   progress: number
   active_members: number
 }
@@ -44,7 +47,7 @@ export async function calculateEventMetrics(eventId: number, userId?: number): P
     const allTasks: any[] = []
     try {
       const tasksResponse = await taskService.getTasks({ event_id: eventId })
-      const tasks = Array.isArray(tasksResponse) ? tasksResponse : (tasksResponse.data || [])
+      const tasks = Array.isArray(tasksResponse) ? tasksResponse : ((tasksResponse as any).data || [])
       allTasks.push(...tasks)
     } catch (error) {
       console.warn(`Error loading tasks for event ${eventId}:`, error)
@@ -54,7 +57,7 @@ export async function calculateEventMetrics(eventId: number, userId?: number): P
     let incidents: any[] = []
     try {
       const incidentsResponse = await taskService.getIncidents()
-      incidents = Array.isArray(incidentsResponse) ? incidentsResponse : (incidentsResponse.data || [])
+      incidents = Array.isArray(incidentsResponse) ? incidentsResponse : ((incidentsResponse as any).data || [])
     } catch (error) {
       console.warn('Error loading incidents for event:', error)
     }
@@ -118,18 +121,18 @@ export async function calculateCommitteeMetrics(committeeId: number): Promise<Co
   try {
     // Obtener tareas del comité
     const tasksResponse = await taskService.getTasks({ committee_id: committeeId })
-    const tasks = Array.isArray(tasksResponse) ? tasksResponse : (tasksResponse.data || [])
+    const tasks = Array.isArray(tasksResponse) ? tasksResponse : ((tasksResponse as any).data || [])
     
     // Calcular métricas
     const totalTasks = tasks.length
-    const completedTasks = tasks.filter(task => task.status === 'Completed').length
+    const completedTasks = tasks.filter((task: any) => task.status === 'Completed').length
     const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
     
     // Calcular miembros activos (usuarios con tareas no completadas)
     const activeMembers = new Set(
       tasks
-        .filter(task => task.status !== 'Completed' && task.assigned_to_id)
-        .map(task => task.assigned_to_id)
+        .filter((task: any) => task.status !== 'Completed' && task.assigned_to_id)
+        .map((task: any) => task.assigned_to_id)
     ).size
     
     return {

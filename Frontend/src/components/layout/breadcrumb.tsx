@@ -58,6 +58,11 @@ export const Breadcrumb = () => {
           label: 'Calendario',
           href: `/coordinator/eventos/${selectedEventId}/calendario`
         })
+      } else if (location.pathname.includes('/reuniones')) {
+        crumbs.push({
+          label: 'Reuniones',
+          href: `/coordinator/eventos/${selectedEventId}/reuniones`
+        })
       }
     }
 

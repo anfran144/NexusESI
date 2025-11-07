@@ -37,9 +37,24 @@ class EventRequest extends FormRequest
     public function rules(): array
     {
         $eventId = $this->route('event')?->id;
+        // Obtener institution_id después de prepareForValidation (que ya lo establece)
+        $institutionId = $this->input('institution_id') ?? auth()->user()?->institution_id;
+
+        $nameRules = [
+            'required',
+            'string',
+            'max:255',
+        ];
+
+        // Solo agregar la regla de unique si tenemos institution_id
+        if ($institutionId) {
+            $nameRules[] = Rule::unique('events', 'name')
+                ->where('institution_id', $institutionId)
+                ->ignore($eventId);
+        }
 
         return [
-            'name' => 'required|string|max:255',
+            'name' => $nameRules,
             'description' => 'required|string',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
@@ -66,6 +81,7 @@ class EventRequest extends FormRequest
         return [
             'name.required' => 'El nombre del evento es obligatorio.',
             'name.max' => 'El nombre del evento no puede exceder 255 caracteres.',
+            'name.unique' => 'Ya existe un evento con este nombre en tu institución. Por favor, elige un nombre diferente.',
             'description.required' => 'La descripción del evento es obligatoria.',
             'start_date.required' => 'La fecha de inicio es obligatoria.',
             'start_date.date' => 'La fecha de inicio debe ser una fecha válida.',

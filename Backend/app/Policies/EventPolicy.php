@@ -121,7 +121,9 @@ class EventPolicy
         }
 
         // Verificar que no tenga un evento activo (no finalizado)
+        // Solo considerar participaciones activas
         $activeEvent = $user->eventParticipations()
+            ->where('is_active', true)
             ->whereHas('event', function ($query) {
                 $query->where('status', '!=', 'finished');
             })

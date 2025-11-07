@@ -76,6 +76,14 @@ final class Event extends Model
     }
 
     /**
+     * Relación con las reuniones del evento
+     */
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class);
+    }
+
+    /**
      * Verificar si el evento está en fase de planificación
      */
     public function isInPlanningPhase(): bool

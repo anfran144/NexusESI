@@ -8,6 +8,7 @@ use App\Http\Resources\EventResource;
 use App\Models\Event;
 use App\Models\EventParticipant;
 use App\Models\Task;
+use App\Models\Meeting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -630,6 +631,72 @@ class EventController extends Controller
                     'taskTitle' => $incident->task?->title,
                     'reportedById' => $incident->reported_by_id,
                     'reportedByName' => $incident->reportedBy?->name,
+                ],
+            ];
+        }
+
+        // Reuniones
+        $meetingsQuery = \App\Models\Meeting::where('event_id', $event->id)
+            ->where('status', '!=', 'cancelled')
+            ->with(['invitations', 'coordinator']);
+
+        // Si es líder, solo ver reuniones donde está invitado
+        if ($user->hasRole('seedbed_leader')) {
+            $meetingsQuery->whereHas('invitations', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+
+        $meetings = $meetingsQuery->get();
+
+        // Colores según tipo de reunión
+        $meetingTypeColors = [
+            'planning' => '#8b5cf6',      // Morado
+            'coordination' => '#10b981', // Verde
+            'committee' => '#f59e0b',     // Amarillo/Naranja
+            'general' => '#3b82f6',      // Azul
+        ];
+
+        // Etiquetas de tipo de reunión
+        $meetingTypeLabels = [
+            'planning' => 'Planificación',
+            'coordination' => 'Coordinación',
+            'committee' => 'Comité',
+            'general' => 'General',
+        ];
+
+        foreach ($meetings as $meeting) {
+            $invitation = $meeting->invitations()->where('user_id', $user->id)->first();
+            
+            // Color según tipo y estado de invitación
+            $baseColor = $meetingTypeColors[$meeting->meeting_type] ?? '#6366f1';
+            
+            $invitationColor = match($invitation?->status) {
+                'accepted' => $baseColor,
+                'pending' => '#94a3b8', // Gris para pendientes
+                'declined' => '#ef4444', // Rojo para rechazadas
+                default => $baseColor,
+            };
+
+            $calendarEvents[] = [
+                'id' => 'meeting-' . $meeting->id,
+                'title' => $meeting->title,
+                'start' => $meeting->scheduled_at->format('Y-m-d\TH:i:s'),
+                'end' => $meeting->scheduled_at->copy()->addHour()->format('Y-m-d\TH:i:s'),
+                'allDay' => false,
+                'type' => 'meeting',
+                'color' => $invitationColor,
+                'textColor' => '#ffffff',
+                'extendedProps' => [
+                    'meetingId' => $meeting->id,
+                    'description' => $meeting->description,
+                    'location' => $meeting->location,
+                    'meetingType' => $meeting->meeting_type,
+                    'meetingTypeLabel' => $meetingTypeLabels[$meeting->meeting_type] ?? 'Reunión',
+                    'invitationStatus' => $invitation?->status ?? null,
+                    'hasQrCode' => !empty($meeting->qr_code),
+                    'qrUrl' => $meeting->getCheckInUrl(),
+                    'status' => $meeting->status,
                 ],
             ];
         }

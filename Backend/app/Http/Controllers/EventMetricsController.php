@@ -51,8 +51,9 @@ class EventMetricsController extends Controller
                 'in_progress_tasks' => $inProgressTasks,
                 'pending_tasks' => $pendingTasks,
                 'delayed_tasks' => $delayedTasks,
+                // Porcentaje sin decimales para métricas generales
                 'progress_percentage' => $totalTasks > 0
-                    ? round(($completedTasks / $totalTasks) * 100, 1)
+                    ? (int) round(($completedTasks / $totalTasks) * 100)
                     : 0,
                 'active_members' => $activeMembers,
             ];
@@ -121,7 +122,7 @@ class EventMetricsController extends Controller
             $completedCount = $completedToday ? (int) $completedToday->completed_count : 0;
             $cumulativeCompleted += $completedCount;
 
-            // Calcular porcentaje de progreso
+            // Calcular porcentaje de progreso (mantener 1 decimal para historial detallado)
             $progressPercentage = $totalTasks > 0
                 ? round(($cumulativeCompleted / $totalTasks) * 100, 1)
                 : 0;

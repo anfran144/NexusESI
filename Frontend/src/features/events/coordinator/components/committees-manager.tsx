@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -24,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { FolderKanban, Plus, Edit, Trash2, Users, Grid3x3, List } from 'lucide-react'
+import { FolderKanban, Plus, Edit, Trash2, Users, Grid3x3, List, Eye } from 'lucide-react'
 import { committeeService, type Committee } from '@/services/committee.service'
 import { CommitteeForm } from './committee-form'
 import { CommitteeMembers } from './committee-members'
@@ -47,6 +48,7 @@ interface CommitteeMetrics {
 
 export function CommitteesManager({ eventId }: CommitteesManagerProps) {
   const { hasPermission } = usePermissions()
+  const navigate = useNavigate()
   const [committees, setCommittees] = useState<Committee[]>([])
   const [committeesMetrics, setCommitteesMetrics] = useState<Map<number, CommitteeMetrics>>(new Map())
   const [loading, setLoading] = useState(true)
@@ -333,15 +335,22 @@ export function CommitteesManager({ eventId }: CommitteesManagerProps) {
                       </div>
                       
                       {/* Botones de Acción */}
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/comites/${committee.id}` })}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Ver Detalles
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1"
                           onClick={() => openMembersDialog(committee)}
                         >
-                          <Users className="h-4 w-4 mr-1" />
-                          Miembros
+                          <Users className="h-4 w-4" />
                         </Button>
                         {hasPermission('events.committees.manage') && (
                           <>
@@ -413,6 +422,14 @@ export function CommitteesManager({ eventId }: CommitteesManagerProps) {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/comites/${committee.id}` })}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Ver
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"

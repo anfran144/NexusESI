@@ -32,7 +32,7 @@ export function CommitteeProgressChart({ data }: CommitteeProgressChartProps) {
         />
         <Tooltip 
           formatter={(value: number, _name: string, props: any) => [
-            `${value.toFixed(1)}% (${props.payload.completed_tasks}/${props.payload.total_tasks} tareas)`,
+            `${Math.round(value)}% (${props.payload.completed_tasks}/${props.payload.total_tasks} tareas)`,
             'Progreso'
           ]}
         />

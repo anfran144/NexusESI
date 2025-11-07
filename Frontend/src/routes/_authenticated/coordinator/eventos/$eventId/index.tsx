@@ -49,7 +49,8 @@ import {
   type AlertsMetricsData
 } from '@/services/event-metrics-advanced.service'
 import { pusherService } from '@/services/pusherService'
-import { Wifi, WifiOff, Bell } from 'lucide-react'
+import { Wifi, WifiOff, Bell, ChevronDown, ChevronUp } from 'lucide-react'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 export const Route = createFileRoute('/_authenticated/coordinator/eventos/$eventId/')({
   component: EventDetailsPage,
@@ -318,6 +319,11 @@ function EventDetailsPage() {
   const [loadingMetrics, setLoadingMetrics] = useState(false)
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+  
+  // Estados para divulgación progresiva
+  const [showAllMetrics, setShowAllMetrics] = useState(false)
+  const [showAdvancedCharts, setShowAdvancedCharts] = useState(false)
+  const [showAllActivities, setShowAllActivities] = useState(false)
 
   // ============================================
   // ESTADÍSTICAS DEL EVENTO
@@ -787,12 +793,12 @@ function EventDetailsPage() {
               </CardContent>
             </Card>
 
-            {/* Métricas Dinámicas Mejoradas */}
+            {/* Métricas Dinámicas Mejoradas - Con Divulgación Progresiva */}
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                <h3 className="text-xl font-semibold mb-1">Métricas del Evento</h3>
-                <p className="text-sm text-muted-foreground">Resumen de las áreas de gestión</p>
+                  <h3 className="text-xl font-semibold mb-1">Métricas del Evento</h3>
+                  <p className="text-sm text-muted-foreground">Resumen de las áreas de gestión</p>
                 </div>
                 {/* Indicador de Actualización en Vivo */}
                 <div className="flex items-center gap-2">
@@ -816,7 +822,9 @@ function EventDetailsPage() {
                   )}
                 </div>
               </div>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              
+              {/* Métricas principales (siempre visibles) */}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {/* Comités con progreso */}
                 <MetricCard
                   title="Comités de Trabajo"
@@ -850,58 +858,116 @@ function EventDetailsPage() {
                   onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/tasks` })}
                 />
 
-                {/* Tareas Atrasadas */}
-                <MetricCard
-                  title="Tareas Atrasadas"
-                  value={stats?.overdue || 0}
-                  subtitle={(stats?.overdue || 0) > 0 ? 'Requieren atención' : 'Sin atrasos'}
-                  icon={Clock}
-                  iconColor="bg-orange-500/10 text-orange-600 dark:text-orange-400"
-                  urgent={(stats?.overdue || 0) > 0}
-                  onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/tasks?filter=overdue` })}
-                />
-
-                                {/* Incidencias con alertas */}
-                <MetricCard
-                  title="Incidencias"
-                  value={stats?.open_incidents || 0}
-                  subtitle="Problemas reportados"
-                  icon={AlertTriangle}
-                  iconColor="bg-red-500/10 text-red-600 dark:text-red-400"      
-                  urgent={(stats?.open_incidents || 0) > 0}
-                  onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/incidencias` })}
-                />
-
-                {/* Alertas Críticas */}
-                <MetricCard
-                  title="Alertas Críticas"
-                  value={alertsMetrics?.total_critical || stats?.critical_alerts || 0}
-                  subtitle={`${alertsMetrics?.unread_critical || 0} sin leer`}
-                  icon={Bell}
-                  iconColor="bg-red-500/10 text-red-600 dark:text-red-400"
-                  urgent={(alertsMetrics?.total_critical || stats?.critical_alerts || 0) > 0}
-                />
-
-                {/* Alertas Preventivas */}
-                <MetricCard
-                  title="Alertas Preventivas"
-                  value={alertsMetrics?.total_preventive || stats?.preventive_alerts || 0}
-                  subtitle={`${alertsMetrics?.unread_preventive || 0} sin leer`}
-                  icon={Bell}
-                  iconColor="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                />
+                {/* Tareas Atrasadas o Incidencias (la más urgente) */}
+                {(stats?.overdue || 0) > 0 ? (
+                  <MetricCard
+                    title="Tareas Atrasadas"
+                    value={stats?.overdue || 0}
+                    subtitle="Requieren atención"
+                    icon={Clock}
+                    iconColor="bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                    urgent={true}
+                    onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/tasks?filter=overdue` })}
+                  />
+                ) : (
+                  <MetricCard
+                    title="Incidencias"
+                    value={stats?.open_incidents || 0}
+                    subtitle="Problemas reportados"
+                    icon={AlertTriangle}
+                    iconColor="bg-red-500/10 text-red-600 dark:text-red-400"      
+                    urgent={(stats?.open_incidents || 0) > 0}
+                    onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/incidencias` })}
+                  />
+                )}
               </div>
+
+              {/* Métricas adicionales (colapsables) */}
+              <Collapsible open={showAllMetrics} onOpenChange={setShowAllMetrics}>
+                <CollapsibleContent className="mt-4">
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {/* Mostrar Tareas Atrasadas si no se mostró arriba */}
+                    {(stats?.overdue || 0) === 0 && (
+                      <MetricCard
+                        title="Tareas Atrasadas"
+                        value={stats?.overdue || 0}
+                        subtitle="Sin atrasos"
+                        icon={Clock}
+                        iconColor="bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                        onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/tasks?filter=overdue` })}
+                      />
+                    )}
+                    
+                    {/* Mostrar Incidencias si no se mostró arriba */}
+                    {(stats?.overdue || 0) > 0 && (
+                      <MetricCard
+                        title="Incidencias"
+                        value={stats?.open_incidents || 0}
+                        subtitle="Problemas reportados"
+                        icon={AlertTriangle}
+                        iconColor="bg-red-500/10 text-red-600 dark:text-red-400"      
+                        urgent={(stats?.open_incidents || 0) > 0}
+                        onClick={() => navigate({ to: `/coordinator/eventos/${eventId}/incidencias` })}
+                      />
+                    )}
+
+                    {/* Alertas Críticas */}
+                    <MetricCard
+                      title="Alertas Críticas"
+                      value={alertsMetrics?.total_critical || stats?.critical_alerts || 0}
+                      subtitle={`${alertsMetrics?.unread_critical || 0} sin leer`}
+                      icon={Bell}
+                      iconColor="bg-red-500/10 text-red-600 dark:text-red-400"
+                      urgent={(alertsMetrics?.total_critical || stats?.critical_alerts || 0) > 0}
+                    />
+
+                    {/* Alertas Preventivas */}
+                    <MetricCard
+                      title="Alertas Preventivas"
+                      value={alertsMetrics?.total_preventive || stats?.preventive_alerts || 0}
+                      subtitle={`${alertsMetrics?.unread_preventive || 0} sin leer`}
+                      icon={Bell}
+                      iconColor="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                    />
+                  </div>
+                </CollapsibleContent>
+                
+                {/* Botón para expandir/colapsar */}
+                <div className="mt-4 flex justify-center">
+                  <CollapsibleTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      {showAllMetrics ? (
+                        <>
+                          <ChevronUp className="h-4 w-4 mr-2" />
+                          Ver menos métricas
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="h-4 w-4 mr-2" />
+                          Ver todas las métricas
+                        </>
+                      )}
+                    </Button>
+                  </CollapsibleTrigger>
+                </div>
+              </Collapsible>
             </div>
 
-            {/* Gráficos Avanzados */}
-            {!loadingMetrics && (committeeMetrics.length > 0 || progressHistory.length > 0 || workloadData.length > 0 || milestones.length > 0) && (
+            {/* Gráficos Avanzados - Con Divulgación Progresiva */}
+            {!loadingMetrics && (committeeMetrics.length > 0 || progressHistory.length > 0 || workloadData.length > 0 || milestones.length > 0 || stats) && (
               <div className="space-y-6">
-                <div className="mb-4">
-                  <h3 className="text-xl font-semibold mb-1">Análisis Visual</h3>
-                  <p className="text-sm text-muted-foreground">Visualización de métricas y tendencias</p>
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-1">Análisis Visual</h3>
+                    <p className="text-sm text-muted-foreground">Visualización de métricas y tendencias</p>
+                  </div>
                 </div>
 
-                {/* Gráficos principales */}
+                {/* Gráficos principales (siempre visibles) */}
                 <div className="grid gap-6 md:grid-cols-2">
                   {/* Progreso General */}
                   {stats && (
@@ -941,66 +1007,106 @@ function EventDetailsPage() {
                   )}
                 </div>
 
-                {/* Progreso por Comité */}
-                {committeeMetrics.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Progreso por Comité</CardTitle>
-                      <CardDescription>Comparación del avance entre comités de trabajo</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <CommitteeProgressChart 
-                        data={committeeMetrics}
-                      />
-                    </CardContent>
-                  </Card>
-                )}
+                {/* Gráficos avanzados (colapsables) */}
+                <Collapsible open={showAdvancedCharts} onOpenChange={setShowAdvancedCharts}>
+                  <CollapsibleContent>
+                    <div className="space-y-6 mt-6">
+                      {/* Progreso por Comité */}
+                      {committeeMetrics.length > 0 && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Progreso por Comité</CardTitle>
+                            <CardDescription>Comparación del avance entre comités de trabajo</CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <CommitteeProgressChart 
+                              data={committeeMetrics}
+                            />
+                          </CardContent>
+                        </Card>
+                      )}
 
-                {/* Gráficos secundarios */}
-                <div className="grid gap-6 md:grid-cols-2">
-                  {/* Historial de Progreso */}
-                  {progressHistory.length > 0 && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Evolución del Progreso</CardTitle>
-                        <CardDescription>Tendencia de progreso en los últimos 30 días</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <ProgressTimelineChart data={progressHistory} />
-                      </CardContent>
-                    </Card>
-                  )}
+                      {/* Gráficos secundarios */}
+                      <div className="grid gap-6 md:grid-cols-2">
+                        {/* Historial de Progreso */}
+                        {progressHistory.length > 0 && (
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>Evolución del Progreso</CardTitle>
+                              <CardDescription>Tendencia de progreso en los últimos 30 días</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <ProgressTimelineChart data={progressHistory} />
+                            </CardContent>
+                          </Card>
+                        )}
 
-                  {/* Distribución de Carga de Trabajo */}
-                  {workloadData.length > 0 && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Distribución de Carga de Trabajo</CardTitle>
-                        <CardDescription>Tareas asignadas por usuario</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <WorkloadChart data={workloadData} />
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+                        {/* Distribución de Carga de Trabajo */}
+                        {workloadData.length > 0 && (
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>Distribución de Carga de Trabajo</CardTitle>
+                              <CardDescription>Tareas asignadas por usuario</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <WorkloadChart data={workloadData} />
+                            </CardContent>
+                          </Card>
+                        )}
+                      </div>
 
-                {/* Timeline de Hitos Importantes */}
-                {milestones.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Timeline de Hitos Importantes</CardTitle>
-                      <CardDescription>Cronología de eventos clave del evento</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <MilestonesTimelineChart data={milestones} />
-                    </CardContent>
-                  </Card>
-                )}
+                      {/* Timeline de Hitos Importantes */}
+                      {milestones.length > 0 && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Timeline de Hitos Importantes</CardTitle>
+                            <CardDescription>Cronología de eventos clave del evento</CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <MilestonesTimelineChart data={milestones} />
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  </CollapsibleContent>
+                  
+                  {/* Botón para expandir/colapsar */}
+                  <div className="mt-4 flex justify-center">
+                    <CollapsibleTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        {showAdvancedCharts ? (
+                          <>
+                            <ChevronUp className="h-4 w-4 mr-2" />
+                            Ocultar análisis avanzado
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4 mr-2" />
+                            Ver análisis completo
+                            {(committeeMetrics.length > 0 || progressHistory.length > 0 || workloadData.length > 0 || milestones.length > 0) && (
+                              <Badge variant="secondary" className="ml-2">
+                                {[
+                                  committeeMetrics.length > 0 ? 1 : 0,
+                                  progressHistory.length > 0 ? 1 : 0,
+                                  workloadData.length > 0 ? 1 : 0,
+                                  milestones.length > 0 ? 1 : 0
+                                ].reduce((a, b) => a + b, 0)} gráficos más
+                              </Badge>
+                            )}
+                          </>
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
+                </Collapsible>
               </div>
             )}
 
-            {/* Dashboard de Actividad Reciente Mejorado */}
+            {/* Dashboard de Actividad Reciente - Con Divulgación Progresiva */}
             <Card className="overflow-hidden">
               <CardHeader className="border-b">
                 <div className="flex items-center justify-between">
@@ -1019,7 +1125,8 @@ function EventDetailsPage() {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-3">
-                  {recentActivities.map((activity, index) => (
+                  {/* Mostrar solo las primeras 3 actividades inicialmente */}
+                  {(showAllActivities ? recentActivities : recentActivities.slice(0, 3)).map((activity, index) => (
                     <div
                       key={index}
                       className="group flex items-start gap-4 p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-all border border-transparent hover:border-border/50"
@@ -1039,6 +1146,30 @@ function EventDetailsPage() {
                     </div>
                   ))}
                 </div>
+                
+                {/* Botón para ver más actividades si hay más de 3 */}
+                {recentActivities.length > 3 && (
+                  <div className="mt-4 flex justify-center border-t pt-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAllActivities(!showAllActivities)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      {showAllActivities ? (
+                        <>
+                          <ChevronUp className="h-4 w-4 mr-2" />
+                          Ver menos actividades
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="h-4 w-4 mr-2" />
+                          Ver todas las actividades ({recentActivities.length})
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

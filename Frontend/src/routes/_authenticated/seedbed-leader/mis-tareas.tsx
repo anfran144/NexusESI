@@ -88,7 +88,7 @@ interface TaskProgress {
 interface Incident {
   id: number
   task_id: number
-  reported_by_id: number
+  reported_by_id?: number
   description: string
   file_name?: string
   file_path?: string
@@ -99,7 +99,7 @@ interface Incident {
   status: 'reported' | 'investigating' | 'resolved'
   
   created_at: string
-  reported_by: {
+  reported_by: number | {
     name: string
   }
 }
@@ -303,7 +303,7 @@ const TaskDetailModal = ({
                                   dangerouslySetInnerHTML={{ __html: incident.description }}
                                 />
                                 <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                                  <span>Reportado por: {incident.reported_by.name}</span>
+                                  <span>Reportado por: {typeof incident.reported_by === 'object' ? incident.reported_by.name : 'Usuario'}</span>
                                   <span>•</span>
                                   <span>{formatDate(incident.created_at)}</span>
                                   <span>•</span>

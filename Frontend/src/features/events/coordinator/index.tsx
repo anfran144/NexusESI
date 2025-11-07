@@ -37,6 +37,8 @@ import {
 import { EventForm } from './components/event-form'
 import { EventDetails } from './components/event-details'
 import { eventService, Event } from '@/services/event.service'
+import { committeeService } from '@/services/committee.service'
+import { taskService } from '@/services/taskService'
 import { useAuth } from '@/hooks/useAuth'
 import { usePermissions } from '@/hooks/usePermissions'
 import { useEventContext } from '@/stores/event-context-store'
@@ -182,14 +184,114 @@ export function EventosCoordinator() {
     }
   }, [user])
 
+  // Procesar datos reutilizados después de crear el evento
+  const processReusedData = async (eventId: number, reuseData: any, eventEndDate: string) => {
+    let processedCount = 0
+    const errors: string[] = []
+    const participantsInfo: string[] = []
+
+    try {
+      // Procesar participantes disponibles
+      // reuseData.participants ya contiene solo los participantes seleccionados
+      if (reuseData.participants && reuseData.participants.length > 0) {
+        const availableParticipants = reuseData.participants.filter((p: any) => p.is_available)
+        const unavailableParticipants = reuseData.participants.filter((p: any) => !p.is_available)
+        
+        // Solo intentar agregar participantes disponibles que fueron seleccionados
+        for (const participant of availableParticipants) {
+          try {
+            // El coordinador puede agregar participantes directamente
+            await eventService.addParticipant(eventId, participant.id)
+            processedCount++
+          } catch (error: any) {
+            const errorMsg = error?.response?.data?.message || 'Error al agregar participante'
+            errors.push(`${participant.name}: ${errorMsg}`)
+          }
+        }
+        
+        if (availableParticipants.length > 0) {
+          participantsInfo.push(`${availableParticipants.length} participante(s) agregado(s)`)
+        }
+        if (unavailableParticipants.length > 0) {
+          participantsInfo.push(`${unavailableParticipants.length} participante(s) no disponible(s) (tienen evento activo)`)
+        }
+      }
+
+      // 2. Crear comités vacíos (sin miembros)
+      // reuseData.committees ya contiene solo los comités seleccionados
+      if (reuseData.committees && reuseData.committees.length > 0) {
+        for (const committee of reuseData.committees) {
+          try {
+            const committeeResponse = await committeeService.createCommittee({
+              name: committee.name,
+              event_id: eventId,
+            })
+
+            if (committeeResponse.success) {
+              processedCount++
+            }
+          } catch (error: any) {
+            const errorMsg = error?.response?.data?.message || 'Error al crear comité'
+            errors.push(`${committee.name}: ${errorMsg}`)
+          }
+        }
+      }
+
+      // 3. Crear tareas sin comité y sin fecha
+      // reuseData.tasks ya contiene solo las tareas seleccionadas
+      if (reuseData.tasks && reuseData.tasks.length > 0) {
+        for (const task of reuseData.tasks) {
+          try {
+            // Las tareas se crean sin comité asignado
+            // El backend requiere fecha, así que usamos la fecha de fin del evento como placeholder
+            // El usuario deberá ajustar la fecha después
+            const taskData: any = {
+              title: task.title,
+              description: task.description || '',
+              due_date: eventEndDate, // Fecha de fin del evento como placeholder
+              event_id: eventId,
+              // No incluir committee_id (se crea sin comité)
+            }
+
+            await taskService.createTask(taskData)
+            processedCount++
+          } catch (error: any) {
+            const errorMsg = error?.response?.data?.message || 'Error al crear tarea'
+            errors.push(`${task.title}: ${errorMsg}`)
+          }
+        }
+      }
+
+      // Mostrar resumen
+      if (processedCount > 0 || participantsInfo.length > 0) {
+        let message = ''
+        if (processedCount > 0) {
+          message = `${processedCount} elemento(s) reutilizado(s) exitosamente.`
+        }
+        if (participantsInfo.length > 0) {
+          message += ` ${participantsInfo.join('. ')}.`
+        }
+        if (errors.length > 0) {
+          toast.warning(`${message} ${errors.length} error(es).`)
+        } else {
+          toast.success(message)
+        }
+      }
+    } catch (error) {
+      console.error('Error al procesar datos reutilizados:', error)
+      toast.error('Error al procesar algunos datos reutilizados')
+    }
+  }
+
   // Crear nuevo evento
   const crearEvento = async (data: any) => {
     try {
-      // Mapear valores de estado de español a inglés
-      const statusMap: Record<string, 'active' | 'inactive' | 'finished'> = {
-        'activo': 'active',
-        'inactivo': 'inactive',
-        'finalizado': 'finished'
+      // Mapear valores de estado
+      const statusMap: Record<string, 'planificación' | 'en_progreso' | 'finalizado' | 'cancelado'> = {
+        'activo': 'en_progreso',
+        'inactivo': 'planificación',
+        'finalizado': 'finalizado',
+        'cancelado': 'cancelado'
       }
 
       // Formatear fechas de Date objects a strings YYYY-MM-DD
@@ -212,7 +314,7 @@ export function EventosCoordinator() {
           ? parseInt(data.institution_id, 10) 
           : data.institution_id || user?.institution_id,
         // El backend asigna automáticamente coordinator_id, pero lo incluimos por si acaso
-        coordinator_id: user?.id,
+        coordinator_id: user?.id || 0,
         // Mapear status si existe, o no incluirlo (el backend asignará un valor por defecto)
         ...(data.status && statusMap[data.status] ? { status: statusMap[data.status] } : {})
       }
@@ -220,6 +322,21 @@ export function EventosCoordinator() {
       const response = await eventService.createEvent(eventData)
       
       if (response.success) {
+        const newEventId = response.data.id
+        
+        // Verificar si hay datos reutilizados para procesar
+        const reuseDataStr = sessionStorage.getItem('eventReuseData')
+        if (reuseDataStr) {
+          try {
+            const reuseData = JSON.parse(reuseDataStr)
+            await processReusedData(newEventId, reuseData, formatDate(data.end_date))
+            sessionStorage.removeItem('eventReuseData')
+          } catch (error) {
+            console.error('Error al procesar datos reutilizados:', error)
+            // No fallar la creación del evento si hay error al procesar datos reutilizados
+          }
+        }
+        
         toast.success('Evento creado exitosamente')
         setModalFormularioAbierto(false)
         await cargarEventos() // Recargar la lista con datos actualizados
@@ -232,11 +349,17 @@ export function EventosCoordinator() {
       // Manejar errores de validación
       if (error.response?.data?.errors) {
         const errors = error.response.data.errors
-        const firstError = Object.values(errors)[0] as string[]
-        toast.error(firstError[0] || 'Error de validación')
+        // Mostrar todos los errores de validación
+        const errorMessages = Object.values(errors).flat() as string[]
+        errorMessages.forEach((message) => {
+          toast.error(message)
+        })
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message)
       } else {
         toast.error('Error al crear el evento')
       }
+      throw error // Re-lanzar para que el formulario pueda manejar el error
     }
   }
 

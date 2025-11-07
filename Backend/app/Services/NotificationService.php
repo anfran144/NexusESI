@@ -8,8 +8,12 @@ use App\Models\TaskProgress;
 use App\Models\Notification;
 use App\Models\Task;
 use App\Models\Event;
+use App\Models\Meeting;
+use App\Models\User;
 use App\Events\EventMetricsUpdated;
+use App\Mail\MeetingInvitationMail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationService
 {
@@ -828,6 +832,86 @@ class NotificationService
         } catch (\Exception $e) {
             Log::error("Failed to send event finalization suggestion: " . $e->getMessage(), [
                 'event_id' => $event->id,
+                'exception' => $e
+            ]);
+        }
+    }
+
+    /**
+     * Enviar notificación de invitación a reunión
+     */
+    public function sendMeetingInvitation(Meeting $meeting, User $user): void
+    {
+        try {
+            // Etiquetas de tipo de reunión
+            $meetingTypeLabels = [
+                'planning' => 'Planificación',
+                'coordination' => 'Coordinación',
+                'committee' => 'Comité',
+                'general' => 'General',
+            ];
+
+            $typeLabel = $meetingTypeLabels[$meeting->meeting_type] ?? 'Reunión';
+            $scheduledDate = $meeting->scheduled_at->format('d/m/Y H:i');
+
+            // Crear notificación persistente
+            $notification = Notification::create([
+                'title' => 'Nueva Invitación a Reunión',
+                'message' => "Has sido invitado a la reunión: {$meeting->title} ({$typeLabel}) - {$scheduledDate}",
+                'type' => 'meeting_invitation',
+                'user_id' => $user->id,
+                'is_read' => false,
+                'metadata' => [
+                    'meeting_id' => $meeting->id,
+                    'meeting_title' => $meeting->title,
+                    'meeting_type' => $meeting->meeting_type,
+                    'scheduled_at' => $meeting->scheduled_at->toIso8601String(),
+                    'location' => $meeting->location,
+                ],
+            ]);
+
+            // Enviar notificación en tiempo real si está habilitado
+            if ($this->broadcastingEnabled) {
+                $this->broadcastToUser(
+                    $user->id,
+                    'meeting.invitation',
+                    [
+                        'notification' => [
+                            'id' => $notification->id,
+                            'title' => $notification->title,
+                            'type' => $notification->type,
+                            'created_at' => $notification->created_at->toISOString(),
+                        ],
+                        'meeting' => [
+                            'id' => $meeting->id,
+                            'title' => $meeting->title,
+                            'meeting_type' => $meeting->meeting_type,
+                            'scheduled_at' => $meeting->scheduled_at->toIso8601String(),
+                            'location' => $meeting->location,
+                            'event_id' => $meeting->event_id,
+                        ]
+                    ]
+                );
+            }
+
+            // Enviar email de invitación (usando cola)
+            try {
+                Mail::to($user->email)->queue(new MeetingInvitationMail($meeting, $user));
+                Log::info("Meeting invitation email queued to user {$user->id} ({$user->email})");
+            } catch (\Exception $e) {
+                Log::error("Failed to queue meeting invitation email to user {$user->id}: " . $e->getMessage(), [
+                    'user_email' => $user->email,
+                    'meeting_id' => $meeting->id,
+                    'exception' => $e
+                ]);
+            }
+
+            Log::info("Meeting invitation notification sent to user {$user->id} via {$this->driver}");
+        } catch (\Exception $e) {
+            Log::error("Failed to send meeting invitation notification: " . $e->getMessage(), [
+                'user_id' => $user->id,
+                'meeting_id' => $meeting->id,
+                'driver' => $this->driver,
                 'exception' => $e
             ]);
         }

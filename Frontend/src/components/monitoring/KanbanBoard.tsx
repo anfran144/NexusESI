@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Task, Committee, Member } from '@/services/taskService'
+import { Button } from '@/components/ui/button'
+import { Task, Member } from '@/services/taskService'
+import { Committee } from '@/services/committee.service'
 import { cn } from '@/lib/utils'
 import { 
   Clock, 
@@ -10,8 +12,10 @@ import {
   AlertTriangle, 
   Pause,
   Calendar,
-  User
+  User,
+  TrendingUp
 } from 'lucide-react'
+import { TaskProgressHistory } from './TaskProgressHistory'
 
 interface KanbanBoardProps {
   tasks: Task[]
@@ -28,6 +32,14 @@ const statusColumns = [
 ]
 
 export function KanbanBoard({ tasks, committees, members }: KanbanBoardProps) {
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [progressHistoryOpen, setProgressHistoryOpen] = useState(false)
+
+  const handleViewProgress = (task: Task) => {
+    setSelectedTask(task)
+    setProgressHistoryOpen(true)
+  }
+
   const getStatusIcon = (status: string) => {
     const statusMap = {
       'Pending': Clock,
@@ -50,7 +62,8 @@ export function KanbanBoard({ tasks, committees, members }: KanbanBoardProps) {
     return colorMap[status as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
   }
 
-  const getCommitteeColor = (committeeId: number) => {
+  const getCommitteeColor = (committeeId?: number) => {
+    if (!committeeId) return '#6b7280'
     const committee = committees.find(c => c.id === committeeId)
     return committee?.color || '#6b7280'
   }
@@ -154,11 +167,24 @@ export function KanbanBoard({ tasks, committees, members }: KanbanBoardProps) {
                             {task.status}
                           </Badge>
                           
-                          <Avatar className="w-6 h-6">
-                            <AvatarFallback className="text-xs">
-                              {memberInitials}
-                            </AvatarFallback>
-                          </Avatar>
+                          <div className="flex items-center gap-1">
+                            {task.progress && task.progress.length > 0 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                onClick={() => handleViewProgress(task)}
+                              >
+                                <TrendingUp className="w-3 h-3 mr-1" />
+                                {task.progress.length}
+                              </Button>
+                            )}
+                            <Avatar className="w-6 h-6">
+                              <AvatarFallback className="text-xs">
+                                {memberInitials}
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -169,6 +195,13 @@ export function KanbanBoard({ tasks, committees, members }: KanbanBoardProps) {
           </div>
         )
       })}
+      
+      {/* Dialog de historial de avances */}
+      <TaskProgressHistory
+        task={selectedTask}
+        open={progressHistoryOpen}
+        onOpenChange={setProgressHistoryOpen}
+      />
     </div>
   )
 }

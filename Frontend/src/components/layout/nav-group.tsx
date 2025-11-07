@@ -106,6 +106,8 @@ function SidebarMenuLink({ item, href }: { item: NavLink; href: string }) {
         url = `/coordinator/eventos/${selectedEventId}/incidencias` // ✅ Ruta contextual
       } else if (item.title === 'Calendario') {
         url = `/coordinator/eventos/${selectedEventId}/calendario` // ✅ Ruta contextual
+      } else if (item.title === 'Reuniones') {
+        url = `/coordinator/eventos/${selectedEventId}/reuniones` // ✅ Ruta contextual
       }
     }
     
@@ -265,6 +267,8 @@ function checkIsActive(href: string, item: NavItem, mainNav = false) {
         expectedUrl = `/coordinator/eventos/${selectedEventId}/incidencias`
       } else if (item.title === 'Calendario') {
         expectedUrl = `/coordinator/eventos/${selectedEventId}/calendario`
+      } else if (item.title === 'Reuniones') {
+        expectedUrl = `/coordinator/eventos/${selectedEventId}/reuniones`
       }
       
       // Verificar si la URL actual coincide con la esperada

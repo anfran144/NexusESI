@@ -259,6 +259,22 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
     /**
+     * Relación: Invitaciones a reuniones
+     */
+    public function meetingInvitations()
+    {
+        return $this->hasMany(MeetingInvitation::class);
+    }
+
+    /**
+     * Relación: Asistencias a reuniones
+     */
+    public function meetingAttendances()
+    {
+        return $this->hasMany(MeetingAttendance::class);
+    }
+
+    /**
      * Verificar si el usuario puede participar en un evento
      * (Solo puede estar en un evento activo a la vez)
      */

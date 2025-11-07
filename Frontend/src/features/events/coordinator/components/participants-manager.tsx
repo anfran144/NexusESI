@@ -115,9 +115,6 @@ export function ParticipantsManager({ eventId }: ParticipantsManagerProps) {
       
       // Recargar datos
       await loadCommittees()
-      if (onUpdate) {
-        onUpdate()
-      }
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || 'Error al asignar el líder al comité'
       toast.error(errorMessage)

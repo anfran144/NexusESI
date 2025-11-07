@@ -11,9 +11,11 @@ export interface Committee {
   event?: {
     id: number
     name: string
+    status: string
   }
   members_count: number
   members?: CommitteeMember[]
+  color?: string
   created_at: string
   updated_at: string
 }

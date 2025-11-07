@@ -26,36 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
-import { eventService } from '@/services/event.service'
-
-interface Event {
-  id: number
-  name: string
-  description: string
-  start_date: string
-  end_date: string
-  status: 'active' | 'inactive' | 'finished'
-  coordinator: {
-    id: number
-    name: string
-    email?: string
-  }
-  institution: {
-    id: number
-    nombre: string
-    identificador?: string
-  }
-  participants_count: number
-  committees_count: number
-  created_at: string
-  progress?: number
-  active_committees?: number
-  active_participants?: number
-  total_tasks?: number
-  completed_tasks?: number
-  open_incidents?: number
-  pending_tasks?: number
-}
+import { eventService, type Event } from '@/services/event.service'
 
 interface EventDetailsProps {
   event: Event
@@ -233,7 +204,7 @@ export function EventDetails({ event }: EventDetailsProps) {
     }
   ]
 
-  const timeInfo = event.time_info || { message: getEventTimeInfo(event), type: 'planning', days: null, is_overdue: false, is_urgent: false }
+  const timeInfo = event.time_info || { message: getEventTimeInfo(event), type: 'planning' as const, days: null, is_overdue: false, is_urgent: false }
 
   return (
     <div className="space-y-6">

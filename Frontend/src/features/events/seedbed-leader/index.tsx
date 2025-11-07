@@ -10,18 +10,24 @@ import { useAuth } from '@/hooks/useAuth'
 import { usePermissions } from '@/hooks/usePermissions'
 import { toast } from 'sonner'
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   'planificación': 'Planificación',
   'en_progreso': 'En Progreso',
   'finalizado': 'Finalizado',
-  'cancelado': 'Cancelado'
+  'cancelado': 'Cancelado',
+  'active': 'Activo',
+  'inactive': 'Inactivo',
+  'finished': 'Finalizado'
 }
 
-const statusColors = {
-  'planificación': 'secondary' as const,
-  'en_progreso': 'default' as const,
-  'finalizado': 'outline' as const,
-  'cancelado': 'destructive' as const
+const statusColors: Record<string, 'secondary' | 'default' | 'outline' | 'destructive'> = {
+  'planificación': 'secondary',
+  'en_progreso': 'default',
+  'finalizado': 'outline',
+  'cancelado': 'destructive',
+  'active': 'default',
+  'inactive': 'secondary',
+  'finished': 'outline'
 }
 
 

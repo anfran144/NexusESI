@@ -51,9 +51,9 @@ export function TaskStatusChart({ data }: TaskStatusChartProps) {
             outerRadius={100}
             paddingAngle={5}
             dataKey="value"
-            label={({ name, value, percent }) => 
-              `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
-            }
+          label={({ name, value, percent }) => 
+            `${name}: ${value} (${((percent as number) * 100).toFixed(0)}%)`
+          }
           >
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />

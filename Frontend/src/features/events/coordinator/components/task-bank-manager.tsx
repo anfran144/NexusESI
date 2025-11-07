@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -19,6 +18,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -26,13 +33,9 @@ import {
   FolderKanban,
   Plus,
   ListTodo,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  GripVertical,
-  List,
-  LayoutGrid,
   Users,
+  MoreVertical,
+  TrendingUp,
 } from 'lucide-react'
 import { committeeService, type Committee } from '@/services/committee.service'
 import { taskService, type Task, type CreateTaskData } from '@/services/taskService'
@@ -40,18 +43,8 @@ import { eventService, type Event } from '@/services/event.service'
 import { DatePicker } from '@/components/ui/date-picker'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-  useDroppable,
-  useDraggable,
-} from '@dnd-kit/core'
+import { TaskCard } from '@/components/tasks/TaskCard'
+import { TaskProgressHistory } from '@/components/monitoring/TaskProgressHistory'
 
 interface TaskBankManagerProps {
   eventId: number
@@ -59,200 +52,10 @@ interface TaskBankManagerProps {
   onClearFilter?: () => void
 }
 
-type ViewMode = 'drag-drop' | 'list'
 
-// Componente de tarjeta de tarea arrastrable
-function DraggableTaskCard({ task, onViewDetails }: { task: Task; onViewDetails?: () => void }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    isDragging,
-  } = useDraggable({ id: task.id.toString() })
-
-  const getStatusConfig = (status: Task['status']) => {
-    const configs = {
-      Pending: { label: 'Pendiente', color: 'bg-gray-100 text-gray-800', icon: Clock },
-      InProgress: { label: 'En Progreso', color: 'bg-blue-100 text-blue-800', icon: Clock },
-      Completed: { label: 'Completada', color: 'bg-green-100 text-green-800', icon: CheckCircle2 },
-      Delayed: { label: 'Retrasada', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
-      Paused: { label: 'Pausada', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-    }
-    return configs[status]
-  }
-
-  const getRiskLevelConfig = (riskLevel: Task['risk_level']) => {
-    const configs = {
-      Low: { label: 'Bajo', color: 'bg-green-100 text-green-800' },
-      Medium: { label: 'Medio', color: 'bg-yellow-100 text-yellow-800' },
-      High: { label: 'Alto', color: 'bg-red-100 text-red-800' },
-    }
-    return configs[riskLevel]
-  }
-
-  const statusConfig = getStatusConfig(task.status)
-  const riskConfig = getRiskLevelConfig(task.risk_level)
-  const StatusIcon = statusConfig.icon
-
-  return (
-    <Card
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      style={{ opacity: isDragging ? 0.5 : 1 }}
-      className={`hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing ${isDragging ? 'ring-2 ring-primary' : ''} touch-none`}
-    >
-      <CardContent className="pt-6">
-        <div className="flex items-start gap-3">
-          <div className="text-muted-foreground hover:text-foreground mt-1">
-            <GripVertical className="h-5 w-5" />
-          </div>
-          <div className="flex-1 space-y-2 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-semibold text-lg truncate">{task.title}</h4>
-              <Badge className={statusConfig.color}>
-                <StatusIcon className="h-3 w-3 mr-1" />
-                {statusConfig.label}
-              </Badge>
-              <Badge className={riskConfig.color}>
-                {riskConfig.label}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {task.description}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Fecha límite: {new Date(task.due_date).toLocaleDateString('es-ES')}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// Componente de tarjeta de tarea para vista lista
-function ListTaskCard({
-  task,
-  isSelected,
-  onSelect,
-}: {
-  task: Task
-  isSelected: boolean
-  onSelect: (selected: boolean) => void
-}) {
-  const getStatusConfig = (status: Task['status']) => {
-    const configs = {
-      Pending: { label: 'Pendiente', color: 'bg-gray-100 text-gray-800', icon: Clock },
-      InProgress: { label: 'En Progreso', color: 'bg-blue-100 text-blue-800', icon: Clock },
-      Completed: { label: 'Completada', color: 'bg-green-100 text-green-800', icon: CheckCircle2 },
-      Delayed: { label: 'Retrasada', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
-      Paused: { label: 'Pausada', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-    }
-    return configs[status]
-  }
-
-  const getRiskLevelConfig = (riskLevel: Task['risk_level']) => {
-    const configs = {
-      Low: { label: 'Bajo', color: 'bg-green-100 text-green-800' },
-      Medium: { label: 'Medio', color: 'bg-yellow-100 text-yellow-800' },
-      High: { label: 'Alto', color: 'bg-red-100 text-red-800' },
-    }
-    return configs[riskLevel]
-  }
-
-  const statusConfig = getStatusConfig(task.status)
-  const riskConfig = getRiskLevelConfig(task.risk_level)
-  const StatusIcon = statusConfig.icon
-
-  return (
-    <Card className={`hover:shadow-md transition-shadow ${isSelected ? 'ring-2 ring-primary' : ''}`}>
-      <CardContent className="pt-6">
-        <div className="flex items-start gap-3">
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={(checked) => onSelect(checked === true)}
-            className="mt-1"
-          />
-          <div className="flex-1 space-y-2 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-semibold text-lg">{task.title}</h4>
-              <Badge className={statusConfig.color}>
-                <StatusIcon className="h-3 w-3 mr-1" />
-                {statusConfig.label}
-              </Badge>
-              <Badge className={riskConfig.color}>
-                {riskConfig.label}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {task.description}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Fecha límite: {new Date(task.due_date).toLocaleDateString('es-ES')}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// Componente de columna de comité (drop zone)
-function CommitteeColumn({
-  committee,
-  tasks,
-}: {
-  committee: Committee
-  tasks: Task[]
-}) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: committee.id.toString(),
-  })
-
-  return (
-    <Card
-      ref={setNodeRef}
-      className={`h-full min-h-[400px] transition-colors ${
-        isOver ? 'border-primary border-2 bg-primary/5' : ''
-      }`}
-    >
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Users className="h-4 w-4" />
-          {committee.name}
-        </CardTitle>
-        <p className="text-xs text-muted-foreground">
-          {committee.members_count} {committee.members_count === 1 ? 'miembro' : 'miembros'}
-        </p>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {tasks.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed rounded-lg text-muted-foreground">
-              <p className="text-sm">Arrastra tareas aquí</p>
-            </div>
-          ) : (
-            tasks.map((task) => (
-              <Card key={task.id} className="p-3">
-                <div className="space-y-1">
-                  <h5 className="font-medium text-sm">{task.title}</h5>
-                  <Badge variant="outline" className="text-xs">
-                    {task.status}
-                  </Badge>
-                </div>
-              </Card>
-            ))
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankManagerProps) {
+export function TaskBankManager({ eventId, filter }: TaskBankManagerProps) {
   const [committees, setCommittees] = useState<Committee[]>([])
-  const [eventTasks, setEventTasks] = useState<Task[]>([]) // Tareas sin comité (banco de tareas)
+  const [unassignedTasks, setUnassignedTasks] = useState<Task[]>([]) // Solo tareas sin comité
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadingCommittees, setLoadingCommittees] = useState(true)
@@ -260,8 +63,11 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
   const [assignDialogOpen, setAssignDialogOpen] = useState(false)
   const [selectedTasks, setSelectedTasks] = useState<Set<number>>(new Set())
   const [assigning, setAssigning] = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>('drag-drop')
-  const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+  const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set())
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [progressHistoryOpen, setProgressHistoryOpen] = useState(false)
+
+  // Sin filtros - solo asignación
 
   // Form state para crear tarea
   const [taskForm, setTaskForm] = useState<CreateTaskData>({
@@ -271,20 +77,10 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
     event_id: eventId,
   })
 
-  // Sensors para drag & drop
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  )
-
   const loadCommittees = useCallback(async () => {
     try {
       setLoadingCommittees(true)
       const response = await committeeService.getCommittees({ event_id: eventId })
-      
       if (response.success) {
         setCommittees(response.data)
       }
@@ -309,13 +105,15 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
   const loadTasks = useCallback(async () => {
     try {
       setLoading(true)
-      // Cargar solo tareas del evento sin comité asignado (banco de tareas)
-        const allTasks = await taskService.getTasks({ event_id: eventId })
-      const tasksWithoutCommittee = allTasks.filter((t) => !t.committee_id)
-        setEventTasks(tasksWithoutCommittee)
+      // Cargar TODAS las tareas del evento y filtrar solo las sin comité
+      const tasks = await taskService.getTasks({ event_id: eventId })
+      const allTasksArray = Array.isArray(tasks) ? tasks : []
+      // Filtrar solo tareas sin comité asignado
+      const unassigned = allTasksArray.filter(task => !task.committee_id)
+      setUnassignedTasks(unassigned)
     } catch (_error) {
       toast.error('Error al cargar las tareas')
-      setEventTasks([])
+      setUnassignedTasks([])
     } finally {
       setLoading(false)
     }
@@ -333,6 +131,16 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
     loadTasks()
   }, [loadTasks])
 
+  // Mostrar todas las tareas sin comité (sin filtros)
+  const filteredTasks = unassignedTasks.filter((task) => {
+    // Solo filtrar por vencidas si viene del prop
+    if (filter === 'overdue') {
+      const dueDate = new Date(task.due_date)
+      if (dueDate >= new Date() || task.status === 'Completed') return false
+    }
+    return true
+  })
+
   const handleCreateTask = async () => {
     try {
       if (!taskForm.title || !taskForm.description || !taskForm.due_date) {
@@ -340,7 +148,6 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
         return
       }
 
-      // Crear tarea SIN comité (banco de tareas)
       await taskService.createTask({
         ...taskForm,
         event_id: eventId,
@@ -355,7 +162,7 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
         due_date: '',
         event_id: eventId,
       })
-      loadTasks()
+      await loadTasks()
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error al crear la tarea')
     }
@@ -368,7 +175,7 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
       setAssigning(true)
       await taskService.updateTask(taskId, { committee_id: committeeId })
       toast.success('Tarea asignada al comité exitosamente')
-      await loadTasks() // Recargar para remover la tarea del banco
+      await loadTasks()
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message ||
@@ -405,39 +212,30 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
     }
   }
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveTaskId(event.active.id as string)
-  }
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    setActiveTaskId(null)
-    const { active, over } = event
-
-    if (!over) return
-
-    const taskId = Number(active.id)
-    const committeeId = Number(over.id)
-
-    // Verificar que el over es un comité (no otra tarea)
-    if (committees.some((c) => c.id === committeeId)) {
-      handleAssignTaskToCommittee(taskId, committeeId)
-    }
-  }
-
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedTasks(new Set(eventTasks.map((t) => t.id)))
+      setSelectedTasks(new Set(filteredTasks.map((t) => t.id)))
     } else {
       setSelectedTasks(new Set())
     }
   }
 
-  const filteredTasks =
-    filter === 'overdue'
-      ? eventTasks.filter((t) => new Date(t.due_date) < new Date() && t.status !== 'Completed')
-      : eventTasks
+  const toggleTaskExpansion = (taskId: number) => {
+    const newExpanded = new Set(expandedTasks)
+    if (newExpanded.has(taskId)) {
+      newExpanded.delete(taskId)
+    } else {
+      newExpanded.add(taskId)
+    }
+    setExpandedTasks(newExpanded)
+  }
 
-  const activeTask = activeTaskId ? eventTasks.find((t) => t.id.toString() === activeTaskId) : null
+  const handleViewProgress = (task: Task) => {
+    setSelectedTask(task)
+    setProgressHistoryOpen(true)
+  }
+
+
 
   if (loadingCommittees) {
     return (
@@ -452,18 +250,18 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
 
   return (
     <div className="space-y-6">
-      {/* Header con crear tarea y selector de vista */}
+      {/* Header con estadísticas y acciones */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-            <CardTitle className="flex items-center gap-2">
-              <FolderKanban className="h-5 w-5" />
-              Banco de Tareas
-            </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Repositorio de tareas del evento. Crea tareas y asígnalas a comités.
-              </p>
+              <CardTitle className="flex items-center gap-2">
+                <FolderKanban className="h-5 w-5" />
+                Banco de Tareas
+              </CardTitle>
+              <CardDescription className="mt-1">
+                Asigna tareas sin comité a los comités del evento
+              </CardDescription>
             </div>
             <Button onClick={() => setCreateDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -472,215 +270,113 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-            <TabsList>
-              <TabsTrigger value="drag-drop" className="flex items-center gap-2">
-                <LayoutGrid className="h-4 w-4" />
-                Arrastrar y Soltar
-              </TabsTrigger>
-              <TabsTrigger value="list" className="flex items-center gap-2">
-                <List className="h-4 w-4" />
-                Vista Lista
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <p className="text-sm text-muted-foreground">
+            {filteredTasks.length === 0 
+              ? 'No hay tareas sin asignar a comités' 
+              : `${filteredTasks.length} ${filteredTasks.length === 1 ? 'tarea sin asignar' : 'tareas sin asignar'}`
+            }
+          </p>
         </CardContent>
       </Card>
 
-      {/* Vista Drag & Drop (Kanban) */}
-      {viewMode === 'drag-drop' && (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Columna: Banco de Tareas */}
-            <Card className="h-full">
-          <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ListTodo className="h-5 w-5" />
-                  Banco de Tareas
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {filteredTasks.length} {filteredTasks.length === 1 ? 'tarea' : 'tareas'} disponible{filteredTasks.length > 1 ? 's' : ''}
-                </p>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p className="text-muted-foreground text-sm">Cargando tareas...</p>
-                </div>
-              </div>
-                ) : filteredTasks.length === 0 ? (
-              <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                <ListTodo className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No hay tareas en el banco</h3>
-                <p className="text-muted-foreground mb-4">
-                  Crea tareas del evento para luego asignarlas a comités
-                </p>
-                <Button onClick={() => setCreateDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Crear Primera Tarea
-                </Button>
-              </div>
-                        ) : (
-              <div className="space-y-3">
-                {filteredTasks.map((task) => (
-                  <DraggableTaskCard key={task.id} task={task} />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-            {/* Columnas de Comités */}
-            {committees.length === 0 ? (
-              <Card className="h-full">
-                <CardContent className="flex items-center justify-center py-12">
-                  <div className="text-center">
-                    <FolderKanban className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No hay comités creados</h3>
-                    <p className="text-muted-foreground">
-                      Crea un comité primero para poder asignar tareas
-                          </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-            ) : (
-              <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Comités</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Arrastra tareas desde el banco a los comités
-                </p>
-              </div>
-                <div className="grid grid-cols-1 gap-4 max-h-[600px] overflow-y-auto">
-                  {committees.map((committee) => (
-                    <CommitteeColumn
-                      key={committee.id}
-                      committee={committee}
-                      tasks={[]} // Las tareas asignadas se muestran en otra vista
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-              </div>
-
-          <DragOverlay>
-            {activeTask ? (
-              <Card className="opacity-90 rotate-3 shadow-lg">
-                      <CardContent className="pt-6">
-                            <div className="flex items-center gap-2">
-                    <GripVertical className="h-5 w-5 text-muted-foreground" />
-                    <h4 className="font-semibold">{activeTask.title}</h4>
-                        </div>
-                      </CardContent>
-                    </Card>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      )}
-
-      {/* Vista Lista con Selección Múltiple */}
-      {viewMode === 'list' && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <ListTodo className="h-5 w-5" />
-                  Banco de Tareas
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {filteredTasks.length} {filteredTasks.length === 1 ? 'tarea' : 'tareas'} disponible{filteredTasks.length > 1 ? 's' : ''}
-                  {selectedTasks.size > 0 && (
-                    <span className="ml-2 text-primary font-medium">
-                      • {selectedTasks.size} seleccionada{selectedTasks.size > 1 ? 's' : ''}
-                    </span>
-                  )}
-                </p>
-              </div>
+      {/* Lista de tareas con divulgación progresiva */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ListTodo className="h-5 w-5" />
+                Tareas ({filteredTasks.length})
+              </CardTitle>
               {selectedTasks.size > 0 && (
-                <Button
-                  onClick={() => setAssignDialogOpen(true)}
-                  disabled={committees.length === 0}
-                >
-                  <Users className="h-4 w-4 mr-2" />
-                  Asignar Seleccionadas ({selectedTasks.size})
-              </Button>
+                <CardDescription className="mt-1">
+                  {selectedTasks.size} tarea{selectedTasks.size > 1 ? 's' : ''} seleccionada{selectedTasks.size > 1 ? 's' : ''}
+                </CardDescription>
               )}
             </div>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p className="text-muted-foreground text-sm">Cargando tareas...</p>
-                </div>
+            {selectedTasks.size > 0 && (
+              <Button
+                onClick={() => setAssignDialogOpen(true)}
+                disabled={committees.length === 0}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Asignar Seleccionadas ({selectedTasks.size})
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Cargando tareas...</p>
               </div>
-            ) : filteredTasks.length === 0 ? (
-              <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                <ListTodo className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No hay tareas en el banco</h3>
-                <p className="text-muted-foreground mb-4">
-                  Crea tareas del evento para luego asignarlas a comités
-                </p>
+            </div>
+          ) : filteredTasks.length === 0 ? (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+              <ListTodo className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No hay tareas</h3>
+              <p className="text-muted-foreground mb-4">
+                No hay tareas sin asignar a comités. Puedes crear nuevas tareas para asignarlas.
+              </p>
+              <div className="flex gap-2 justify-center">
                 <Button onClick={() => setCreateDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Crear Primera Tarea
+                  Crear Tarea
                 </Button>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Seleccionar todo */}
-                <div className="flex items-center gap-2 pb-2 border-b">
-                  <Checkbox
-                    checked={selectedTasks.size === filteredTasks.length && filteredTasks.length > 0}
-                    onCheckedChange={handleSelectAll}
-                  />
-                  <Label className="text-sm font-medium cursor-pointer">
-                    Seleccionar todas ({filteredTasks.length})
-                  </Label>
-                </div>
-
-                {/* Lista de tareas */}
-              <div className="space-y-3">
-                  {filteredTasks.map((task) => (
-                    <ListTaskCard
-                      key={task.id}
-                      task={task}
-                      isSelected={selectedTasks.has(task.id)}
-                      onSelect={(selected) => {
-                        const newSelected = new Set(selectedTasks)
-                        if (selected) {
-                          newSelected.add(task.id)
-                        } else {
-                          newSelected.delete(task.id)
-                        }
-                        setSelectedTasks(newSelected)
-                      }}
-                    />
-                  ))}
-                        </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Seleccionar todo */}
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <Checkbox
+                  checked={selectedTasks.size === filteredTasks.length && filteredTasks.length > 0}
+                  onCheckedChange={handleSelectAll}
+                />
+                <Label className="text-sm font-medium cursor-pointer">
+                  Seleccionar todas ({filteredTasks.length})
+                </Label>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+
+              {/* Lista de tareas */}
+              {filteredTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  committees={committees}
+                  eventId={eventId}
+                  showCheckbox={true}
+                  isSelected={selectedTasks.has(task.id)}
+                  onSelect={(selected) => {
+                    const newSelected = new Set(selectedTasks)
+                    if (selected) {
+                      newSelected.add(task.id)
+                    } else {
+                      newSelected.delete(task.id)
+                    }
+                    setSelectedTasks(newSelected)
+                  }}
+                  showCommitteeActions={true}
+                  onAssignToCommittee={handleAssignTaskToCommittee}
+                  onViewProgress={handleViewProgress}
+                  expandedTasks={expandedTasks}
+                  onToggleExpand={toggleTaskExpansion}
+                />
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Diálogo para crear tarea */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Crear Nueva Tarea en el Banco</DialogTitle>
+            <DialogTitle>Crear Nueva Tarea</DialogTitle>
             <DialogDescription>
-              Crea una nueva tarea para el evento. Podrás asignarla a un comité más tarde desde el banco de tareas.
+              Crea una nueva tarea para el evento. Podrás asignarla a un comité más tarde.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -717,7 +413,6 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
                 minDate={event?.start_date ? new Date(event.start_date) : undefined}
                 maxDate={event?.end_date ? new Date(event.end_date) : undefined}
                 disabled={(date) => {
-                  // Solo permitir fechas dentro del rango del evento
                   if (event?.start_date) {
                     const startDate = new Date(event.start_date)
                     startDate.setHours(0, 0, 0, 0)
@@ -806,6 +501,13 @@ export function TaskBankManager({ eventId, filter, onClearFilter }: TaskBankMana
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de historial de avances */}
+      <TaskProgressHistory
+        task={selectedTask}
+        open={progressHistoryOpen}
+        onOpenChange={setProgressHistoryOpen}
+      />
     </div>
   )
 }

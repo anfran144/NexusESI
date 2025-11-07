@@ -5,20 +5,15 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import esLocale from '@fullcalendar/core/locales/es'
 import { eventService } from '@/services/event.service'
-import { taskService, type CreateTaskData } from '@/services/taskService'
-import { committeeService } from '@/services/committee.service'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Filter } from 'lucide-react'
-import type { DateSelectArg, EventClickArg } from '@fullcalendar/core'
+import type { EventClickArg } from '@fullcalendar/core'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -33,23 +28,16 @@ export function EventCalendar({ eventId }: EventCalendarProps) {
   const [loading, setLoading] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [createTaskDialogOpen, setCreateTaskDialogOpen] = useState(false)
-  const [taskForm, setTaskForm] = useState<CreateTaskData>({
-    title: '',
-    description: '',
-    due_date: '',
-    event_id: eventId,
-  })
-  const [creatingTask, setCreatingTask] = useState(false)
-  const [allCommittees, setAllCommittees] = useState<any[]>([])
 
   // Filtros
   const [filters, setFilters] = useState({
     showEvent: true,
     showTasks: true,
     showIncidents: true,
+    showMeetings: true,
     committeeIds: [] as number[],
     taskStatuses: [] as string[],
+    meetingTypes: [] as string[],
   })
 
   const loadCalendarData = useCallback(async () => {
@@ -74,26 +62,12 @@ export function EventCalendar({ eventId }: EventCalendarProps) {
     loadCalendarData()
   }, [loadCalendarData])
 
-  // Cargar comités para el formulario de creación
-  useEffect(() => {
-    const loadCommittees = async () => {
-      try {
-        const response = await committeeService.getCommittees({ event_id: eventId })
-        if (response.success) {
-          setAllCommittees(response.data)
-        }
-      } catch (error) {
-        console.error('Error loading committees:', error)
-      }
-    }
-    loadCommittees()
-  }, [eventId])
-
   // Filtrar eventos según los filtros activos
   const filteredEvents = calendarEvents.filter(event => {
     if (!filters.showEvent && event.type === 'event') return false
     if (!filters.showTasks && event.type === 'task') return false
     if (!filters.showIncidents && event.type === 'incident') return false
+    if (!filters.showMeetings && event.type === 'meeting') return false
 
     if (event.type === 'task') {
       const props = event.extendedProps
@@ -109,73 +83,31 @@ export function EventCalendar({ eventId }: EventCalendarProps) {
       }
     }
 
-    return true
-  })
-
-  const handleDateSelect = (selectInfo: DateSelectArg) => {
-    // Formato ISO 8601 para fecha (YYYY-MM-DD)
-    const selectedDateStr = format(selectInfo.start, 'yyyy-MM-dd')
-    
-    // Validar que la fecha esté dentro del rango del evento
-    if (eventData) {
-      const eventStart = new Date(eventData.start_date)
-      const eventEnd = new Date(eventData.end_date)
-      const selectedDate = new Date(selectedDateStr)
+    if (event.type === 'meeting') {
+      const props = event.extendedProps
       
-      if (selectedDate < eventStart || selectedDate > eventEnd) {
-        toast.error(`La fecha debe estar entre ${format(eventStart, 'dd/MM/yyyy', { locale: es })} y ${format(eventEnd, 'dd/MM/yyyy', { locale: es })}`)
-        selectInfo.view.calendar.unselect()
-        return
+      // Filtro por tipo de reunión
+      if (filters.meetingTypes.length > 0) {
+        if (!filters.meetingTypes.includes(props.meetingType)) return false
       }
     }
-    
-    setTaskForm({
-      title: '',
-      description: '',
-      due_date: selectedDateStr,
-      event_id: eventId,
-    })
-    setCreateTaskDialogOpen(true)
-    selectInfo.view.calendar.unselect()
-  }
 
-  const handleCreateTask = async () => {
-    if (!taskForm.title || !taskForm.description || !taskForm.due_date) {
-      toast.error('Por favor completa todos los campos requeridos')
-      return
-    }
-
-    try {
-      setCreatingTask(true)
-      await taskService.createTask(taskForm)
-      toast.success('Tarea creada exitosamente')
-      setCreateTaskDialogOpen(false)
-      setTaskForm({
-        title: '',
-        description: '',
-        due_date: '',
-        event_id: eventId,
-      })
-      await loadCalendarData()
-    } catch (error: any) {
-      console.error('Error creating task:', error)
-      toast.error(error.response?.data?.message || 'Error al crear la tarea')
-    } finally {
-      setCreatingTask(false)
-    }
-  }
+    return true
+  })
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     const event = clickInfo.event
     const extendedProps = event.extendedProps
     
-    let eventType: 'event' | 'task' | 'incident' = 'task'
+    let eventType: 'event' | 'task' | 'incident' | 'meeting' = 'task'
     if (event.id.startsWith('event-')) {
       eventType = 'event'
     } else if (event.id.startsWith('incident-')) {
       eventType = 'incident'
     } else if (event.id.startsWith('task-')) {
       eventType = 'task'
+    } else if (event.id.startsWith('meeting-')) {
+      eventType = 'meeting'
     }
     
     setSelectedEvent({
@@ -364,9 +296,8 @@ export function EventCalendar({ eventId }: EventCalendarProps) {
               day: 'Día'
             }}
             events={filteredEvents}
-            editable={true}
-            selectable={true}
-            selectMirror={true}
+            editable={false}
+            selectable={false}
             dayMaxEvents={true}
             weekends={true}
             firstDay={1}
@@ -400,7 +331,6 @@ export function EventCalendar({ eventId }: EventCalendarProps) {
             eventDisplay="block"
             displayEventTime={true}
             displayEventEnd={true}
-            select={handleDateSelect}
             eventClick={handleEventClick}
             height="auto"
             validRange={{
@@ -420,6 +350,7 @@ export function EventCalendar({ eventId }: EventCalendarProps) {
               {selectedEvent?.type === 'event' && 'Detalles del evento'}
               {selectedEvent?.type === 'task' && 'Detalles de la tarea'}
               {selectedEvent?.type === 'incident' && 'Detalles de la incidencia'}
+              {selectedEvent?.type === 'meeting' && 'Detalles de la reunión'}
             </DialogDescription>
           </DialogHeader>
           {selectedEvent && (
@@ -524,102 +455,48 @@ export function EventCalendar({ eventId }: EventCalendarProps) {
                   </div>
                 </>
               )}
+              {selectedEvent.type === 'meeting' && (
+                <>
+                  <div>
+                    <Label className="text-sm font-semibold">Descripción</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {selectedEvent.extendedProps.description || 'Sin descripción'}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold">Tipo de Reunión</Label>
+                      <div className="mt-1">
+                        <Badge variant="outline">{selectedEvent.extendedProps.meetingTypeLabel || 'Reunión'}</Badge>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">Ubicación</Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {selectedEvent.extendedProps.location || 'No especificada'}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">Fecha y Hora</Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        <time dateTime={selectedEvent.start}>
+                          {format(new Date(selectedEvent.start), "EEEE, d 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es })}
+                        </time>
+                      </p>
+                    </div>
+                    {selectedEvent.extendedProps.hasQrCode && (
+                      <div>
+                        <Label className="text-sm font-semibold">QR Code</Label>
+                        <div className="mt-1">
+                          <Badge variant="default">Disponible</Badge>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog de creación de tarea */}
-      <Dialog open={createTaskDialogOpen} onOpenChange={setCreateTaskDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Crear Nueva Tarea</DialogTitle>
-            <DialogDescription>
-              Crea una nueva tarea para el evento. La fecha de vencimiento se establece automáticamente según la fecha seleccionada en el calendario.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="task-title">Título *</Label>
-              <Input
-                id="task-title"
-                value={taskForm.title}
-                onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-                placeholder="Ej: Preparar presentación"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="task-description">Descripción *</Label>
-              <Textarea
-                id="task-description"
-                value={taskForm.description}
-                onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
-                placeholder="Describe los detalles de la tarea..."
-                rows={4}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="task-due-date">Fecha de Vencimiento *</Label>
-                <Input
-                  id="task-due-date"
-                  type="date"
-                  value={taskForm.due_date}
-                  onChange={(e) => setTaskForm({ ...taskForm, due_date: e.target.value })}
-                  aria-label="Fecha de vencimiento en formato ISO 8601 (YYYY-MM-DD)"
-                  aria-required="true"
-                  min={eventData?.start_date}
-                  max={eventData?.end_date}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Formato: YYYY-MM-DD (ISO 8601)
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="task-committee">Comité (Opcional)</Label>
-                <Select
-                  value={taskForm.committee_id?.toString() || ''}
-                  onValueChange={(value) =>
-                    setTaskForm({
-                      ...taskForm,
-                      committee_id: value ? parseInt(value) : undefined,
-                    })
-                  }
-                >
-                  <SelectTrigger id="task-committee">
-                    <SelectValue placeholder="Sin comité" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Sin comité</SelectItem>
-                    {allCommittees.map((committee) => (
-                      <SelectItem key={committee.id} value={committee.id.toString()}>
-                        {committee.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setCreateTaskDialogOpen(false)
-                setTaskForm({
-                  title: '',
-                  description: '',
-                  due_date: '',
-                  event_id: eventId,
-                })
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button onClick={handleCreateTask} disabled={creatingTask}>
-              {creatingTask ? 'Creando...' : 'Crear Tarea'}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

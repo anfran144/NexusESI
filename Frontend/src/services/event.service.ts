@@ -21,6 +21,7 @@ export interface Event {
   committees_count: number
   progress?: number
   tasks_completed?: number
+  tasks?: any[]
   time_info?: {
     message: string
     type: 'finished' | 'inactive' | 'planning' | 'execution' | 'needs_finalization'
@@ -116,6 +117,13 @@ export class EventService {
 
   async participateInEvent(id: number): Promise<ApiResponse<any>> {
     const response = await api.post(`${this.baseUrl}/${id}/participate`)
+    return response.data
+  }
+
+  async addParticipant(eventId: number, participantId: number): Promise<ApiResponse<any>> {
+    const response = await api.post(`${this.baseUrl}/${eventId}/participants`, { 
+      participant_id: participantId 
+    })
     return response.data
   }
 

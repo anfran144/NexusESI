@@ -53,14 +53,17 @@ export interface Incident {
   description: string;
   status: 'Reported' | 'Resolved';
   task_id: number;
-  reported_by_id: number;
+  reported_by: number | {
+    id: number;
+    name: string;
+    email?: string;
+  };
+  reported_by_id?: number;
+  reported_by_name?: string;
   file_name?: string;
   file_path?: string;
   solution_task_id?: number;
-  reported_by?: {
-    id: number;
-    name: string;
-  };
+  resolved_at?: string;
   solution_task?: Task;
   created_at: string;
   updated_at: string;
@@ -80,6 +83,26 @@ export interface Alert {
     name: string;
   };
   created_at: string;
+}
+
+export interface Committee {
+  id: number;
+  name: string;
+  event_id: number;
+  members_count?: number;
+  event?: {
+    id: number;
+    name: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Member {
+  id: number;
+  name: string;
+  email: string;
+  role?: string;
 }
 
 export interface Notification {

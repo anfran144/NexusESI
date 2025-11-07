@@ -12,7 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Filter } from 'lucide-react'
+import { meetingService } from '@/services/meeting.service'
 import type { EventClickArg } from '@fullcalendar/core'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -34,8 +36,10 @@ export function EventCalendarLeader({ eventId }: EventCalendarLeaderProps) {
     showEvent: true,
     showTasks: true,
     showIncidents: true,
+    showMeetings: true,
     committeeIds: [] as number[],
     taskStatuses: [] as string[],
+    meetingTypes: [] as string[],
   })
 
   const loadCalendarData = useCallback(async () => {
@@ -65,6 +69,7 @@ export function EventCalendarLeader({ eventId }: EventCalendarLeaderProps) {
     if (!filters.showEvent && event.type === 'event') return false
     if (!filters.showTasks && event.type === 'task') return false
     if (!filters.showIncidents && event.type === 'incident') return false
+    if (!filters.showMeetings && event.type === 'meeting') return false
 
     if (event.type === 'task') {
       const props = event.extendedProps
@@ -80,6 +85,15 @@ export function EventCalendarLeader({ eventId }: EventCalendarLeaderProps) {
       }
     }
 
+    if (event.type === 'meeting') {
+      const props = event.extendedProps
+      
+      // Filtro por tipo de reunión
+      if (filters.meetingTypes.length > 0) {
+        if (!filters.meetingTypes.includes(props.meetingType)) return false
+      }
+    }
+
     return true
   })
 
@@ -87,13 +101,15 @@ export function EventCalendarLeader({ eventId }: EventCalendarLeaderProps) {
     const event = clickInfo.event
     const extendedProps = event.extendedProps
     
-    let eventType: 'event' | 'task' | 'incident' = 'task'
+    let eventType: 'event' | 'task' | 'incident' | 'meeting' = 'task'
     if (event.id.startsWith('event-')) {
       eventType = 'event'
     } else if (event.id.startsWith('incident-')) {
       eventType = 'incident'
     } else if (event.id.startsWith('task-')) {
       eventType = 'task'
+    } else if (event.id.startsWith('meeting-')) {
+      eventType = 'meeting'
     }
     
     setSelectedEvent({
@@ -185,6 +201,17 @@ export function EventCalendarLeader({ eventId }: EventCalendarLeaderProps) {
                   />
                   <Label htmlFor="show-incidents" className="cursor-pointer">Incidencias</Label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="show-meetings"
+                    checked={filters.showMeetings}
+                    onCheckedChange={(checked) =>
+                      setFilters({ ...filters, showMeetings: checked as boolean })
+                    }
+                    aria-label="Mostrar reuniones"
+                  />
+                  <Label htmlFor="show-meetings" className="cursor-pointer">Reuniones</Label>
+                </div>
               </div>
             </div>
 
@@ -256,6 +283,10 @@ export function EventCalendarLeader({ eventId }: EventCalendarLeaderProps) {
                 <div className="flex items-center gap-2" role="listitem">
                   <div className="w-4 h-4 rounded bg-red-500" aria-label="Color rojo para incidencias"></div>
                   <span>Incidencias</span>
+                </div>
+                <div className="flex items-center gap-2" role="listitem">
+                  <div className="w-4 h-4 rounded bg-purple-500" aria-label="Color morado para reuniones"></div>
+                  <span>Reuniones</span>
                 </div>
               </div>
             </div>
@@ -330,6 +361,7 @@ export function EventCalendarLeader({ eventId }: EventCalendarLeaderProps) {
               {selectedEvent?.type === 'event' && 'Detalles del evento'}
               {selectedEvent?.type === 'task' && 'Detalles de mi tarea'}
               {selectedEvent?.type === 'incident' && 'Detalles de la incidencia'}
+              {selectedEvent?.type === 'meeting' && 'Detalles de la reunión'}
             </DialogDescription>
           </DialogHeader>
           {selectedEvent && (
@@ -432,6 +464,86 @@ export function EventCalendarLeader({ eventId }: EventCalendarLeaderProps) {
                       {getStatusBadge(selectedEvent.extendedProps.status)}
                     </div>
                   </div>
+                </>
+              )}
+              {selectedEvent.type === 'meeting' && (
+                <>
+                  <div>
+                    <Label className="text-sm font-semibold">Descripción</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {selectedEvent.extendedProps.description || 'Sin descripción'}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold">Tipo de Reunión</Label>
+                      <div className="mt-1">
+                        <Badge variant="outline">{selectedEvent.extendedProps.meetingTypeLabel || 'Reunión'}</Badge>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">Ubicación</Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {selectedEvent.extendedProps.location || 'No especificada'}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">Fecha y Hora</Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        <time dateTime={selectedEvent.start}>
+                          {format(new Date(selectedEvent.start), "EEEE, d 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es })}
+                        </time>
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">Estado de Invitación</Label>
+                      <div className="mt-1">
+                        {selectedEvent.extendedProps.invitationStatus === 'accepted' && (
+                          <Badge variant="default">✓ Aceptada</Badge>
+                        )}
+                        {selectedEvent.extendedProps.invitationStatus === 'pending' && (
+                          <Badge variant="secondary">⏳ Pendiente</Badge>
+                        )}
+                        {selectedEvent.extendedProps.invitationStatus === 'declined' && (
+                          <Badge variant="destructive">✗ Rechazada</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Temporalmente deshabilitado por problemas de compilación
+                  {selectedEvent.extendedProps.invitationStatus === 'pending' && (
+                    <div className="flex gap-2 mt-4 pt-4 border-t">
+                      <button
+                        className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-md"
+                        onClick={async () => {
+                          try {
+                            toast.info('Funcionalidad en desarrollo')
+                            setDialogOpen(false)
+                            loadCalendarData()
+                          } catch (error: any) {
+                            toast.error('Error al aceptar la invitación')
+                          }
+                        }}
+                      >
+                        Aceptar
+                      </button>
+                      <button
+                        className="px-3 py-1 text-sm border rounded-md"
+                        onClick={async () => {
+                          try {
+                            toast.info('Funcionalidad en desarrollo')
+                            setDialogOpen(false)
+                            loadCalendarData()
+                          } catch (error: any) {
+                            toast.error('Error al rechazar la invitación')
+                          }
+                        }}
+                      >
+                        Rechazar
+                      </button>
+                    </div>
+                  )}
+                  */}
                 </>
               )}
             </div>

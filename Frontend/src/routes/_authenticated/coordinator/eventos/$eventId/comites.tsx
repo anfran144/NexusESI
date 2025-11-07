@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useLocation, Outlet } from '@tanstack/react-router'
 import { CommitteesManager } from '@/features/events/coordinator/components/committees-manager'
 import { PermissionGuard } from '@/components/auth/PermissionGuard'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
@@ -21,6 +21,14 @@ function ComitesPage() {
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Verificar si hay un child route activo (detalle de comité)
+  // La ruta de child es: /coordinator/eventos/$eventId/comites/$committeeId
+  // La ruta de parent es: /coordinator/eventos/$eventId/comites
+  const currentPath = location.pathname
+  const parentPath = `/coordinator/eventos/${eventId}/comites`
+  const hasChildRoute = currentPath !== parentPath && currentPath.startsWith(parentPath + '/')
 
   useEffect(() => {
     const loadEvent = async () => {
@@ -63,6 +71,12 @@ function ComitesPage() {
     )
   }
 
+  // Si hay un child route activo (detalle de comité), renderizar solo el Outlet
+  // El componente hijo se encargará de cargar el evento y mostrar su propio loading
+  if (hasChildRoute) {
+    return <Outlet />
+  }
+
   if (!event) {
     return (
       <DashboardLayout showFooter={false}>
@@ -78,6 +92,7 @@ function ComitesPage() {
     )
   }
 
+  // Si no hay child route, mostrar la lista de comités
   return (
     <PermissionGuard permission="events.committees.manage">
       <DashboardLayout showFooter={true}>

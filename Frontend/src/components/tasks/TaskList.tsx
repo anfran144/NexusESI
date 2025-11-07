@@ -256,11 +256,6 @@ export const TaskList: React.FC<TaskListProps> = ({
             <TaskCard
               key={task.id}
               task={task}
-              onUpdate={handleUpdateTask}
-              onDelete={handleDeleteTask}
-              onAssign={handleAssignTask}
-              onComplete={handleCompleteTask}
-              onReportProgress={handleReportProgress}
             />
           ))}
         </div>

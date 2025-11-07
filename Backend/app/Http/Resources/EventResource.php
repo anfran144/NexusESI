@@ -39,15 +39,11 @@ class EventResource extends JsonResource
             'participants' => EventParticipantResource::collection($this->whenLoaded('participants')),
             'participants_count' => $this->when(
                 $this->relationLoaded('participants'),
+                fn () => $this->participants->where('is_active', true)->count()
+            ),
+            'total_participants_count' => $this->when(
+                $this->relationLoaded('participants'),
                 fn () => $this->participants->count()
-            ),
-            'approved_participants_count' => $this->when(
-                $this->relationLoaded('participants'),
-                fn () => $this->participants->where('status', 'aprobado')->count()
-            ),
-            'pending_participants_count' => $this->when(
-                $this->relationLoaded('participants'),
-                fn () => $this->participants->where('status', 'pendiente')->count()
             ),
             'committees_count' => $this->when(
                 $this->relationLoaded('committees'),
@@ -63,7 +59,8 @@ class EventResource extends JsonResource
                     }
                     $totalTasks = $tasks->count();
                     $completedTasks = $tasks->where('status', 'Completed')->count();
-                    return $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 1) : 0;
+                    // Porcentaje sin decimales para consistencia en la UI
+                    return $totalTasks > 0 ? (int) round(($completedTasks / $totalTasks) * 100) : 0;
                 }
             ),
             'tasks_completed' => $this->when(

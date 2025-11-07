@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { MetricCard, StatCard } from '@/components/ui'
+import { MetricCard } from '@/components/ui'
 import { 
   Building2, 
   Users, 

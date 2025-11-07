@@ -68,7 +68,11 @@ export function ComitesCoordinator() {
         // Transformar los datos para que coincidan con la estructura esperada
         const committeesWithDetails: CommitteeWithMembers[] = response.data.map(committee => ({
           ...committee,
-          event: committee.event,
+          event: committee.event ? {
+            id: committee.event.id,
+            name: committee.event.name,
+            status: 'active'
+          } : undefined,
           members: committee.members || []
         }))
         setCommittees(committeesWithDetails)
@@ -89,7 +93,15 @@ export function ComitesCoordinator() {
   }
 
   const handleEditCommittee = (committee: Committee) => {
-    setSelectedCommittee(committee)
+    setSelectedCommittee({
+      ...committee,
+      event: committee.event ? {
+        id: committee.event.id,
+        name: committee.event.name,
+        status: 'active'
+      } : undefined,
+      members: []
+    })
     setDialogOpen(true)
   }
 

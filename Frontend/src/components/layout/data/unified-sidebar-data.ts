@@ -11,7 +11,8 @@ import {
   FolderKanban,
   Presentation,
   BarChart3,
-  AlertTriangle
+  AlertTriangle,
+  CalendarCheck
 } from 'lucide-react'
 import { useEventContext } from '@/stores/event-context-store'
 
@@ -222,6 +223,17 @@ export function getUnifiedSidebarData(user: AuthUser, hasActiveEvent: boolean = 
             title: 'Calendario',
             url: '#', // Se construirá dinámicamente
             icon: Calendar,
+            permission: 'events.view',
+            isVisible: () => {
+              const { selectedEventId } = useEventContext.getState()
+              return selectedEventId !== null
+            }
+          },
+          // Reuniones - Coordinator (Contextual)
+          {
+            title: 'Reuniones',
+            url: '#', // Se construirá dinámicamente
+            icon: CalendarCheck,
             permission: 'events.view',
             isVisible: () => {
               const { selectedEventId } = useEventContext.getState()

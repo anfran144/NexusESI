@@ -33,6 +33,10 @@ class EventParticipantResource extends JsonResource
                     ),
                 ];
             }),
+            'participation_role' => $this->participation_role,
+            'participation_role_display' => $this->getParticipationRoleDisplay(),
+            'is_active' => $this->is_active ?? true,
+            'ended_at' => $this->ended_at?->format('Y-m-d H:i:s'),
             'event' => $this->whenLoaded('event', function () {
                 return [
                     'id' => $this->event->id,
@@ -43,5 +47,21 @@ class EventParticipantResource extends JsonResource
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
+    }
+
+    /**
+     * Obtener nombre legible del rol de participación
+     */
+    private function getParticipationRoleDisplay(): string
+    {
+        if (!$this->participation_role) {
+            return 'Participante';
+        }
+
+        return match($this->participation_role) {
+            'seedbed_leader' => 'Líder de Semillero',
+            'coordinator' => 'Coordinador',
+            default => 'Participante',
+        };
     }
 }

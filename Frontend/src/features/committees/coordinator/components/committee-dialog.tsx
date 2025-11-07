@@ -26,7 +26,21 @@ interface Committee {
 interface CommitteeDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  committee?: Committee | null
+  committee?: Committee | null | { 
+    id: number
+    name: string
+    event_id: number
+    event?: {
+      id: number
+      name: string
+      status: string
+    }
+    members_count: number
+    members?: any[]
+    color?: string
+    created_at: string
+    updated_at: string
+  }
   onSaved: () => void
 }
 

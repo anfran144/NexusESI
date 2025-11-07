@@ -40,4 +40,12 @@ final class Committee extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    /**
+     * Relación con las invitaciones a reuniones del comité
+     */
+    public function meetingInvitations(): HasMany
+    {
+        return $this->hasMany(MeetingInvitation::class);
+    }
 }

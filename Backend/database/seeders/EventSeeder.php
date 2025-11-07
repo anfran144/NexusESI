@@ -7,6 +7,7 @@ use App\Models\Institucion;
 use App\Models\User;
 use App\Models\Committee;
 use App\Models\Task;
+use App\Models\EventParticipant;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -50,13 +51,18 @@ class EventSeeder extends Seeder
         $this->command->info('Evento "Encuentro de Semilleros Institucional 2025" creado/actualizado como finalizado.');
 
         // Crear comités y tareas para el evento 2025
-        $this->createCommitteesAndTasks($evento2025, $juanPablo, $universidadMariana);
+        $usuarios = $this->createCommitteesAndTasks($evento2025, $juanPablo, $universidadMariana);
+
+        // Crear participantes del evento con campos históricos
+        $this->createEventParticipants($evento2025, $usuarios, $juanPablo);
     }
 
     /**
      * Crear comités y tareas para el evento 2025
+     * 
+     * @return array Array de usuarios creados
      */
-    private function createCommitteesAndTasks(Event $event, User $coordinator, Institucion $institucion): void
+    private function createCommitteesAndTasks(Event $event, User $coordinator, Institucion $institucion): array
     {
         // Crear usuarios para los miembros de los comités (si no existen)
         $miembros = [
@@ -279,5 +285,48 @@ class EventSeeder extends Seeder
         }
 
         $this->command->info('Comités y tareas creados para el evento 2025.');
+
+        return $usuarios;
+    }
+
+    /**
+     * Crear participantes del evento con campos históricos
+     */
+    private function createEventParticipants(Event $event, array $usuarios, User $coordinator): void
+    {
+        // Como el evento está finalizado, todos los participantes deben estar inactivos
+        $isActive = false;
+        $endedAt = $event->end_date->copy()->endOfDay();
+
+        // Crear participante para el coordinador
+        EventParticipant::firstOrCreate(
+            [
+                'user_id' => $coordinator->id,
+                'event_id' => $event->id,
+            ],
+            [
+                'participation_role' => 'coordinator',
+                'is_active' => $isActive,
+                'ended_at' => $endedAt,
+            ]
+        );
+
+        // Crear participantes para todos los líderes de semillero
+        foreach ($usuarios as $usuario) {
+            EventParticipant::firstOrCreate(
+                [
+                    'user_id' => $usuario->id,
+                    'event_id' => $event->id,
+                ],
+                [
+                    'participation_role' => 'seedbed_leader',
+                    'is_active' => $isActive,
+                    'ended_at' => $endedAt,
+                ]
+            );
+        }
+
+        $totalParticipants = count($usuarios) + 1; // +1 por el coordinador
+        $this->command->info("Participantes del evento creados: {$totalParticipants} (1 coordinador + " . count($usuarios) . " líderes de semillero).");
     }
 }

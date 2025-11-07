@@ -22,7 +22,7 @@ export const useAlerts = (params?: UseAlertsParams) => {
       setError(null);
       const data = await taskService.getAlerts(params);
       // Asegurar que data es un array
-      const alertsArray = Array.isArray(data) ? data : (data?.data || []);
+      const alertsArray = Array.isArray(data) ? data : ((data as any)?.data || []);
       setAlerts(alertsArray);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar las alertas');

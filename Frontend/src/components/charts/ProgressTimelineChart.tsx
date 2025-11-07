@@ -40,6 +40,7 @@ export function ProgressTimelineChart({ data, days = 30 }: ProgressTimelineChart
         />
         <Tooltip 
           formatter={(value: number, name: string, props: any) => [
+            // Mantener 1 decimal en historial para mayor precisión en tendencias
             `${value.toFixed(1)}%`,
             'Progreso'
           ]}

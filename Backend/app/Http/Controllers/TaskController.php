@@ -178,7 +178,7 @@ class TaskController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'due_date' => 'required|date',
+            'due_date' => 'nullable|date',
             'event_id' => 'required_without:committee_id|exists:events,id',
             'committee_id' => 'nullable|exists:committees,id',
         ]);
@@ -208,10 +208,12 @@ class TaskController extends Controller
             ], 422);
         }
 
-        // Validar que la fecha esté dentro del rango del evento
-        $request->validate([
-            'due_date' => "after_or_equal:{$event->start_date}|before_or_equal:{$event->end_date}",
-        ]);
+        // Validar que la fecha esté dentro del rango del evento (solo si se proporciona)
+        if ($request->filled('due_date')) {
+            $request->validate([
+                'due_date' => "after_or_equal:{$event->start_date}|before_or_equal:{$event->end_date}",
+            ]);
+        }
 
         // Validar que no se creen tareas después de la fecha de fin
         if (now()->greaterThan($event->end_date)) {
