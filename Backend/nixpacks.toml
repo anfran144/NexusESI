@@ -2,7 +2,7 @@
 # NexusESI Backend - Laravel 12 API
 
 [phases.setup]
-nixPkgs = ["php82", "php82Extensions.mbstring", "php82Extensions.pdo", "php82Extensions.pdo_mysql", "php82Extensions.tokenizer", "php82Extensions.xml", "php82Extensions.ctype", "php82Extensions.json", "php82Extensions.bcmath", "php82Extensions.fileinfo", "php82Extensions.curl", "nginx", "supervisor"]
+nixPkgs = ["php83", "php83Extensions.mbstring", "php83Extensions.pdo", "php83Extensions.pdo_mysql", "php83Extensions.tokenizer", "php83Extensions.xml", "php83Extensions.ctype", "php83Extensions.json", "php83Extensions.bcmath", "php83Extensions.fileinfo", "php83Extensions.curl", "php83Extensions.gd", "nginx", "supervisor"]
 
 [phases.install]
 cmds = [
@@ -25,5 +25,5 @@ cmds = [
 cmd = "bash .railway-start.sh"
 
 [variables]
-PHP_VERSION = "8.2"
+PHP_VERSION = "8.3"
 
