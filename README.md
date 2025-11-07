@@ -214,7 +214,30 @@ npm run test
 
 ## 🚢 Despliegue
 
-### Backend (Producción)
+### Railway (Recomendado) 🚂
+
+NexusESI está configurado para despliegue en Railway con arquitectura de dos servicios:
+
+**Guías de despliegue:**
+- 📖 **[RAILWAY-QUICKSTART.md](RAILWAY-QUICKSTART.md)** - Guía rápida (15 min)
+- 📚 **[RAILWAY-DEPLOYMENT.md](RAILWAY-DEPLOYMENT.md)** - Documentación completa
+
+**Características:**
+- ✅ Despliegue automático desde Git
+- ✅ MySQL incluido
+- ✅ HTTPS automático
+- ✅ Queue workers y scheduler configurados
+- ✅ ~$5/mes en plan Starter
+
+**Archivos de configuración incluidos:**
+- `Backend/nixpacks.toml` - Build config PHP 8.2
+- `Backend/.railway-start.sh` - Script de inicio
+- `Backend/supervisord.conf` - Gestión de procesos
+- `Frontend/nixpacks.toml` - Build config Node 18
+
+### Manual (Alternativo)
+
+#### Backend (Producción)
 ```bash
 php artisan config:cache
 php artisan route:cache
@@ -223,7 +246,7 @@ php artisan migrate --force
 composer install --optimize-autoloader --no-dev
 ```
 
-### Frontend (Producción)
+#### Frontend (Producción)
 ```bash
 npm run build
 # Archivos compilados en dist/

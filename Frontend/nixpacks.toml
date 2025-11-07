@@ -1,0 +1,18 @@
+# Nixpacks configuration for Railway deployment
+# NexusESI Frontend - React + TypeScript + Vite
+
+[phases.setup]
+nixPkgs = ["nodejs-18_x", "npm-9_x"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npx serve -s dist -l ${PORT:-3000}"
+
+[variables]
+NODE_ENV = "production"
+
