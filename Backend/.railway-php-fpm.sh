@@ -10,5 +10,5 @@ if [ -z "$PHP_FPM" ]; then
 fi
 
 echo "Starting PHP-FPM: $PHP_FPM"
-exec $PHP_FPM -F -y /dev/null
+exec $PHP_FPM -F -y /app/php-fpm/www.conf
 
