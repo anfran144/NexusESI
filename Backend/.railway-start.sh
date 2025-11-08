@@ -95,6 +95,11 @@ http {
 }
 EOF
 
+# Make wrapper scripts executable
+chmod +x /app/.railway-php-fpm.sh
+chmod +x /app/.railway-nginx.sh
+chmod +x /app/.railway-php.sh
+
 # Start Supervisor to manage all processes
 echo "🎯 Starting Supervisor..."
 exec supervisord -c /app/supervisord.conf
