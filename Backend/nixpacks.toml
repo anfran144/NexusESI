@@ -11,7 +11,6 @@ nixPkgs = [
     "php83Extensions.tokenizer",
     "php83Extensions.xml",
     "php83Extensions.ctype",
-    "php83Extensions.json",
     "php83Extensions.bcmath",
     "php83Extensions.fileinfo",
     "php83Extensions.curl",
