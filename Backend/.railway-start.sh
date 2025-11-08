@@ -17,7 +17,8 @@ php artisan migrate --force --no-interaction
 
 # Create storage link if it doesn't exist
 echo "🔗 Creating storage link..."
-php artisan storage:link --force 2>/dev/null || true
+mkdir -p public/storage 2>/dev/null || true
+php artisan storage:link --force 2>/dev/null || echo "⚠️  Storage link skipped (not critical for Railway)"
 
 # Clear and cache configurations
 echo "⚡ Optimizing application..."
@@ -32,12 +33,12 @@ if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
-# Create Nginx configuration
+# Create Nginx configuration in app directory
 echo "🌐 Configuring Nginx..."
-cat > /etc/nginx/nginx.conf <<'EOF'
-user www-data;
+mkdir -p /app/nginx
+cat > /app/nginx/nginx.conf <<'EOF'
 worker_processes auto;
-pid /run/nginx.pid;
+pid /tmp/nginx.pid;
 error_log /dev/stderr info;
 
 events {
