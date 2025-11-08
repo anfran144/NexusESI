@@ -38,10 +38,12 @@ echo "🌐 Configuring Nginx..."
 mkdir -p /app/nginx
 
 # Find mime.types in Nix store
-NGINX_PATH=$(find /nix/store -name "nginx-*" -type d | head -n1)
-MIME_TYPES="${NGINX_PATH}/conf/mime.types"
+NGINX_PATH=$(find /nix/store -name "nginx-*" -type d 2>/dev/null | head -n1)
+MIME_TYPES_PATH="${NGINX_PATH}/conf/mime.types"
 
-cat > /app/nginx/nginx.conf <<EOF
+echo "Using mime.types from: $MIME_TYPES_PATH"
+
+cat > /app/nginx/nginx.conf <<NGINXCONF
 worker_processes auto;
 pid /tmp/nginx.pid;
 error_log /dev/stderr info;
@@ -51,7 +53,7 @@ events {
 }
 
 http {
-    include ${MIME_TYPES};
+    include $MIME_TYPES_PATH;
     default_type application/octet-stream;
     
     access_log /dev/stdout;
@@ -98,18 +100,14 @@ http {
         }
     }
 }
-EOF
+NGINXCONF
 
 # Create PHP-FPM configuration
 echo "⚙️  Configuring PHP-FPM..."
 mkdir -p /app/php-fpm
 cat > /app/php-fpm/www.conf <<'PHPFPM'
 [www]
-user = nobody
-group = nobody
 listen = 127.0.0.1:9000
-listen.owner = nobody
-listen.group = nobody
 pm = dynamic
 pm.max_children = 5
 pm.start_servers = 2
