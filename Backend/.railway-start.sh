@@ -97,5 +97,5 @@ EOF
 
 # Start Supervisor to manage all processes
 echo "🎯 Starting Supervisor..."
-exec /usr/bin/supervisord -c /app/supervisord.conf
+exec supervisord -c /app/supervisord.conf
 
