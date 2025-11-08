@@ -32,10 +32,11 @@ NexusESI es una plataforma completa para la gestión colaborativa de eventos aca
 
 ```
 NexusESI/
-├── Backend/              # API REST con Laravel 11
+├── Backend/              # API REST con Laravel 12
 │   ├── app/
 │   ├── routes/
 │   ├── database/
+│   ├── railway/          # Scripts para despliegue en Railway (app/worker/cron)
 │   └── config/
 ├── Frontend/             # SPA con React + TypeScript
 │   ├── src/
@@ -49,6 +50,18 @@ NexusESI/
     ├── legacy/           # Documentos históricos
     └── changelogs/       # Registro de cambios
 ```
+
+### Despliegue en Railway (Majestic Monolith)
+
+```
+Railway Project: NexusESI
+├── App Service      # HTTP + Web API (usa railway/init-app.sh como pre-deploy)
+├── Worker Service   # Procesa trabajos de cola (railway/run-worker.sh)
+├── Cron Service     # Scheduler cada minuto (railway/run-cron.sh)
+└── MySQL Service    # Base de datos gestionada por Railway
+```
+
+Cada servicio comparte el mismo repositorio (directorio raíz `Backend/`) y las mismas variables de entorno de producción. Los scripts en `Backend/railway/` encapsulan las tareas necesarias para cada rol, siguiendo la guía oficial de Railway para Laravel.
 
 ### Stack Tecnológico
 
@@ -216,7 +229,14 @@ npm run test
 
 ### Railway (Recomendado) 🚂
 
-NexusESI está configurado para despliegue en Railway con arquitectura de dos servicios:
+NexusESI está configurado para despliegue en Railway siguiendo el enfoque **Majestic Monolith** oficial de Laravel. El proyecto se ejecuta mediante cuatro servicios coordinados:
+
+| Servicio | Rol | Script asociado |
+|----------|-----|-----------------|
+| **App Service** | Endpoints HTTP y Web API | `railway/init-app.sh` (pre-deploy) |
+| **Worker Service** | Procesa la cola (`queue:work`) | `railway/run-worker.sh` |
+| **Cron Service** | Ejecuta el scheduler (`schedule:run`) cada minuto | `railway/run-cron.sh` |
+| **MySQL** | Base de datos gestionada por Railway | n/a |
 
 **Guías de despliegue:**
 - 📖 **[RAILWAY-QUICKSTART.md](RAILWAY-QUICKSTART.md)** - Guía rápida (15 min)
@@ -224,16 +244,24 @@ NexusESI está configurado para despliegue en Railway con arquitectura de dos se
 
 **Características:**
 - ✅ Despliegue automático desde Git
-- ✅ MySQL incluido
-- ✅ HTTPS automático
-- ✅ Queue workers y scheduler configurados
-- ✅ ~$5/mes en plan Starter
+- ✅ Servicios separados para HTTP, workers y cron (escalan de forma independiente)
+- ✅ MySQL y HTTPS incluidos en Railway
+- ✅ Logs estructurados vía `LOG_CHANNEL=stderr`
+- ✅ Coste aproximado: ~$6-7/mes en plan Starter (3 servicios + MySQL)
 
-**Archivos de configuración incluidos:**
-- `Backend/nixpacks.toml` - Build config PHP 8.2
-- `Backend/.railway-start.sh` - Script de inicio
-- `Backend/supervisord.conf` - Gestión de procesos
-- `Frontend/nixpacks.toml` - Build config Node 18
+**Variables de entorno clave (compartidas entre servicios):**
+```
+APP_NAME, APP_ENV, APP_DEBUG, APP_KEY, APP_URL, FRONTEND_URL
+DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+JWT_SECRET, JWT_TTL, JWT_REFRESH_TTL
+MAIL_MAILER, SENDGRID_API_KEY, MAIL_FROM_ADDRESS, MAIL_FROM_NAME
+PUSHER_APP_ID, PUSHER_APP_KEY, PUSHER_APP_SECRET, PUSHER_APP_CLUSTER
+QUEUE_CONNECTION=database
+LOG_CHANNEL=stderr
+LOG_STDERR_FORMATTER=\Monolog\Formatter\JsonFormatter
+```
+
+Los servicios Worker y Cron comparten exactamente las mismas variables que el App Service. Railway permite copiarlas mediante el editor RAW de variables.
 
 ### Manual (Alternativo)
 
