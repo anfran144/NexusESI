@@ -100,6 +100,38 @@ La API estará disponible en: http://localhost:8000
 
 ---
 
+## 🚢 Despliegue en Railway
+
+1. **Crear el proyecto y Postgres**
+   - Crea un proyecto nuevo en Railway y despliega un servicio **Postgres**.  
+   - Copia las variables generadas en el panel y usa `env.railway.template` como referencia.
+
+2. **Configurar el App Service (HTTP)**
+   - Fuente: conecta este repo en Railway.  
+   - Build command: `npm run build` (compila los assets Vite).  
+   - Pre-Deploy command: `chmod +x ./railway/init-app.sh && sh ./railway/init-app.sh`.  
+   - Variables: pega las claves requeridas (APP_KEY, JWT_SECRET, credenciales Postgres, SendGrid, Pusher, etc.).  
+   - Networking: genera dominio público solo para el App Service.
+
+3. **Configurar el Cron Service**
+   - Fuente: mismo repo.  
+   - Start command: `chmod +x ./railway/run-cron.sh && sh ./railway/run-cron.sh`.  
+   - Variables: recicla las mismas variables del App Service (puedes usar el modo “Raw Editor” y pegar el mismo bloque).
+
+4. **Configurar el Worker Service**
+   - Fuente: mismo repo.  
+   - Start command: `chmod +x ./railway/run-worker.sh && sh ./railway/run-worker.sh`.  
+   - Variables: iguales que en los servicios anteriores para que compartan claves y base de datos.
+
+5. **Variables y Logging**
+   - Usa Postgres (`DB_CONNECTION=pgsql`) con `DB_URL=${{Postgres.DATABASE_URL}}`.  
+   - Ajusta el logging a consola con `LOG_CHANNEL=stderr` y `LOG_STDERR_FORMATTER=\Monolog\Formatter\JsonFormatter` para visualizar los logs en Railway.  
+   - Define `QUEUE_CONNECTION=database` para que el worker procese la cola con la base de datos.
+
+> Railway detecta Laravel automáticamente mediante Nixpacks, por lo que **no se necesita Dockerfile**. Los scripts del directorio `railway/` cubren las fases de `predeploy`, cron y worker según la guía oficial.
+
+---
+
 ## 📚 Módulos Implementados
 
 ### 1. Autenticación y Correo

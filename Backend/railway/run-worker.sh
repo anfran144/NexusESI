@@ -5,6 +5,5 @@
 echo "🔄 Starting Laravel Queue Worker..."
 
 # This command runs the queue worker.
-# An alternative is to use the php artisan queue:listen command
-php artisan queue:work database --sleep=3 --tries=3 --max-time=3600 --timeout=300
+php artisan queue:work
 
