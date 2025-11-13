@@ -4,8 +4,6 @@
 # Exit the script if any command fails
 set -e
 
-PORT=${PORT:-8080}
-
 # Run migrations
 php artisan migrate --force
 
@@ -17,5 +15,3 @@ php artisan config:cache
 php artisan event:cache
 php artisan route:cache
 php artisan view:cache
-
-php artisan serve --host=0.0.0.0 --port=$PORT
