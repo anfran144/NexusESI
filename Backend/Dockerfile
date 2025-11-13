@@ -10,16 +10,14 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_NO_INTERACTION=1
 
 COPY composer.json composer.lock ./
-RUN --mount=type=cache,id=composer-cache,target=/tmp/cache/composer \
-    composer install \
+RUN composer install \
         --no-dev \
         --no-scripts \
         --prefer-dist \
         --optimize-autoloader
 
 COPY . .
-RUN --mount=type=cache,id=composer-cache,target=/tmp/cache/composer \
-    composer install \
+RUN composer install \
         --no-dev \
         --no-scripts \
         --prefer-dist \
