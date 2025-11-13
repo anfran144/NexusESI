@@ -106,29 +106,36 @@ La API estará disponible en: http://localhost:8000
    - Crea un proyecto nuevo en Railway y despliega un servicio **Postgres**.  
    - Copia las variables generadas en el panel y usa `env.railway.template` como referencia.
 
-2. **Configurar el App Service (HTTP)**
-   - Fuente: conecta este repo en Railway.  
-   - Build command: `npm run build` (compila los assets Vite).  
-   - Pre-Deploy command: `chmod +x ./railway/init-app.sh && sh ./railway/init-app.sh`.  
-   - Variables: pega las claves requeridas (APP_KEY, JWT_SECRET, credenciales Postgres, SendGrid, Pusher, etc.).  
-   - Networking: genera dominio público solo para el App Service.
+2. **Crear imagen Docker**
+   - Railway detecta automáticamente el `Dockerfile` dentro de `Backend/`.  
+   - No necesitas comandos de build personalizados; Railway ejecutará la build usando el Dockerfile multi-stage incluido.
 
-3. **Configurar el Cron Service**
-   - Fuente: mismo repo.  
-   - Start command: `chmod +x ./railway/run-cron.sh && sh ./railway/run-cron.sh`.  
-   - Variables: recicla las mismas variables del App Service (puedes usar el modo “Raw Editor” y pegar el mismo bloque).
+3. **Configurar los servicios**
+   - Crea **tres servicios** dentro del proyecto Railway usando la misma imagen generada:
+     1. **App Service (HTTP)**
+        - Start command: `app` (valor por defecto del contenedor).
+        - Variables: APP_KEY, JWT_SECRET, Postgres (`DB_URL` o credenciales), SendGrid, Pusher, etc.
+        - Exponer puerto: Railway setea `PORT`; no necesitas ajustar nada adicional.
+     2. **Worker Service**
+        - Start command: `worker`.
+        - Variables: las mismas que el App Service.
+        - Puedes ajustar comportamiento del worker con `QUEUE_TRIES`, `QUEUE_TIMEOUT`, `QUEUE_SLEEP`, `QUEUE_MAX_JOBS` o `QUEUE_MAX_TIME`.
+     3. **Cron Service**
+        - Start command: `cron`.
+        - Variables: mismas que el App Service.
+        - Ajusta el intervalo si lo requieres con `SCHEDULER_INTERVAL_SECONDS` (por defecto 60 segundos).
 
-4. **Configurar el Worker Service**
-   - Fuente: mismo repo.  
-   - Start command: `chmod +x ./railway/run-worker.sh && sh ./railway/run-worker.sh`.  
-   - Variables: iguales que en los servicios anteriores para que compartan claves y base de datos.
+4. **Scripts auxiliares**
+   - El contenedor usa los scripts en `railway/`:
+     - `entrypoint.sh`: despacha según la variable `CONTAINER_ROLE` o el start command (`app`, `worker`, `cron`).
+     - `init-app.sh`: ejecuta migraciones y cachea la aplicación antes de iniciar Apache.
+     - `run-worker.sh`: lanza el worker y admite variables de entorno para tiempos/colas.
+     - `run-cron.sh`: ejecuta el scheduler en un loop cada 60s (configurable).
 
 5. **Variables y Logging**
    - Usa Postgres (`DB_CONNECTION=pgsql`) con `DB_URL=${{Postgres.DATABASE_URL}}`.  
    - Ajusta el logging a consola con `LOG_CHANNEL=stderr` y `LOG_STDERR_FORMATTER=\Monolog\Formatter\JsonFormatter` para visualizar los logs en Railway.  
    - Define `QUEUE_CONNECTION=database` para que el worker procese la cola con la base de datos.
-
-> Railway detecta Laravel automáticamente mediante Nixpacks, por lo que **no se necesita Dockerfile**. Los scripts del directorio `railway/` cubren las fases de `predeploy`, cron y worker según la guía oficial.
 
 ---
 

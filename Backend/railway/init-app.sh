@@ -1,17 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Make sure this file has executable permissions, run `chmod +x railway/init-app.sh`
 
-# Exit the script if any command fails
-set -e
+set -euo pipefail
 
-# Run migrations
-php artisan migrate --force
+APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${APP_ROOT}"
 
-# Clear cache
-php artisan optimize:clear
+echo "▶️  Running Laravel initialization tasks..."
 
-# Cache the various components of the Laravel application
-php artisan config:cache
-php artisan event:cache
-php artisan route:cache
-php artisan view:cache
+php artisan package:discover --ansi
+php artisan migrate --force --ansi
+php artisan optimize:clear --ansi
+php artisan config:cache --ansi
+php artisan event:cache --ansi
+php artisan route:cache --ansi
+php artisan view:cache --ansi
+
+echo "✅ Laravel initialization completed."
