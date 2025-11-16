@@ -42,7 +42,8 @@ RUN composer install \
         --no-dev \
         --no-progress \
         --no-interaction \
-        --optimize-autoloader
+        --optimize-autoloader \
+        --no-scripts
 
 COPY . .
 RUN composer install \
@@ -50,7 +51,8 @@ RUN composer install \
         --no-dev \
         --no-progress \
         --no-interaction \
-        --optimize-autoloader
+        --optimize-autoloader \
+        --no-scripts
 
 ###############################################
 # Stage 2: Build frontend assets (optional)
