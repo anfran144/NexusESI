@@ -1,20 +1,23 @@
 .env
 .env.*
-node_modules
-vendor
-storage/framework/cache/*
-storage/framework/sessions/*
-storage/framework/testing/*
-storage/framework/views/*
-storage/logs/*
-bootstrap/cache/*.php
+/vendor
+/node_modules
+/storage/app/public
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/logs
+/bootstrap/cache/*.php
 docker-compose.yml
-docker/
+Dockerfile.*
+*.log
+*.tmp
 .git
 .gitignore
 .github
-npm-debug.log
-yarn-error.log
-pnpm-debug.log
+tests
+
+
+
 
 

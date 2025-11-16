@@ -100,42 +100,37 @@ La API estará disponible en: http://localhost:8000
 
 ---
 
-## 🚢 Despliegue en Railway
+## 🐳 Ejecución con Docker
 
-1. **Crear el proyecto y Postgres**
-   - Crea un proyecto nuevo en Railway y despliega un servicio **Postgres**.  
-   - Copia las variables generadas en el panel y usa `env.railway.template` como referencia.
+### Build de la imagen
 
-2. **Crear imagen Docker**
-   - Railway detecta automáticamente el `Dockerfile` dentro de `Backend/`.  
-   - No necesitas comandos de build personalizados; Railway ejecutará la build usando el Dockerfile multi-stage incluido.
+```bash
+docker build -t nexusesi-backend .
+```
 
-3. **Configurar los servicios**
-   - Crea **tres servicios** dentro del proyecto Railway usando la misma imagen generada:
-     1. **App Service (HTTP)**
-        - Start command: `app` (valor por defecto del contenedor).
-        - Variables: APP_KEY, JWT_SECRET, Postgres (`DB_URL` o credenciales), SendGrid, Pusher, etc.
-        - Exponer puerto: Railway setea `PORT`; no necesitas ajustar nada adicional.
-     2. **Worker Service**
-        - Start command: `worker`.
-        - Variables: las mismas que el App Service.
-        - Puedes ajustar comportamiento del worker con `QUEUE_TRIES`, `QUEUE_TIMEOUT`, `QUEUE_SLEEP`, `QUEUE_MAX_JOBS` o `QUEUE_MAX_TIME`.
-     3. **Cron Service**
-        - Start command: `cron`.
-        - Variables: mismas que el App Service.
-        - Ajusta el intervalo si lo requieres con `SCHEDULER_INTERVAL_SECONDS` (por defecto 60 segundos).
+### Ejecutar el contenedor
 
-4. **Scripts auxiliares**
-   - El contenedor usa los scripts en `railway/`:
-     - `entrypoint.sh`: despacha según la variable `CONTAINER_ROLE` o el start command (`app`, `worker`, `cron`).
-     - `init-app.sh`: ejecuta migraciones y cachea la aplicación antes de iniciar Apache.
-     - `run-worker.sh`: lanza el worker y admite variables de entorno para tiempos/colas.
-     - `run-cron.sh`: ejecuta el scheduler en un loop cada 60s (configurable).
+```bash
+docker run -d \
+    --name nexusesi-backend \
+    -p 8080:80 \
+    -e APP_KEY=base64:tu_app_key_aqui \
+    -e APP_ENV=production \
+    -e APP_DEBUG=false \
+    -e DB_CONNECTION=mysql \
+    -e DB_HOST=host_de_base_datos \
+    -e DB_PORT=3306 \
+    -e DB_DATABASE=nexusesi \
+    -e DB_USERNAME=usuario \
+    -e DB_PASSWORD=clave \
+    nexusesi-backend
+```
 
-5. **Variables y Logging**
-   - Usa Postgres (`DB_CONNECTION=pgsql`) con `DB_URL=${{Postgres.DATABASE_URL}}`.  
-   - Ajusta el logging a consola con `LOG_CHANNEL=stderr` y `LOG_STDERR_FORMATTER=\Monolog\Formatter\JsonFormatter` para visualizar los logs en Railway.  
-   - Define `QUEUE_CONNECTION=database` para que el worker procese la cola con la base de datos.
+El backend quedará expuesto en `http://localhost:8080`. Ajusta las variables de entorno según tu configuración (por ejemplo, `QUEUE_CONNECTION`, `MAIL_*`, etc.). Para ejecutar comandos adicionales (migraciones, seeders), entra al contenedor:
+
+```bash
+docker exec -it nexusesi-backend bash
+```
 
 ---
 
