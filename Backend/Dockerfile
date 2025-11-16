@@ -1,20 +1,81 @@
 # syntax=docker/dockerfile:1.6
 
 # ---------------------------------------------
-# Etapa 1: 'vendor' - (Sin cambios)
+# Etapa 1: 'vendor' - Instalar dependencias PHP
 # ---------------------------------------------
     FROM php:8.3-cli AS vendor
     WORKDIR /var/www/html
-    # ... (todo lo de composer install, etc. va aquí)...
-    # ... (asegúrate de que COPIAS el nuevo script aquí también)...
+    
+    ENV COMPOSER_ALLOW_SUPERUSER=1 \
+        COMPOSER_NO_INTERACTION=1
+    
+    # Instalar dependencias del sistema y extensiones de PHP
+    RUN apt-get update && apt-get install -y \
+            git \
+            unzip \
+            libgmp-dev \
+            libpng-dev \
+            libjpeg-dev \
+            libfreetype6-dev \
+            libonig-dev \
+            libzip-dev \
+            libxml2-dev \
+            libicu-dev \
+            libpq-dev \
+        && docker-php-ext-configure gd --with-freetype --with-jpeg \
+        && docker-php-ext-install -j$(nproc) \
+            bcmath \
+            gd \
+            gmp \
+            intl \
+            opcache \
+            pcntl \
+            pdo_mysql \
+            pdo_pgsql \
+            zip \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+    
+    # Instalar Composer
+    RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+        && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+        && php -r "unlink('composer-setup.php');"
+    
+    # Copiar solo composer.json/lock e instalar (para caché de Docker)
+    COPY composer.json composer.lock ./
+    RUN composer install \
+            --prefer-dist \
+            --no-dev \
+            --no-progress \
+            --optimize-autoloader \
+            --no-scripts
+    
+    # Copiar el resto del código (incluyendo tu 'docker-entrypoint.sh')
     COPY . .
     
     
     # ---------------------------------------------
-    # Etapa 2: 'frontend' - (Sin cambios)
+    # Etapa 2: 'frontend' - Compilar assets
     # ---------------------------------------------
     FROM node:20 AS frontend
-    # ... (todo lo de npm build va aquí)...
+    WORKDIR /var/www/html
+    
+    # Copiar archivos de configuración de Node
+    COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* .npmrc* ./
+    RUN if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; \
+        elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm install --frozen-lockfile; \
+        elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
+        else npm install --no-audit --no-fund; \
+        fi
+    
+    # Copiar archivos fuente para compilación de assets
+    COPY --from=vendor /var/www/html/resources ./resources
+    COPY --from=vendor /var/www/html/vite.config.js ./vite.config.js
+    COPY --from=vendor /var/www/html/tailwind.config.* ./
+    COPY --from=vendor /var/www/html/postcss.config.* ./
+    
+    # Compilar assets
+    RUN npm run build || echo "Skipping asset build."
     
     
     # ---------------------------------------------
@@ -26,8 +87,36 @@
         APP_ENV=production \
         APP_DEBUG=0
     
-    # ... (toda la instalación de extensiones de PHP va aquí)...
-    # ... (toda la configuración de Apache va aquí)...
+    # Instalar extensiones de PHP (solo las necesarias para apache)
+    RUN apt-get update && apt-get install -y \
+            libgmp-dev \
+            libpng-dev \
+            libjpeg-dev \
+            libfreetype6-dev \
+            libonig-dev \
+            libzip-dev \
+            libxml2-dev \
+            libicu-dev \
+            libpq-dev \
+        && docker-php-ext-configure gd --with-freetype --with-jpeg \
+        && docker-php-ext-install -j$(nproc) \
+            bcmath \
+            gd \
+            gmp \
+            intl \
+            opcache \
+            pcntl \
+            pdo_mysql \
+            pdo_pgsql \
+            zip \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+    
+    # Configurar Apache
+    RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
+            /etc/apache2/sites-available/*.conf \
+            /etc/apache2/conf-available/*.conf \
+        && a2enmod rewrite headers
     
     WORKDIR /var/www/html
     
@@ -66,7 +155,30 @@
     ENV APP_ENV=production \
         APP_DEBUG=0
     
-    # ... (toda la instalación de extensiones de PHP va aquí)...
+    # Instalar extensiones de PHP (igual que 'vendor')
+    RUN apt-get update && apt-get install -y \
+            libgmp-dev \
+            libpng-dev \
+            libjpeg-dev \
+            libfreetype6-dev \
+            libonig-dev \
+            libzip-dev \
+            libxml2-dev \
+            libicu-dev \
+            libpq-dev \
+        && docker-php-ext-configure gd --with-freetype --with-jpeg \
+        && docker-php-ext-install -j$(nproc) \
+            bcmath \
+            gd \
+            gmp \
+            intl \
+            opcache \
+            pcntl \
+            pdo_mysql \
+            pdo_pgsql \
+            zip \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
     
     WORKDIR /var/www/html
     
