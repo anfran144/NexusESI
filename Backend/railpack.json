@@ -1,7 +1,11 @@
 {
     "php": {
-      "extensions": ["gd", "gmp"]
+      "extensions": ["gd", "gmp", "zip"]
     }
+      ,
+  "web": {
+    "rootDirectory": "public"
+  }
   }
 
   
