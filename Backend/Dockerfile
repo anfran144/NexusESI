@@ -50,7 +50,7 @@
             --optimize-autoloader \
             --no-scripts
     
-    # Copiar el resto del código (incluyendo tu 'docker-entrypoint.sh')
+    # Copiar el resto del código (incluyendo la carpeta 'railway')
     COPY . .
     
     
@@ -60,7 +60,6 @@
     FROM node:20 AS frontend
     WORKDIR /var/www/html
     
-    # Copiar archivos de configuración de Node
     COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* .npmrc* ./
     RUN if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; \
         elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm install --frozen-lockfile; \
@@ -68,13 +67,11 @@
         else npm install --no-audit --no-fund; \
         fi
     
-    # Copiar archivos fuente para compilación de assets
     COPY --from=vendor /var/www/html/resources ./resources
     COPY --from=vendor /var/www/html/vite.config.js ./vite.config.js
     COPY --from=vendor /var/www/html/tailwind.config.* ./
     COPY --from=vendor /var/www/html/postcss.config.* ./
     
-    # Compilar assets
     RUN npm run build || echo "Skipping asset build."
     
     
@@ -87,7 +84,7 @@
         APP_ENV=production \
         APP_DEBUG=0
     
-    # Instalar extensiones de PHP (solo las necesarias para apache)
+    # Instalar extensiones de PHP
     RUN apt-get update && apt-get install -y \
             libgmp-dev \
             libpng-dev \
@@ -120,30 +117,17 @@
     
     WORKDIR /var/www/html
     
-    # Copiar archivos de la aplicación desde 'vendor'
     COPY --from=vendor /var/www/html /var/www/html
-    
-    # Copiar assets compilados desde 'frontend'
     COPY --from=frontend /var/www/html/public/build /var/www/html/public/build
     
-    # Configurar permisos
+    # Dar permisos
+    RUN chmod +x /var/www/html/railway/*.sh # Importante: hacer ejecutables los scripts
     RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs \
         && chown -R www-data:www-data storage bootstrap/cache
     
-    # ----- ¡AQUÍ ESTÁ LA MAGIA! -----
-    # 1. Copia el script de entrypoint desde la etapa 'vendor'
-    COPY --from=vendor /var/www/html/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-    
-    # 2. Dale permisos de ejecución
-    RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-    
-    # 3. Dile a Docker que use este script como punto de entrada
-    ENTRYPOINT ["docker-entrypoint.sh"]
-    # ------------------------------------
-    
     USER www-data
     
-    # 4. El CMD ahora se pasa como argumento al ENTRYPOINT
+    # Comando de inicio por defecto para el servicio web
     CMD ["apache2-foreground"]
     
     
@@ -155,7 +139,7 @@
     ENV APP_ENV=production \
         APP_DEBUG=0
     
-    # Instalar extensiones de PHP (igual que 'vendor')
+    # Instalar extensiones de PHP
     RUN apt-get update && apt-get install -y \
             libgmp-dev \
             libpng-dev \
@@ -182,25 +166,14 @@
     
     WORKDIR /var/www/html
     
-    # Copiar archivos de la aplicación desde 'vendor'
     COPY --from=vendor /var/www/html /var/www/html
     
-    # Configurar permisos
+    # Dar permisos
+    RUN chmod +x /var/www/html/railway/*.sh # Importante: hacer ejecutables los scripts
     RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs \
         && chown -R www-data:www-data storage bootstrap/cache
     
-    # ----- ¡AQUÍ ESTÁ LA MAGIA (DE NUEVO)! -----
-    # 1. Copia el script de entrypoint
-    COPY --from=vendor /var/www/html/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-    
-    # 2. Dale permisos de ejecución
-    RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-    
-    # 3. Configura el ENTRYPOINT
-    ENTRYPOINT ["docker-entrypoint.sh"]
-    # ------------------------------------
-    
     USER www-data
     
-    # 4. El CMD por defecto para el worker
-    CMD ["php", "artisan", "queue:work", "--sleep=3", "--tries=3"]
+    # Comando de inicio por defecto (que será sobreescrito por Railway)
+    CMD ["php", "artisan", "queue:work"]
